@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #1e1e2f;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 90%;
+            max-width: 1200px;
+        }
+
+        .text-section {
+            flex: 1;
+            text-align: left;
+        }
+
+        .text-section h1 {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 0;
+            color: #ffd700;
+        }
+
+        .text-section p {
+            margin: 20px 0;
+            font-size: 18px;
+            color: #ccc;
+        }
+
+        .form-section {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .form-container {
+            background-color: #2a2a40;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .form-container h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #ffd700;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #ddd;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: #3a3a52;
+            color: #fff;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #ffd700;
+            border: none;
+            border-radius: 5px;
+            color: #333;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #e5c100;
+        }
+
+        .text-center {
+            margin-top: 15px;
+            color: #ccc;
+            text-align: center;
+        }
+
+        .text-center a {
+            color: #ffd700;
+            text-decoration: none;
+        }
+
+        .text-center a:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            color: red;
+            text-align: center;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            margin: 10px auto;
+            padding: 8px;
+            border-radius: 5px;
+            width: fit-content;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <!-- Text Section -->
+        <div class="text-section">
+            <h1>Admin Panel</h1>
+            <p>Securely manage the system and monitor all activities from here.</p>
+        </div>
+
+        <!-- Form Section -->
+        <div class="form-section">
+            <div class="form-container">
+                <h2>Admin Login</h2>
+                <% if (typeof message !== 'undefined') { %>
+                    <p class="message"><%= message %></p>
+                <% } %>
+                <form action="/admin/login" method="POST">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="Enter your admin email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn">Login</button>
+                    </div>
+                </form>
+                <p class="text-center">Forgot password? <a href="/admin/reset-password">Reset here</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+

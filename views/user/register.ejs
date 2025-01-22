@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .register-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 90%;
+            max-width: 1200px;
+        }
+
+        .text-section {
+            flex: 1;
+            text-align: left;
+        }
+
+        .text-section h1 {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .text-section p {
+            margin: 20px 0;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .form-section {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .form-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .form-container h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #218838;
+        }
+
+        .text-center {
+            margin-top: 15px;
+            color: #555;
+            text-align: center;
+        }
+
+        .text-center a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .text-center a:hover {
+            text-decoration: underline;
+        }
+        
+        .error-message{
+            color: red;
+            font: size 0.75em;
+            display: none;
+        }
+
+        .google-signup-btn {
+        background-color: #4285F4;
+        color: white;
+        width: 100%;
+        margin-top: 10px;
+        display: block;
+        text-align: center;
+        border: none;
+        padding: 10px 0;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        }
+
+        .google-signup-btn:hover {
+            background-color: #357ae8;
+        }
+
+        .google-signup-btn i {
+            margin-right: 10px;
+        }
+
+        .message {
+            color: red;
+            text-align: center;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            margin: 10px auto;
+            padding: 8px;
+            border-radius: 5px;
+            width: fit-content;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="register-container">
+        <!-- Text Section -->
+        <div class="text-section">
+            <h1>Join Us</h1>
+            <p>Create an account to explore and enjoy an amazing shopping experience!</p>
+        </div>
+
+        <!-- Form Section -->
+        <div class="form-section">
+            <div class="form-container">
+                <h2>Register</h2>
+                <% if (typeof message !== 'undefined') { %>
+                    <p class="message" style="color: red;"><%= message %></p>
+                    <% } %>
+                <form id="sign-form" action="/register" method="POST">
+                    <div class="form-group">
+                        <label for="name">Fullname</label>
+                        <input type="text" id="name" name="name" class="form-control" placeholder="Enter your fullname" required>
+                        <div id="name-error" class="error-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
+                        <div id="email-error" class="error-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="number" id="phone" name="phone" class="form-control" placeholder="Enter your phone number" required>
+                        <div id="phone-error" class="error-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+                        <div id="password-error" class="error-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm Password</label>
+                        <input type="password" id="confirm-password" name="confirm-password" class="form-control" placeholder="Confirm your password" required>
+                        <div id="confirm-password-error" class="error-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn">Register</button>
+                    </div>
+                </form>
+
+                <!-- Google Sign-Up Button -->
+                <div class="form-group">
+                    <p class="text-center">or</p>
+                    <button onclick="window.location.href='/auth/google'" class="google-signup-btn">
+                        <i class="fab fa-google"></i> Sign Up with Google
+                    </button>
+                </div>
+
+                <p class="text-center">Already have an account? <a href="/login">Login here</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+<script>
+    const name=document.getElementById('name')
+    const email=document.getElementById('email')
+    const phone=document.getElementById('phone')
+    const password=document.getElementById('password')
+    const cpassword=document.getElementById('confirm-password')
+
+    const nameerror=document.getElementById('name-error')
+    const emailerror=document.getElementById('email-error')
+    const phoneerror=document.getElementById('phone-error')
+    const passworderror=document.getElementById('password-error')
+    const cpassworderror=document.getElementById('confirm-password-error')
+
+    const signform=document.getElementById('sign-form')
+      
+
+
+    function nameValidateChecking(e) {
+    const nameval = name.value.trim();  
+    const namepattern = /^[A-Za-z\s]+$/;  
+
+    if (nameval === "") {
+        nameerror.style.display = "block";
+        nameerror.innerHTML = "Please enter a valid name";
+    } else if (!namepattern.test(nameval)) {
+        nameerror.style.display = "block";
+        nameerror.innerHTML = "Name can only contain alphabets and spaces";
+    } else {
+        nameerror.style.display = "none";  
+        nameerror.innerHTML = "";
+    }
+}
+
+
+
+    function emailValidateChecking(e) {
+        const emailval=email.value.trim();
+        const emailpattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if(!emailpattern.test(emailval)){
+            emailerror.style.display="block"
+            emailerror.innerHTML="Invalid email format"
+        }
+        else{
+            emailerror.style.display="none"
+            emailerror.innerHTML=""
+        }
+    }
+
+
+
+    
+    function phoneValidateChecking(e) {
+        const phoneval=phone.value.trim();
+        const phonepattern = /^[0-9]{3}[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
+
+        if(phoneval===""){
+            phoneerror.style.display="block"
+            phoneerror.innerHTML="Enter a valid phone number"
+        }
+        else if(!phonepattern.test(phoneval)){
+            phoneerror.style.display="block"
+            phoneerror.innerHTML="Invalid number"
+        }
+        else{
+            phoneerror.style.display="none"
+            phoneerror.innerHTML=""
+        }
+    }
+
+
+
+
+    function passValidateChecking(e) {
+    const passwordval = password.value.trim();
+    const cpasswordval = cpassword.value.trim();
+
+    const passwordpattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (passwordval === "") {
+        passworderror.style.display = "block";
+        passworderror.innerHTML = "Enter a valid password";
+    }
+
+    else if (!passwordpattern.test(passwordval)) {
+        passworderror.style.display = "block";
+        passworderror.innerHTML = "Password must contain ";
+
+        if (!/[a-z]/.test(passwordval)) {
+            passworderror.innerHTML += "at least one lowercase letter.";
+        } else if (!/[A-Z]/.test(passwordval)) {
+            passworderror.innerHTML += "at least one uppercase letter.";
+        } else if (!/\d/.test(passwordval)) {
+            passworderror.innerHTML += "at least one number.";
+        } else if (!/[@$!%*?&]/.test(passwordval)) {
+            passworderror.innerHTML += "at least one special character (e.g., @, $, !, %).";
+        } else if (passwordval.length < 8) {
+            passworderror.innerHTML += "at least 8 characters.";
+        }
+    } else {
+        passworderror.style.display = "none";
+        passworderror.innerHTML = "";
+    }
+
+   
+    if (passwordval !== cpasswordval) {
+        cpassworderror.style.display = "block";
+        cpassworderror.innerHTML = "Password not matching";
+    } else {
+        cpassworderror.style.display = "none";
+        cpassworderror.innerHTML = "";
+    }
+}
+
+
+
+
+    document.addEventListener("DOMContentLoaded",()=>{
+        signform.addEventListener('submit',(e)=>{
+
+            nameValidateChecking()
+            emailValidateChecking()
+            phoneValidateChecking()
+            passValidateChecking()
+
+            if(
+            !name||
+            !email||
+            !phone||
+            !password||
+            !nameerror||
+            !emailerror||
+            !phoneerror||
+            !passworderror||
+            !cpassworderror||
+            !signform
+            ){
+                console.log('One or more elements not found')
+            }
+
+            if(
+                nameerror.innerHTML||
+                emailerror.innerHTML||
+                passworderror.innerHTML||
+                phoneerror.innerHTML||
+                cpassworderror.innerHTML
+            ){
+                e.preventDefault()
+            }
+
+        })
+    })
+    
+</script>

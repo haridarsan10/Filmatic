@@ -1,0 +1,97 @@
+<%- include("../partials/admin/admin-header") %>
+    <main class="main-content">
+        <div class="breadcrumbs">
+            Admin <span>></span> <span id="currentPage">Dashboard</span>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Total Sales</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Customers</h3>  
+                </div>
+                <div class="chart-container">
+                    <canvas id="customersChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Total Orders</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="ordersChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card recent-orders">
+            <div class="card-header">
+                <h3 class="card-title">Recent Orders</h3>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Breaking Bad T-shirt</td>
+                        <td>Jan 20, 2025</td>
+                        <td>₹999</td>
+                        <td><span class="status completed">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td>Marvel cup</td>
+                        <td>Jan 19, 2025</td>
+                        <td>₹599</td>
+                        <td><span class="status pending">Pending</span></td>
+                    </tr>
+                    <tr>
+                        <td>Batman Poster</td>
+                        <td>Jan 19, 2025</td>
+                        <td>₹299</td>
+                        <td><span class="status completed">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td>Sponge Bob T-shirt</td>
+                        <td>Jan 18, 2025</td>
+                        <td>₹899</td>
+                        <td><span class="status completed">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td>Pulp Fiction Poster</td>
+                        <td>Jan 18, 2025</td>
+                        <td>₹199</td>
+                        <td><span class="status pending">Pending</span></td>
+                    </tr>
+                    <tr>
+                        <td>John wick T-shirt</td>
+                        <td>Jan 17, 2025</td>
+                        <td>₹999</td>
+                        <td><span class="status completed">Completed</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card best-selling">
+            <div class="card-header">
+                <h3 class="card-title">Best Selling This Month</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="bestSellingChart"></canvas>
+            </div>
+        </div>
+    </main>
+    <%- include("../partials/admin/admin-footer") %>
