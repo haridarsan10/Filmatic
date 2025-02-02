@@ -6,9 +6,10 @@
     <title>Filmatic - Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
+   
     <style>
-      * {
+    
+    * {
    margin: 0;
    padding: 0;
    box-sizing: border-box;
@@ -143,7 +144,8 @@ body {
    z-index: 200;
 }
 
-.profile-dropdown:hover .dropdown-menu {
+.profile-dropdown:hover .dropdown-menu,
+.dropdown-menu:hover {
    display: block;
 }
 
@@ -253,7 +255,7 @@ body {
 }
 
 .best-selling {
-   grid-column: span 3;
+   grid-column: span 3;
 }
 
 
@@ -264,13 +266,17 @@ body {
     <!-- Sidebar -->
     <div class="sidebar">
         <nav>
-            <a href="#" class="nav-item" data-page="Dashboard">
+            <a href="/admin" class="nav-item" data-page="Dashboard">
                 <i class="fas fa-chart-line"></i>
                 Dashboard
             </a>
             <a href="/admin/products" class="nav-item" data-page="Products">
+               <i class="fas fa-box"></i>
+               Products
+           </a>
+            <a href="/admin/addProducts" class="nav-item" data-page="Products">
                 <i class="fas fa-box"></i>
-                Products
+                Add Products
             </a>
             <a href="/admin/orders" class="nav-item" data-page="Orders">
                 <i class="fas fa-shopping-cart"></i>

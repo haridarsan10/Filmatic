@@ -1,4 +1,6 @@
 const User=require('../../models/userSchema')
+const Product=require('../../models/productSchema')
+const Category=require('../../models/categorySchema')
 const nodemailer=require('nodemailer')
 const env=require('dotenv').config()
 const bcrypt=require('bcrypt')
@@ -6,17 +8,28 @@ const bcrypt=require('bcrypt')
 const loadHomepage=async (req,res) => {
   try {
     const user=req.session.user;
+    const Categories=await Category.find({isListed:true})
+    const filter = {
+      isBlocked:false,
+      category:{$in:Categories.map(category=>category._id)},
+      quantity:{$gt:0}
+    }
+    let productData=await Product.find(filter).limit(4)
+
+    productData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn))
     
+
     if(user){
       const userData=await User.findOne({_id:user})
-      return res.render("home",{user:userData})
+      return res.render("home",{user:userData,products:productData})
     }
     else{
-      return res.render("home")
+      return res.render("home",{products:productData})
     }
 
   } catch (error) {
     console.log('Homepage not found')
+    console.log(error)
     res.status(500).send("Server error")
   }
 }
@@ -24,7 +37,9 @@ const loadHomepage=async (req,res) => {
 const loadLoginpage=async (req,res) => {
   try {
     if(!req.session.user){
-      res.render('login')
+      const loginError = req.session?.userLoginError;
+      req.session.userLoginError = null;
+      return res.render('login', {message:loginError})
     }
     else{
       res.redirect('/')
@@ -37,8 +52,17 @@ const loadLoginpage=async (req,res) => {
 
 const loadRegisterpage=async (req,res) => {
   try {
-    return res.render("register")
+    if(!req.session.user){
+      const errorMessage=req.session.signupError
+      req.session.signupError=null;
+      return res.render("register",{
+        message:errorMessage
+      })
+    }else{
+      res.redirect('/')
+    }
   } catch (error) {
+    console.log(error)
     console.log('Homepage not found')
     res.status(500).send("Server error")
   }
@@ -97,7 +121,8 @@ const signup=async (req,res) => {
     const findUser= await User.findOne({email})
 
     if(findUser){
-     return res.render('register',{message:"Email already exists"})
+      req.session.signupError="Email already exists"
+     return res.redirect('/register')
     }
 
     const otp=generateOtp();
@@ -200,10 +225,14 @@ const login=async (req,res) => {
   const findUser=await User.findOne({isAdmin:0,email:email})
 
   if(!findUser){
-    return res.render('login',{message:"User not found"})
-  }
+
+    req.session.userLoginError = "User not found"
+    return res.redirect('/login') 
+   }
+
   if(findUser.isBlocked){
-    return res.render('login',{message:"User is blocked"})
+    req.session.userLoginError = "User is blocked"
+    return res.redirect('/login')
   }
 
   const passwordMatch=await bcrypt.compare(password,findUser.password)
@@ -212,13 +241,15 @@ const login=async (req,res) => {
     req.session.user=findUser._id
     res.redirect('/')
   }
-  else{
-    res.render('login',{message:"Incorrect Password"})
+  else{    
+    req.session.userLoginError = "Incorrect Password"
+    return res.redirect('/login')
   }
 
   } catch (error) {
     console.error('Login error',error)
-    res.render('login',{message:"Login failed"})
+    req.session.userLoginError = "Login Failed"
+    return res.redirect('/login')
   }
 
 }
@@ -247,6 +278,48 @@ const pageNotFound =async (req,res) => {
   }
 }
 
+const loadShopPage=async (req,res) => {
+  try {
+
+    const user=req.session.user
+    const userData=await User.findOne({_id:user})
+    const categories=await Category.find({isListed:true})
+    const categoryIds=categories.map((category)=>category._id.toString())
+    const page=parseInt(req.query.page) || 1;
+    const limit=9
+    const skip=(page-1)*limit;
+    const products=await Product.find({
+      isBlocked:false,
+      category:{$in:categoryIds},
+      quantity:{$gt:0}
+    }).sort({createdOn:-1}).skip(skip).limit(limit)
+
+
+    const totalProducts=await Product.countDocuments({
+      isBlocked:false,
+      category:{$in:categoryIds},
+      quantity:{$gt:0}
+    })
+
+    const totalPages=Math.ceil(totalProducts/limit)
+
+    const categoriesWithIds=categories.map(category=>({_id:category._id,name:category.name}))
+
+    res.render('shop',{
+      user:userData,
+      products:products,
+      category:categoriesWithIds,
+      totalProducts:totalProducts,
+      currentPage:page,
+      totalPages:totalPages
+    })
+
+  } catch (error) {
+    console.log(error)
+    res.redirect('/pageNotFound')
+  }
+}
+
 module.exports={
   loadHomepage,
   loadLoginpage,
@@ -256,5 +329,6 @@ module.exports={
   verifyOtp,
   resendOtp,
   logout,
-  pageNotFound
+  pageNotFound,
+  loadShopPage
 }

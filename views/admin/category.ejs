@@ -3,156 +3,94 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"/>
  
   <style>
-    body {
-      font-family: Arial, sans-serif;
+     body {
+      font-family: 'Poppins', Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f8f9fa;
+      padding-left: 250px;
+      background-color: #f5f7fa;
+      color: #495057;
     }
 
     .content-main {
       margin: 120px auto 60px auto;
-      padding: 20px;
+      padding: 30px;
       max-width: 1200px;
-      margin-left: 250px;
       background-color: #fff;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      border-radius: 15px;
     }
 
     .content-header {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 40px;
     }
 
     .content-title {
-      font-size: 2rem;
-      font-weight: bold;
+      font-size: 2.5rem;
+      font-weight: 600;
       color: #343a40;
-    }
-
-    .card {
-      padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
+      text-transform: uppercase;
     }
 
     .form-control {
       width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+      transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
     }
 
     .btn-primary {
       background-color: #007bff;
       color: #fff;
-      border: 1px solid #007bff;
-      border-radius: 5px;
-      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 25px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      font-size: 1rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
     }
 
     .btn-primary:hover {
       background-color: #0056b3;
-      border-color: #0056b3;
+      box-shadow: 0 4px 8px rgba(0, 91, 187, 0.3);
     }
 
     .table {
       width: 100%;
       border-collapse: collapse;
+      margin-top: 20px;
     }
 
     .table th, .table td {
       text-align: left;
-      padding: 12px 10px;
+      padding: 15px;
       border: 1px solid #ddd;
+      font-size: 0.95rem;
     }
 
     .table th {
       background-color: #f8f9fa;
-      font-weight: bold;
-    }
-
-    .pagination-container {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .pagination a,
-    .pagination .current-page {
-      display: inline-block;
-      padding: 8px 15px;
-      margin: 0 5px;
-      border: 1px solid #ddd;
-      text-decoration: none;
-      color: #333;
-      border-radius: 5px;
-      transition: background-color 0.3s;
-    }
-
-    .pagination a:hover {
-      background-color: #f5f5f5;
-    }
-
-    .pagination .current-page {
-      background-color: #007bff;
-      color: #fff;
-    }
-
-    .error-message {
-      color: red;
-      font-size: 0.9rem;
-      margin-top: 5px;
-    }
-
-    .d-grid {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .btn {
-      padding: 8px 16px;
-      font-size: 1rem;
-      border-radius: 5px;
-      transition: 0.3s;
-    }
-
-    .btn-info {
-      background-color: #17a2b8;
-      color: #fff;
-      border: none;
-    }
-
-    .btn-info:hover {
-      background-color: #138496;
-    }
-
-    .btn-danger {
-      background-color: #dc3545;
-      color: #fff;
-    }
-
-    .btn-danger:hover {
-      background-color: #c82333;
-    }
-
-    .btn-success {
-      background-color: #28a745;
-      color: #fff;
-    }
-
-    .btn-success:hover {
-      background-color: #218838;
+      color: #495057;
+      font-weight: 600;
     }
 
     .badge {
-      padding: 5px 10px;
-      border-radius: 5px;
+      padding: 7px 12px;
+      border-radius: 8px;
       font-size: 0.9rem;
+      text-transform: uppercase;
     }
 
     .alert-success {
@@ -165,23 +103,101 @@
       color: #fff;
     }
 
+
+    .error-message {
+      color: red;
+      font-size: 0.85rem;
+      margin-top: 5px;
+    }
+
+    .btn-info {
+      background-color: #17a2b8;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      transition: 0.3s;
+    }
+
+    .btn-info:hover {
+      background-color: #138496;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      transition: 0.3s;
+    }
+
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+
+    .btn-success {
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      transition: 0.3s;
+    }
+
+    .btn-success:hover {
+      background-color: #218838;
+    }
+
     @media (max-width: 768px) {
       .content-main {
-        padding: 15px;
-      }
-
-      .input-group {
-        width: 100% !important;
+        padding: 20px;
       }
 
       .table th, .table td {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
       }
 
-      .form-control, .btn {
+      .btn {
         font-size: 0.9rem;
       }
     }
+
+    .pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 20px;
+  }
+
+  .pagination-container a,
+  .pagination-container .current-page {
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.2s ease-in-out;
+    border: 1px solid #007bff;
+  }
+
+  .pagination-container a {
+    background: white;
+    color: #007bff;
+  }
+
+  .pagination-container a:hover {
+    background: #007bff;
+    color: white;
+  }
+
+  .pagination-container .current-page {
+    background: #007bff;
+    color: white;
+    border: none;
+    font-weight: bold;
+  }
   </style>
 
 </head>
@@ -192,19 +208,14 @@
         <h2 class="content-title card-title">Category</h2>
       </div>
     </div>
-    <header class="card-header text-center mb-20">
-      <form action="/admin/category/" method="get" class="d-inline">
-        <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px">
-          <input type="text" class="form-control border-0 rounded-pill mt-3" placeholder="Search categories" name="search"/>
-          <button class="btn" type="submit">Search</button>
-        </div>
-      </form>
-    </header>
+    <% if(typeof message !== 'undefined'){ %>
+      <p style="color: red; text-align: center;" ><%= message %></p>
+  <% } %>
     <div class="card">
       <div class="card-body">
         <div class="row">
           <div class="col-md-3">
-            <form method="post" action="/admin/addCategory" onsubmit="return  handelFormSubmit(event)" novalidate>
+            <form method="post" action="" onsubmit="return  handelFormSubmit(event)" novalidate>
               <div class="mb-4">
                 <label for="product_name" class="form-label">Name</label>
                 <input type="text" name="name" placeholder="Type here" class="form-control" id="product_name" required/>
@@ -230,11 +241,12 @@
                     <th class="text-center"></th>
                     <th>Name</th>
                     <th>Description</th>
-                    <th>Offer Price</th>
-                    <th>Offer</th>
+                    <!-- <th>Offer Price</th>
+                    <th>Offer</th> -->
+                    <!-- <th>Status</th> -->
                     <th>Status</th>
-                    <th>List/Unlist</th>
-                    <th class="text-start">Edit</th>
+                    <th class="text-start">Listing</th>
+                    <th>Edit</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -243,30 +255,37 @@
                     <td></td>
                     <td class="text-start"><%=category.name %></td>
                     <td class="text-start"><%=category.description %></td>
-                    <td>
-                    </td>
-                    <td class="text-start">
+                      <!-- <td>
+                        
+                      </td> -->
+                    <!-- <td class="text-start">
                       <button class="btn btn-info" style="width: 100px">
                         <a href="#" class="text-white">Add Offer</a>
                       </button>
                       <button class="btn btn-info"style="width: 100px">
                         <a href="#" class="text-white">Remove</a>
                       </button>
-                    </td>
+                    </td> -->
                     <td class="text-start">
+                      <% if(category.isListed){ %>
                       <span class="badge rounded-pill alert-success" style="width: 60px">Listed</span>
+                      <% }else{ %>
                       <span class="badge rounded-pill alert-danger" style="width: 60px">Unlisted</span>
+                      <% } %>
                     </td>
                     <td class="text-start">
+                      <% if(category.isListed){ %>
                       <button class="btn btn-danger" style="width: 70px">
-                        <a href="#" class="text-white">Unlist</a>
+                        <a href="/admin/listCategory?id=<%= category._id %>" class="text-white">Unlist</a>
                       </button>
+                      <% }else{ %>
                       <button class="btn btn-success" style="width: 70px">
-                        <a href="" class="text-white">List</a>
+                        <a href="/admin/unlistCategory?id=<%= category._id %>" class="text-white">List</a>
                       </button>
+                      <% } %>
                     </td>
                     <td class="text-start">
-                      <a href="" class="btn btn-info text-white">Edit</a>
+                      <a href="/admin/editCategory?id=<%=category._id %>" class="btn btn-info text-white">Edit</a>
                     </td>
                   </tr>
                   <% }) %>
@@ -301,60 +320,20 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script>
 
-    function handelFormSubmit(event){
-      event.preventDefault();
-
-      if(!validateForm()){
-        return;
-      }
-      const name=document.getElementsByName('name')[0].value.trim();
-      const description=document.getElementById('descriptionId').value
-
-      fetch('/admin/addCategory',{
-        method:'POST',
-        headers:{
-          'content-type':'application/json'
-        },
-        body:JSON.stringify({name,description})
-      })
-      .then(response=>{
-        if(!response.ok){
-          return response.json().then(err=>{
-            throw new Error(err.error);
-          })
-        }
-        return response.json();
-      })
-      .then(data=>{
-        location.reload()
-      })
-      .catch((error)=>{
-        if(error.message==="Category already exists"){
-          Swal.fire({
-            icon:'error',
-            title:'Oops',
-            text:'Category already exists'
-          })
-        }else{
-          Swal.fire({
-            icon:'error',
-            title:'Oops',
-            text:'An error occured while adding the category'
-          })  
-        }
-
-      })
-    }
-
-
-    // 
+  
     
-    function handelFormSubmit(event) {
+function handelFormSubmit(event) {
     event.preventDefault();
 
-    // Get the input values
-    const name = document.getElementById('product_name').value.trim();
-    const description = document.getElementById('descriptionId').value.trim();
+    // Get the input values with trim
+    const nameInput = document.getElementById('product_name');
+    const descriptionInput = document.getElementById('descriptionId');
+
+    const name = nameInput ? nameInput.value.trim() : "";
+    const description = descriptionInput ? descriptionInput.value.trim() : "";
+
+    console.log("Trimmed Name:", `"${name}"`);
+    console.log("Trimmed Description:", `"${description}"`);
 
     // Error message containers
     const nameError = document.getElementById('name-error');
@@ -367,42 +346,60 @@
     let isValid = true;
 
     // Validate Name
-    if (!name) {
-      nameError.textContent = 'Name is required.';
-      isValid = false;
+    if (name.length === 0) { 
+        nameError.textContent = 'Name is required.';
+        isValid = false;
     } else if (name.length < 3) {
-      nameError.textContent = 'Name must be at least 3 characters long.';
-      isValid = false;
+        nameError.textContent = 'Name must be at least 3 characters long.';
+        isValid = false;
     }
 
     // Validate Description
-    if (!description) {
-      descriptionError.textContent = 'Description is required.';
-      isValid = false;
+    if (description.length === 0) { 
+        descriptionError.textContent = 'Description is required.';
+        isValid = false;
     } else if (description.length < 5) {
-      descriptionError.textContent = 'Description must be at least 5 characters long.';
-      isValid = false;
+        descriptionError.textContent = 'Description must be at least 5 characters long.';
+        isValid = false;
     }
 
-    // If valid, submit the form
-    if (isValid) {
-      event.target.submit();
-    }
-  }
 
-    function displayErrorMessage(Id,message){
-      var errorElement=document.getElementById('Id')
-      errorElement.innerText=message
-      errorElement.style.display='block';
+    if(isValid){
+      $.ajax({
+      url:'/admin/addCategory',
+      type:'POST',
+      contentType: 'application/json',
+      dataType: 'json',
+      data: JSON.stringify({ name: name, description: description }), 
+      success:function(response){
+        if(response.success){
+          Swal.fire({
+            icon:'success',
+            title:'Success',
+            text:'Category created successfully',
+            showConfirmButton:false,
+            timer:1500
+          })
+        }
+        else{
+          Swal.fire({
+            icon:'error',
+            title:'Error',
+            text:'Category already exists'
+          })
+        }
+      },
+      error:function(){
+        Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Something went wrong. Please try again.'
+            });
+      }
+     })
     }
+}
 
-    function clearErrorMessage(){
-      const errorElements=document.getElementsByClassName('error-message')
-      Array.from(errorElements).forEach((element)=>{
-        element.innerHTML=""
-        element.style.display="none";
-      })
-    }
 
   </script>
 <%- include("../partials/admin/admin-footer") %>

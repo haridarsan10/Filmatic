@@ -7,7 +7,9 @@ const loadLoginpage=(req,res) => {
       res.redirect('/admin')
     }
     else{
-      res.render('admin-login',{message:null})
+      const loginError = req.session?.adminLoginError;
+      req.session.adminLoginError = null;
+      return res.render('admin-login',{message:loginError})
     }
 }
 
@@ -25,10 +27,12 @@ const login=async (req,res) => {
         return res.redirect('/admin')
       }
       else{
+        req.session.adminLoginError = "Password doesn't match"
         return res.redirect('/admin/login')
       }
     }
     else{
+      req.session.adminLoginError = "Admin not found"
       return res.redirect('/admin/login')
     }
 
@@ -73,6 +77,8 @@ const logout=async (req,res) => {
       return res.redirect('/pageError')
     }
 }
+
+
 
 module.exports={
   loadLoginpage,

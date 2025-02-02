@@ -1,7 +1,7 @@
 const mongoose=require("mongoose")
 const {Schema}=mongoose;
 
-const productSchema=new Schema({
+const productSchema=new mongoose.Schema({
   productName:{
     type:String,
     required:true,
@@ -12,7 +12,7 @@ const productSchema=new Schema({
   },
   category:{
     type:Schema.Types.ObjectId,
-    ref:"Category",
+    ref:'Category',
     required:true,
   },
   regularPrice:{
@@ -23,13 +23,13 @@ const productSchema=new Schema({
     type:Number,
     required:true,
   },
-  productOffer:{
-    type:Number,
-    default:0,
-  },
+  // productOffer:{
+  //   type:Number,
+  //   default:0,
+  // },
   quantity:{
     type:Number,
-    default:true
+    required:true
   },
   color:{
     type:String,
@@ -47,10 +47,14 @@ const productSchema=new Schema({
     type:String,
     enum:["In stock","Out of stock","Discontinued"],
     required:true,
-    default:"Available"
+    default:"In stock"
+  },
+  size:{
+    type:String,
+    enum:["XS","S","M","L","XL","XXL"],
   }
 })
 
-const Product=mongoose.Model("Product",productSchema)
+const Product=mongoose.model("Product",productSchema)
 
 module.exports=Product

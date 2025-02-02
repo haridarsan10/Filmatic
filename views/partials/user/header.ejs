@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
+
 <head>
     <meta charset="UTF-8">
     <meta name="description" content="">
@@ -8,23 +9,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
+
     <!-- Title  -->
-    <title>Essence - Fashion Ecommerce Template</title>
+    <title>Filmatic</title>
+
 
     <!-- Favicon  -->
-    <link rel="icon" href="img/core-img/favicon.ico">
+    <!-- <link rel="icon" href="img/core-img/favicon.ico"> -->
+
 
     <!-- Core Style CSS -->
     <link rel="stylesheet" href="css/core-style.css">
     <link rel="stylesheet" href="style.css">
-    
+
+   
     <style>
         .auth-links {
             display: flex;
             gap: 15px;
-            margin-right: 20px;
+            margin-right: 30px;
             align-items: center;
         }
+
 
         .auth-links a {
             font-size: 15px;
@@ -34,15 +40,18 @@
             transition: color 0.3s, text-decoration 0.3s;
         }
 
+
         .auth-links a:hover {
             color: black;
             text-decoration: none;
         }
 
+
         .dropdown {
             position: relative;
             display: inline-block;
         }
+
 
         .dropdown-content {
             display: none;
@@ -55,6 +64,7 @@
             z-index: 1;
         }
 
+
         .dropdown-content a {
             color: grey;
             padding: 8px 16px;
@@ -64,14 +74,17 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
+
         .dropdown-content a:hover {
             background-color: #f0f0f0;
             color: black;
         }
 
+
         .dropdown:hover .dropdown-content {
             display: block;
         }
+
 
         .sign-in-link {
             font-size: 15px;
@@ -81,12 +94,14 @@
             transition: color 0.3s;
         }
 
+
         .sign-in-link:hover {
             color: black;
         }
     </style>
-    
+   
 </head>
+
 
 <body>
     <!-- ##### Header Area Start ##### -->
@@ -95,7 +110,7 @@
             <!-- Classy Menu -->
             <nav class="classy-navbar" id="essenceNav">
                 <!-- Logo -->
-                <a class="nav-brand" href="index.html"><img src="img/core-img/logo.png" alt=""></a>
+                <!-- <a class="nav-brand" href="index.html"><img src="img/core-img/logo.png" alt=""></a> -->
                 <!-- Navbar Toggler -->
                 <div class="classy-navbar-toggler">
                     <span class="navbarToggler"><span></span><span></span><span></span></span>
@@ -109,37 +124,16 @@
                     <!-- Nav Start -->
                     <div class="classynav">
                         <ul>
-                            <li><a href="#">Shop</a>
-                                <div class="megamenu">
-                                    <ul class="single-mega cn-col-4">
-                                        <li class="title">Women's Collection</li>
-                                        <li><a href="shop.html">Dresses</a></li>
-                                        <li><a href="shop.html">Blouses &amp; Shirts</a></li>
-                                        <li><a href="shop.html">T-shirts</a></li>
-                                        <li><a href="shop.html">Rompers</a></li>
-                                        <li><a href="shop.html">Bras &amp; Panties</a></li>
-                                    </ul>
-                                    <ul class="single-mega cn-col-4">
-                                        <li class="title">Men's Collection</li>
-                                        <li><a href="shop.html">T-Shirts</a></li>
-                                        <li><a href="shop.html">Polo</a></li>
-                                        <li><a href="shop.html">Shirts</a></li>
-                                        <li><a href="shop.html">Jackets</a></li>
-                                        <li><a href="shop.html">Trench</a></li>
-                                    </ul>
-                                    <ul class="single-mega cn-col-4">
-                                        <li class="title">Kid's Collection</li>
-                                        <li><a href="shop.html">Dresses</a></li>
-                                        <li><a href="shop.html">Shirts</a></li>
-                                        <li><a href="shop.html">T-shirts</a></li>
-                                        <li><a href="shop.html">Jackets</a></li>
-                                        <li><a href="shop.html">Trench</a></li>
-                                    </ul>
-                                    <div class="single-mega cn-col-4">
-                                        <img src="img/bg-img/bg-6.jpg" alt="">
-                                    </div>
-                                </div>
-                            </li>
+                            <a href="/">
+                            <li >
+                                <span style="font-size: 24px; font-weight: bold; font-family: 'Poppins', sans-serif;
+                                              text-transform: uppercase; letter-spacing: 2px;
+                                              border-radius: 8px;">
+                                  Filmatic
+                                </span>
+                              </li>
+                            </a>
+                            <li><a href="/shop">Shop</a></li>
                             <li><a href="#">Pages</a>
                                 <ul class="dropdown">
                                     <li><a href="index.html">Home</a></li>
@@ -160,6 +154,7 @@
                 </div>
             </nav>
 
+
             <!-- Header Meta Data -->
             <div class="header-meta d-flex clearfix justify-content-end">
                
@@ -171,9 +166,10 @@
                     </form>
                 </div>
 
+
                 <% var user = user || null; %>
                 <div class="auth-links">
-                    <% if (user) { %> 
+                    <% if (user) { %>
                         <!-- If user is logged in, display username and logout option -->
                         <div class="dropdown">
                             <a href="#" class="sign-in-link"><%= user.name %></a>
@@ -182,24 +178,26 @@
                                 <a href="/logout">Logout</a>
                             </div>
                         </div>
-                    <% } else { %> 
+                    <% } else { %>
                         <!-- If user is not logged in, display Signup and Login links -->
                         <a href="/register" class="sign-in-link">Sign Up</a>
                         <a href="/login" class="sign-in-link">Login</a>
                     <% } %>
                 </div>
-                
-            
-                <!-- Favourite Area -->
+               
+           
+                <!-- Favourite Area
                 <div class="favourite-area">
                     <a href="#"><img src="img/core-img/heart.svg" alt=""></a>
-                </div>
+                </div> -->
                 <!-- User Login Info -->
-                <div class="user-login-info">
+                <!-- <div class="user-login-info">
                     <a href="#"><img src="img/core-img/user.svg" alt=""></a>
-                </div>
+                </div> -->
             </div>
+
 
         </div>
     </header>
     <!-- ##### Header Area End ##### -->
+
