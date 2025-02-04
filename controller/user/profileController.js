@@ -1,4 +1,5 @@
 const User=require('../../models/userSchema')
+const Address=require('../../models/addressSchema')
 const nodemailer=require('nodemailer')
 const bcrypt=require('bcrypt')
 const env=require('dotenv').config()
@@ -77,7 +78,7 @@ const forgotEmailValid=async (req,res) => {
       if(emailSend){
         req.session.userOtp=otp
         req.session.email=email
-        res.render('forgotPass-otp')
+       res.render('forgotPass-otp')
         console.log("OTP send is:",otp)
       }
       else{
@@ -165,13 +166,326 @@ const postNewPassword=async (req,res) => {
 
 const userProfile=async (req,res) => {
   try {
+    const id=req.session.user
     const userData=req.session.userData
-    res.render('user-profile',{user:userData})
+    const addressData=await Address.findOne({_id:id})
+    res.render('user-profile',{user:userData,address:addressData})
 
   } catch (error) {
     console.log(error)
   }
 }
+
+const changeEmail=async (req,res) => {
+  try {
+
+    const userData=req.session.userData
+    const message=req.session.emailError
+    req.session.emailError=null;
+    res.render('change-email',{user:userData,message:message})
+
+  } catch (error) {
+    console.log(error)
+    res.redirect('/pageNotFound')
+  }
+}
+
+const changeEmailValid=async (req,res) => {
+  try {
+    const {email}=req.body
+
+    const user=await User.findOne({email:email})
+
+    if(user){
+      const otp=generateOtp()
+      const emailSend=await sendVerificationEmail(email,otp)
+
+      if(emailSend){
+        req.session.userOtp=otp
+        req.session.email=email
+        res.render('change-email-otp')
+        console.log('Otp send is:',otp)
+      }
+      else{
+        res.json({message:'Email send error'})
+      }
+      
+    }else{
+      req.session.emailError="User with this email does not exist"
+      res.redirect('/change-email')
+    }
+
+  } catch (error) {
+    console.log(error)
+    res.redirect('/pageNotFound')
+  }
+}
+
+  const verifyEmailOtp=async (req,res) => {
+    try {
+      const {otp}=req.body
+      if(otp===req.session.userOtp){
+        res.status(200).json({success:true,messag:'Otp verified successfully'})
+      }
+      else{
+        res.status(400).json({success:false,messag:'Otp doesnt match'})
+      }
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const newEmail=async (req,res) => {
+    try {
+
+      const userData=req.session.userData
+      res.render('new-email',{user:userData})
+
+    } catch (error) {
+      console.log(error)
+      res.redirect('/pageNotFound')
+    }
+  }
+
+    const updateEmail=async (req,res) => {
+      try {
+        const {email}=req.body
+        const id=req.session.user
+        
+        const currentEmail=req.session.email;
+
+        if(currentEmail===email){
+          res.json({success:false,message:"Given email is the current email"}) 
+        }
+        else{
+          await User.findByIdAndUpdate(id,{email:email});
+          res.status(200).json({success:true,message:"Email updated Successfully"})
+        }
+               
+      }
+       catch (error) {
+        res.status(500).json({success:false,message:"Failed to update email"})
+      }
+
+    }
+
+
+
+    const changePassword=async (req,res) => {
+      try {
+
+        const user=req.session.userData
+        res.render('change-password',{user:user})
+
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+
+    const changePasswordValid=async (req,res) => {
+      try {
+        const {email}=req.body
+
+        const user=await User.findOne({email:email})
+
+        if(user){
+          const otp=generateOtp()
+          const emailSend=await sendVerificationEmail(email,otp)
+
+          if(emailSend){
+            req.session.userOtp=otp
+            req.session.email=email
+            res.render('change-password-otp')
+            console.log('Otp is :',otp)
+          }
+          else{
+            res.status(400).json({success:false,message:"Error sending email"})
+          }
+        }
+        else{
+          res.status(400).json({success:false,message:'User with this email is not found'})
+        }
+
+      } catch (error) {
+        console.log(error)
+        res.redirect('/pageNotFound')
+      }
+    }
+
+
+    const verifyChangePassOtp=async (req,res) => {
+      try {
+        
+        const {otp}=req.body
+
+        if(req.session.userOtp===otp){
+          res.json({success:true,message:"Otp verification successfull",redirectUrl:'/reset-password'})
+        }
+        else{
+          res.json({success:false,message:"Otp is not valid"}) 
+        }
+
+      } catch (error) {
+        res.status(500).json({success:false,message:"Error Occured.Please try again"}) 
+        console.log(error)
+      }
+    }
+
+
+    const address=async (req,res) => {
+      try {
+        const user=req.session.userData
+        const id=req.session.user
+        const addressData=await Address.findOne({userId:id})
+
+        let userAddress = null
+        if (addressData && addressData.address) {
+            userAddress = addressData.address
+        }
+
+        res.render('user-address',{user:user,address:userAddress})
+      } catch (error) {
+        console.log(error)
+        res.redirect('/pageNotFound')
+      }
+    }
+
+    const addAddress=async (req,res) => {
+     try {
+      const user=req.session.userData
+      res.render('add-address',{user:user})
+
+     } catch (error) {
+      console.log(error)
+      res.redirect('/pageNotFound')
+     } 
+    }
+
+    const addAddressValid=async (req,res) => {
+      try {
+        const {addressType,name,city,state,pincode,phone,altphone,landMark}=req.body
+        const userId=req.session.user
+        const userAddress=await Address.findOne({userId:userId})
+        
+        if(!userAddress){
+            const newAddress= new Address({
+              userId,
+              address:[{
+                addressType,
+                name,
+                city,
+                state,
+                pincode,  
+                phone,
+                altphone:altphone || "N/A",
+                landMark
+              }]
+          })
+          await newAddress.save();
+          return res.status(200).json({success:true,message:"Address added successfully"})
+        }
+        else{
+          userAddress.address.push({
+            addressType,
+            name,
+            city,
+            landMark,
+            state,
+            pincode,
+            phone,
+            altphone: altphone || "N/A",
+        })
+
+        await userAddress.save()
+        return res.status(200).json({success:true,message:"Address added successfully"})
+        }
+
+      } catch (error) {
+        console.log(error)
+        res.json({success:false,message:"Failed to add address"})
+      }
+    }
+
+
+    const editAddress=async (req,res) => {
+      try {
+        const addressid=req.query.id
+        const user=req.session.userData
+        const addressData=await Address.findOne({"address._id":addressid},{ "address.$": 1 })
+        
+        let userAddress = null
+        if (addressData && addressData.address) {
+            userAddress = addressData.address[0]
+        }
+
+    
+        res.render('edit-address',{user:user,address:userAddress})
+
+      } catch (error) {
+        console.log(error)
+        res.redirect('/pageNotFound')
+      }
+    }
+
+
+    const editAddressValid=async (req,res) => {
+      try {
+
+        const {addressId,addressType,name,city,state,pincode,phone,altphone,landMark}=req.body
+        const addressData=await Address.findOne({"address._id":addressId})
+
+        if(addressData){
+          await Address.updateOne({"address._id":addressId},
+            {$set:{
+              "address.$":{
+                _id:addressId,
+                addressType:addressType,
+                name:name,
+                city:city,
+                state:state,
+                pincode:pincode,
+                phone:phone,
+                altphone:altphone,
+                landMark:landMark
+              }
+            }}
+          )
+          return res.json({success:true,message:"Address updated successfully"})
+        }else{
+          return res.json({success:false,message:"Address does not exists"})
+        }
+      } catch (error) {
+        console.log(error)
+        return res.json({success:false,message:"Something went wrong! Please try again"})
+      } 
+    }
+
+    const deleteAddress=async (req,res) => {
+      try {
+        
+        const addressId=req.query.id
+
+        const findAddress=await Address.findOne({"address._id":addressId})
+
+        if(findAddress){
+          await Address.updateOne({"address._id":addressId},
+            {$pull:{
+              address:{_id:addressId}
+            }}
+          )
+          res.json({success:true,message:"Address deleted Successfully"})
+        }
+        else{
+          return res.json({success:false,message:"Address deletion failed"})
+        }
+
+      } catch (error) {
+        console.log(error)
+        return res.json({success:false,message:"Something went wrong! Please try again"})
+      }
+    }
 
 module.exports={
   getForgotPassword,
@@ -180,5 +494,19 @@ module.exports={
   getResetPassword,
   resendOtp,
   postNewPassword,
-  userProfile
+  userProfile,
+  changeEmail,
+  changeEmailValid,
+  verifyEmailOtp,
+  newEmail,
+  updateEmail,
+  changePassword,
+  changePasswordValid,
+  verifyChangePassOtp,
+  address,
+  addAddress,
+  addAddressValid,
+  editAddress,
+  editAddressValid,
+  deleteAddress
 }

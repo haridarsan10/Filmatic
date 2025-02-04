@@ -11,9 +11,9 @@
         <!-- Thumbnail List -->
         <div class="product_thumbnails">
             <% products.productImage.forEach((image, index) => { %>
-                <img src="uploads/product-images/<%= image %>" 
+                <img src="uploads/resized-images/<%= image %>" 
                      class="thumbnail-img" 
-                     onclick="changeMainImage('uploads/product-images/<%= image %>')" 
+                     onclick="changeMainImage('uploads/resized-images/<%= image %>')" 
                      alt="Product Thumbnail">
             <% }) %>
         </div>
@@ -21,7 +21,7 @@
         <!-- Main Product Image with Zoom -->
         <div style="padding-left: 50px;" class="main_product_image">
             <div class="zoom-container">
-                <img id="mainImage" src="uploads/product-images/<%= products.productImage[0] %>" 
+                <img id="mainImage" src="uploads/resized-images/<%= products.productImage[0] %>" 
                      alt="<%= products.productName %>" class="zoom-img">
             </div>
         </div>
@@ -90,9 +90,9 @@
               <div class="single-product-wrapper">
                   <a href="/productDetails?id=<%= relatedProducts[i]._id %>">
                       <div class="product-img">
-                          <img src="uploads/product-images/<%= relatedProducts[i].productImage[0] %>" alt="<%=relatedProducts[i].productName %>">
+                          <img src="uploads/resized-images/<%= relatedProducts[i].productImage[0] %>" alt="<%=relatedProducts[i].productName %>">
                           <% if(relatedProducts[i].productImage[1]) { %>
-                              <img class="hover-img" src="uploads/product-images/<%= relatedProducts[i].productImage[1] %>" alt="">
+                              <img class="hover-img" src="uploads/resized-images/<%= relatedProducts[i].productImage[1] %>" alt="">
                           <% } %>
                           <div class="product-favourite">
                               <a href="/addToWishlist?id=<%= relatedProducts[i]._id  %>" class="favme fa fa-heart"></a>

@@ -1,0 +1,236 @@
+<%- include("../../views/partials/user/header") %>
+
+<style>
+  .dashboard-container {
+    display: flex;
+    gap: 20px;
+  }
+
+  .dashboard-menu {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 25%;
+  }
+
+  .dashboard-menu .nav-link {
+    font-weight: bold;
+    color: #2c3e50;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .dashboard-menu .nav-link:hover, .dashboard-menu .nav-link.active {
+    background-color: #007bff;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+  }
+
+  .card {
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    width: 75%;
+    padding: 20px;
+  }
+
+  .card-header {
+    background-color: #ffffff;
+    color: rgb(205, 205, 205);
+    border-radius: 12px 12px 0 0;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .card-body {
+    padding: 20px;
+  }
+
+  .address-item {
+    border-bottom: 1px solid #dee2e6;
+    padding: 10px 0;
+  }
+
+  .address-item:last-child {
+    border-bottom: none;
+  }
+
+  .address-item p {
+    margin: 0;
+  }
+
+  .btn-edit, .btn-delete {
+    padding: 5px 10px;
+    margin-right: 5px;
+    border-radius: 5px;
+    transition: background 0.3s;
+  }
+
+  .btn-edit:hover {
+    background-color: #0056b3;
+  }
+
+  .btn-delete:hover {
+    background-color: #dc3545;
+  }
+
+  .page-header.breadcrumb-wrap {
+   background-color: #f5f5f5;
+   border-radius: 8px;
+ }
+
+ .breadcrumb-container {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+.breadcrumb {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  padding-left: 50px;
+  
+}
+
+.breadcrumb li {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb a:hover {
+  color: #0056b3;
+}
+
+.breadcrumb span {
+  margin: 0 8px;
+  color: #555;
+}
+
+</style>
+
+<nav class="breadcrumb-container">
+  <ul class="breadcrumb">
+    <li><a href="">Profile</a></li>
+    <li><span>&raquo;</span></li>
+    <!-- <li><a href="#">Dashboard</a></li>
+    <li><span>&raquo;</span></li> -->
+    <li>My Address</li>
+  </ul>
+</nav>
+
+  <section class="pt-10 pb-10" style="margin-top: 50px; margin-bottom: 50px;">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-10 m-auto">
+          <div class="dashboard-container">
+            <div class="dashboard-menu">
+              <ul class="nav flex-column" role="tablist">
+                <li class="nav-item">
+                  <a class="nav-link" href="/userProfile">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active" href="/address">My Address</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/orders">Orders</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/wallet">Wallet Status</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/wallet-history">Wallet History</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/referal">Referrals</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/logout">Logout</a>
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">My Addresses</h5>
+              </div>
+              <div class="card-body">
+                <% for(let i=0;i<address.length;i++) { %>
+                <div class="address-item">
+                  <p><strong><%= address[i].addressType %></strong></p>
+                  <p><%= address[i].name %></p>
+                  <p><%= address[i].city %></p>
+                  <p><%= address[i].landMark %></p>
+                  <p><%= address[i].state %></p>
+                  <p><%= address[i].pincode %></p>
+                  <p><%= address[i].phone %></p>
+                  <p><%= address[i].altphone %></p>
+                  <a href="/editAddress?id=<%= address[i]._id %>" class="btn btn-sm btn-edit btn-primary">Edit</a>
+                  <a href="/deleteAddress/id=<%= address[i]._id  %>" class="btn btn-sm btn-delete btn-danger">Delete</a>
+                </div>
+                <% } %>
+                <a href="/add-address" class="btn btn-sm btn-success mt-3">Add New Address</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- <script>
+
+  const deleteAddress=document.getElementById('deleteAddress')
+  deleteAddress.addEventListener('click',deletefunction)
+
+
+
+
+  function deletefunction(){
+    $.ajax({
+      type:'get',
+      url: `/deleteAddress?id=${addressId}`,    
+      dataType:'json',
+      contentType: "application/json",
+      success:function(response){
+          if(response.success){
+              Swal.fire({
+          icon:'success',
+          title:'Success',
+          text: response.message,
+          showConfirmButton:true,
+          timer:1500
+        })
+        setTimeout(()=>{
+          window.location.replace('/address')
+        },2000)
+        }
+       else{
+          Swal.fire({
+          icon:'error',
+          title:'Error',
+          text:response.message
+        })
+      }
+      },
+      error:function(){
+        Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Something went wrong. Please try again.'
+          });
+        }   
+    })
+  }
+
+</script> -->
+
+<%- include("../../views/partials/user/footer") %>

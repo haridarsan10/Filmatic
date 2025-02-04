@@ -360,7 +360,7 @@
                                 <div class="thumbnails-container">
                                     <% for(let i=0; i<product.productImage.length; i++) { %>
                                         <div class="thumbnail">
-                                            <img src="/uploads/product-images/<%=product.productImage[i] %>" alt="Product image">
+                                            <img src="/uploads/resized-images/<%=product.productImage[i] %>" alt="Product image">
                                             <span class="delete-image" 
                                                 onclick="deleteSingleImage('<%=product.productImage[i] %>', '<%=product._id%>')">
                                                 ×

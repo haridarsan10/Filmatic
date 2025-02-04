@@ -1,0 +1,90 @@
+<%- include("../../views/partials/user/header") %>
+
+
+<section class="content-main " style="margin-top: 150px; margin-bottom: 150px;">
+   <div class="card mx-auto card-login col-4">
+       <div class="card-body">
+           <h4 class="card-title mb-4">Enter New Email</h4>
+           <div class="error-message" style="color: red;" id="email-error"></div>
+           <form id="newEmailForm">
+               <div class="mb-3">
+                   <input class="form-control" name="newEmail" placeholder="New Email" type="text" id="email">
+               </div>
+               <div class="mb-4">
+                   <button type="submit" class="btn btn-primary w-100">Submit</button>
+               </div>
+           </form>
+       </div>
+   </div>
+</section>
+
+
+<script>
+    const form = document.getElementById("newEmailForm");
+    form.addEventListener("submit", validateEmailForm)
+   function validateEmailForm(event) {
+    event.preventDefault();
+       const emailInput = document.getElementById('email');
+       const emailError = document.getElementById('email-error');
+       const emailValue = emailInput.value.trim();
+       const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+
+       if (emailValue === '') {
+           emailError.textContent = 'Please enter your new email.';
+           emailInput.classList.add('is-invalid');
+           return false;
+       } else if (!emailValue.match(emailPattern)) {
+           emailError.textContent = 'Please enter a valid email address';
+           emailInput.classList.add('is-invalid');
+           return false;
+       } else {
+           emailError.textContent = '';
+           emailInput.classList.remove('is-invalid');
+       }
+
+       $.ajax({
+        url:'/update-email',
+        type:'post',
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify({ email:emailValue }),
+        success:function(response){
+            if(response.success){
+                Swal.fire({
+            icon:'success',
+            title:'Success',
+            text: "Email updated Successfully",
+            showConfirmButton:false,
+            timer:1500
+          })
+          setTimeout(()=>{
+            window.location.replace('/userProfile')
+          },2000)
+          }
+         else{
+            Swal.fire({
+            icon:'info',
+            title:'Info',
+            text:response.message
+          })
+        }
+    },
+    error:function(){
+      Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Something went wrong. Please try again.'
+            });
+    }
+    })
+
+    return false; 
+
+   }
+</script>
+
+<%- include("../../views/partials/user/footer") %>
+
+
+

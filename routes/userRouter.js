@@ -3,6 +3,7 @@ const router=express.Router()
 const userController=require('../controller/user/userController');
 const productController=require('../controller/user/productController')
 const profileController=require('../controller/user/profileController')
+const cartController=require('../controller/user/cartController')
 const passport = require('passport');
 const {userAuth,isBlocked}=require('../middlewares/auth')
 
@@ -42,6 +43,28 @@ router.post('/verify-passForgot-otp',profileController.verifyForgotPassOtp)
 router.get('/reset-password',profileController.getResetPassword)
 router.post('/resend-forgot-otp',profileController.resendOtp)
 router.post('/reset-password',profileController.postNewPassword)
+
 router.get('/userProfile',userAuth,profileController.userProfile)
+router.get('/address',userAuth,profileController.address)
+router.get('/add-address',userAuth,profileController.addAddress)
+router.post('/add-address',userAuth,profileController.addAddressValid)
+router.get('/editAddress',userAuth,profileController.editAddress)
+router.post('/editAddress',userAuth,profileController.editAddressValid)
+router.get('/deleteAddress',userAuth,profileController.deleteAddress)
+
+
+router.get('/change-email',userAuth,profileController.changeEmail)
+router.post('/change-email-valid',userAuth,profileController.changeEmailValid)
+router.post('/verify-email-otp',userAuth,profileController.verifyEmailOtp)
+router.get('/new-email',userAuth,profileController.newEmail)
+router.post('/update-email',userAuth,profileController.updateEmail)
+
+router.get('/change-password',userAuth,profileController.changePassword)
+router.post('/change-password',userAuth,profileController.changePasswordValid)
+router.post('/verify-changepassword-otp',userAuth,profileController.verifyChangePassOtp)
+
+//Cart
+router.get('/cart',userAuth,cartController.loadCart)
+router.post('/addToCart',userAuth,cartController.addToCart)
 
 module.exports= router;

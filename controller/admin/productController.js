@@ -45,7 +45,7 @@ const addProducts=async (req,res) => {
           const resizedImagePath = path.join(
             'public',
             'uploads',
-            'product-images',
+            'resized-images',
             req.files[i].filename // Create a unique resized file name
           );
           await sharp(originalImagePath).resize({width:440,height:440}).toFile(resizedImagePath)
