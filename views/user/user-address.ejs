@@ -173,7 +173,7 @@
                   <p><%= address[i].phone %></p>
                   <p><%= address[i].altphone %></p>
                   <a href="/editAddress?id=<%= address[i]._id %>" class="btn btn-sm btn-edit btn-primary">Edit</a>
-                  <a href="/deleteAddress/id=<%= address[i]._id  %>" class="btn btn-sm btn-delete btn-danger">Delete</a>
+                  <button id="deleteAddress" onclick="deletefunction('<%= address[i]._id %>')" class="btn btn-sm btn-delete btn-danger">Delete</button>
                 </div>
                 <% } %>
                 <a href="/add-address" class="btn btn-sm btn-success mt-3">Add New Address</a>
@@ -186,51 +186,63 @@
   </section>
 </main>
 
-<!-- <script>
+<script>
 
   const deleteAddress=document.getElementById('deleteAddress')
-  deleteAddress.addEventListener('click',deletefunction)
+  // deleteAddress.addEventListener('click',deletefunction)
 
 
-
-
-  function deletefunction(){
-    $.ajax({
-      type:'get',
-      url: `/deleteAddress?id=${addressId}`,    
-      dataType:'json',
-      contentType: "application/json",
-      success:function(response){
-          if(response.success){
-              Swal.fire({
-          icon:'success',
-          title:'Success',
-          text: response.message,
-          showConfirmButton:true,
-          timer:1500
-        })
-        setTimeout(()=>{
-          window.location.replace('/address')
-        },2000)
+  function deletefunction(addressId) {
+    console.log("address",addressId)
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Do you really want to remove this address?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, remove it!",
+        cancelButtonText: "Cancel"
+      }).then((result) => {  
+        if (result.isConfirmed) {
+            $.ajax({
+                type: 'get',
+                url: `/deleteAddress?id=${addressId}`,    
+                dataType: 'json',
+                contentType: "application/json",
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message,
+                            showConfirmButton: true,
+                            timer: 1500
+                        });
+                        setTimeout(() => {
+                            window.location.replace('/address');
+                        }, 2000);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong. Please try again.'
+                    });
+                }
+            });
         }
-       else{
-          Swal.fire({
-          icon:'error',
-          title:'Error',
-          text:response.message
-        })
-      }
-      },
-      error:function(){
-        Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'Something went wrong. Please try again.'
-          });
-        }   
-    })
-  }
+    });
+}
 
-</script> -->
+
+</script>
 
 <%- include("../../views/partials/user/footer") %>

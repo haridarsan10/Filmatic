@@ -4,6 +4,7 @@ const nodemailer=require('nodemailer')
 const bcrypt=require('bcrypt')
 const env=require('dotenv').config()
 const session=require('express-session')
+const mongoose = require('mongoose');
 
 
 function generateOtp(){
@@ -462,30 +463,36 @@ const changeEmailValid=async (req,res) => {
       } 
     }
 
-    const deleteAddress=async (req,res) => {
+    const deleteAddress = async (req, res) => {
       try {
-        
-        const addressId=req.query.id
+          const addressId = req.query.id;
+  
+          console.log(req.query.id)
 
-        const findAddress=await Address.findOne({"address._id":addressId})
-
-        if(findAddress){
-          await Address.updateOne({"address._id":addressId},
-            {$pull:{
-              address:{_id:addressId}
-            }}
-          )
-          res.json({success:true,message:"Address deleted Successfully"})
-        }
-        else{
-          return res.json({success:false,message:"Address deletion failed"})
-        }
-
+          if (!mongoose.Types.ObjectId.isValid(addressId)) {
+              return res.json({ success: false, message: "Invalid address ID" });
+          }
+  
+          const objectId = new mongoose.Types.ObjectId(addressId);
+  
+          const findAddress = await Address.findOne({ "address._id": objectId });
+  
+          if (findAddress) {
+              await Address.updateOne(
+                  { "address._id": objectId },
+                  { $pull: { address: { _id: objectId } } }
+              );
+  
+              return res.json({ success: true, message: "Address deleted successfully" });
+          } else {
+              return res.json({ success: false, message: "Address not found" });
+          }
       } catch (error) {
-        console.log(error)
-        return res.json({success:false,message:"Something went wrong! Please try again"})
+          console.log(error);
+          return res.json({ success: false, message: "Something went wrong! Please try again" });
       }
-    }
+  };
+  
 
 module.exports={
   getForgotPassword,

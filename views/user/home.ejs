@@ -201,16 +201,22 @@
     <script>
         
         async function addToCart(productId) {
+
             try {
                 
             const response=await fetch('/addToCart',{
                 method:'POST',
                 headers: {'Content-Type': 'application/json'},
-                body:JSON.stringify({productId:productId})
+                body:JSON.stringify({productId:productId,quantity:1})
             })
 
             const data=await response.json()
 
+            if (!data.success && data.redirectUrl) {
+            window.location.href = data.redirectUrl; 
+            return;
+            }
+            
             if(data.success){
                 Toastify({
                 text: "Added to Cart",

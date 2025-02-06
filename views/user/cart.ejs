@@ -1,5 +1,115 @@
 <%- include("../../views/partials/user/header") %>
 
+    <style>
+    .cart-item {
+    background: #f8f8f8;
+    padding: 20px;
+    border-radius: 10px;
+    }
+
+    .cart-product {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .cart-product-image {
+        width: 80px;
+        height: 80px;
+    }
+
+    .cart-product-details {
+        flex: 1;
+    }
+
+    .quantity-selector {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .quantity-selector input {
+        width: 40px;
+        text-align: center;
+    }
+
+    .summary-table {
+        list-style: none;
+        padding: 0;
+    }
+
+    .summary-table li {
+        display: flex;
+        justify-content: space-between;
+        font-size: 16px;
+        padding: 5px 0;
+    }
+
+    .checkout-btn a {
+        display: block;
+        text-align: center;
+        padding: 10px;
+        background: black;
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .cart-item-details {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cart-item-quantity {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px; /* Adds space between buttons and input */
+        border: 1px solid #ddd; /* Light border around the quantity selector */
+        padding: 5px;
+        border-radius: 5px;
+    }
+
+    .cart-item-quantity button {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        border-radius: 5px;
+    }
+
+    .cart-item-quantity input {
+        width: 50px;
+        text-align: center;
+        font-weight: bold;
+        border: none;
+        outline: none;
+        background: transparent;
+    }
+
+        .remove-item {
+        background-color: #dc3545; /* Bootstrap danger color */
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        font-size: 14px;
+        border-radius: 5px;
+        margin-left: auto;
+        cursor: pointer;
+        transition: background 0.3s ease-in-out;
+        }
+
+        .remove-item:hover {
+            background-color: #c82333; /* Darker shade on hover */
+        }
+    
+
+    </style>
+
     <!-- ##### Right Side Cart Area ##### -->
     <div class="cart-bg-overlay"></div>
 
@@ -96,107 +206,191 @@
     <!-- ##### Breadcumb Area End ##### -->
 
     <!-- ##### Cart Area Start ##### -->
-    <div class="checkout_area section-padding-80">
-        <div class="container">
-            <div class="row">
+        <div class="checkout_area section-padding-80">
+            <div class="container">
+                <div class="row">
 
-                <div class="col-12 col-md-6">
-                    <div class="checkout_details_area mt-50 clearfix">
+                    <div class="col-12 col-md-6 col-lg-7">
 
-                        <div class="cart-page-heading mb-30">
-                            <h5>Billing Address</h5>
+                        <div class="shopping-cart">
+                            <% if (cartData && cartData.items.length > 0) { %>
+                                <% for (let i = 0; i < cartData.items.length; i++) { %>
+                                    <div class="cart-item d-flex align-items-center" id="cart-item-<%= i %>">
+                                        <img src="/uploads/resized-images/<%= cartData.items[i].productId.productImage[0] %>" alt="Watch" class="cart-item-image" style="width: 150px; height: auto;">
+                                        <div class="d-flex flex-column" style="margin-left: 30px;">
+                                            <h7 style="font-weight: bold;"><%= cartData.items[i].productId.productName %></h7>
+                                            <p class="cart-item-price">₹<span id="unit-price"><%= cartData.items[i].price %></span></p>
+                                            <div class="cart-item-details flex-grow-1" style="align-items: first baseline;">
+                                                <div class="cart-item-quantity d-flex justify-content-center align-items-center">
+                                                    <button class="btn btn-sm btn-outline-dark" onclick="updateQuantity(<%= i %>, -1)">-</button>
+                                                    <input type="text" id="quantity-<%= i %>" value="<%= cartData.items[i].quantity %>" readonly class="text-center">
+                                                    <button class="btn btn-sm btn-outline-dark" onclick="updateQuantity(<%= i %>, 1)">+</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button class="remove-item" onclick="deleteItem(<%= i %>)">Remove</button>
+                                    </div>
+                                <% } %>
+                            <% } else { %>
+                                <div class="empty-cart text-center">
+                                    <h5>Your shopping cart is empty.</h5>
+                                    <p>Browse our products and add items to your cart.</p>
+                                </div>
+                            <% } %>
                         </div>
+                        
+                        
+                        <a style="margin-top: 30px;" href="/" class="btn essence-btn">Continue Shopping</a>
 
-                        <!-- <form action="#" method="post">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="first_name">First Name <span>*</span></label>
-                                    <input type="text" class="form-control" id="first_name" value="" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="last_name">Last Name <span>*</span></label>
-                                    <input type="text" class="form-control" id="last_name" value="" required>
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <label for="company">Company Name</label>
-                                    <input type="text" class="form-control" id="company" value="">
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <label for="country">Country <span>*</span></label>
-                                    <select class="w-100" id="country">
-                                        <option value="usa">United States</option>
-                                        <option value="uk">United Kingdom</option>
-                                        <option value="ger">Germany</option>
-                                        <option value="fra">France</option>
-                                        <option value="ind">India</option>
-                                        <option value="aus">Australia</option>
-                                        <option value="bra">Brazil</option>
-                                        <option value="cana">Canada</option>
-                                    </select>
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <label for="street_address">Address <span>*</span></label>
-                                    <input type="text" class="form-control mb-3" id="street_address" value="">
-                                    <input type="text" class="form-control" id="street_address2" value="">
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <label for="postcode">Postcode <span>*</span></label>
-                                    <input type="text" class="form-control" id="postcode" value="">
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <label for="city">Town/City <span>*</span></label>
-                                    <input type="text" class="form-control" id="city" value="">
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <label for="state">Province <span>*</span></label>
-                                    <input type="text" class="form-control" id="state" value="">
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <label for="phone_number">Phone No <span>*</span></label>
-                                    <input type="number" class="form-control" id="phone_number" min="0" value="">
-                                </div>
-                                <div class="col-12 mb-4">
-                                    <label for="email_address">Email Address <span>*</span></label>
-                                    <input type="email" class="form-control" id="email_address" value="">
-                                </div>
+                    </div>
 
-                                <div class="col-12">
-                                    <div class="custom-control custom-checkbox d-block mb-2">
-                                        <input type="checkbox" class="custom-control-input" id="customCheck1">
-                                        <label class="custom-control-label" for="customCheck1">Terms and conitions</label>
-                                    </div>
-                                    <div class="custom-control custom-checkbox d-block mb-2">
-                                        <input type="checkbox" class="custom-control-input" id="customCheck2">
-                                        <label class="custom-control-label" for="customCheck2">Create an accout</label>
-                                    </div>
-                                    <div class="custom-control custom-checkbox d-block">
-                                        <input type="checkbox" class="custom-control-input" id="customCheck3">
-                                        <label class="custom-control-label" for="customCheck3">Subscribe to our newsletter</label>
-                                    </div>
-                                </div>
+                    
+                    <div class="col-12 col-md-6 col-lg-5 ml-lg-auto">
+                        <div class="order-details-confirmation" style="margin-left: 40px;">
+                            <div class="cart-page-heading">
+                                <h5>Cart summary</h5>
+                                <p>The Details</p>
                             </div>
-                        </form> -->
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-6 col-lg-5 ml-lg-auto">
-                    <div class="order-details-confirmation" style="margin-left: 40px;">
-
-                        <div class="cart-page-heading">
-                            <h5>Cart summary</h5>
-                            <p>The Details</p>
+                            
+                            <ul class="order-details-form mb-4 text-right">
+                                <li><span>Subtotal</span> <span>₹<span id="cart-subtotal"></span></span></li>
+                                <li><span>Total</span> <span>₹<span id="cart-total"></span></span></li>
+                            </ul>
+                            <a href="/checkOut" class="btn essence-btn">Checkout</a>
                         </div>
-
-                        <ul class="order-details-form mb-4">
-                            <li><span>Subtotal</span> <span>Total</span></li>
-                            <li><span>Total</span> <span>$59.90</span></li>
-                        </ul>
-                        <a href="#" class="btn essence-btn">Place Order</a>
                     </div>
+
                 </div>
             </div>
         </div>
-    </div>
     <!-- ##### Cart Area End ##### -->
+
+    <script>
+
+
+       async function updateQuantity(index,change) {
+        try {             
+
+        const cartData = JSON.parse('<%- JSON.stringify(cartData) %>');
+        let quantityInput = document.getElementById(`quantity-${index}`);
+        let newQuantity = Math.max(1, parseInt(quantityInput.value) +change); 
+        if(newQuantity > 0 && newQuantity <= 5){
+            quantityInput.value = newQuantity; 
+        }
+
+        const productId=cartData.items[index].productId._id
+    
+        const response=await fetch('/addToCart',{
+            method:'POST',
+            headers: {'Content-Type': 'application/json'},
+            body:JSON.stringify({productId:productId,quantity:change})
+            
+        })
+
+        const data=await response.json()
+
+        if (!data.success && data.redirectUrl) {
+            window.location.href = data.redirectUrl; 
+            return;
+            }
+            
+            if(data.success){
+                Toastify({
+                text: "Quantity Updated Successfully",
+                duration: 2000,
+                gravity: "top",
+                position: "right", 
+                backgroundColor: "green",
+                stopOnFocus: true
+            }).showToast();
+
+
+
+            }
+            else{
+                Toastify({
+                text: data.message,
+                duration: 2000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "red",
+                stopOnFocus: true
+            }).showToast();
+            }
+        
+
+        } catch (error) {
+            
+            console.error('Error:', error);
+             Toastify({
+                text: "Something went wrong. Please try again.",
+                duration: 2000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "red",
+                stopOnFocus: true
+             }).showToast();
+
+        }
+
+    }   
+
+    async function deleteItem(index) {
+    try {
+        const cartData = JSON.parse('<%- JSON.stringify(cartData) %>');
+        const productId = cartData.items[index].productId._id;
+
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "Do you really want to remove this item from your cart?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, remove it!",
+            cancelButtonText: "Cancel"
+        });
+
+        if (result.isConfirmed) { 
+            const response = await fetch('/deleteItem', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId: productId })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete item');
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Item removed from cart',
+                    showConfirmButton: data.showConfirmButton,
+                    timer: 1500
+                });
+
+                window.location.reload()
+              
+            } else {
+                throw new Error('Failed to delete item');
+            }
+        }
+
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Something went wrong. Please try again.'
+        });
+    }
+}
+
+
+    </script>
 
     <%- include("../../views/partials/user/footer") %>

@@ -4,6 +4,7 @@ const userController=require('../controller/user/userController');
 const productController=require('../controller/user/productController')
 const profileController=require('../controller/user/profileController')
 const cartController=require('../controller/user/cartController')
+const checkOutController=require('../controller/user/checkOutController')
 const passport = require('passport');
 const {userAuth,isBlocked}=require('../middlewares/auth')
 
@@ -65,6 +66,10 @@ router.post('/verify-changepassword-otp',userAuth,profileController.verifyChange
 
 //Cart
 router.get('/cart',userAuth,cartController.loadCart)
-router.post('/addToCart',userAuth,cartController.addToCart)
+router.post('/addToCart',cartController.addToCart)
+router.post('/deleteItem',cartController.deleteItem)
+
+//checkout
+router.get('/checkOut',userAuth,checkOutController.checkOut)
 
 module.exports= router;

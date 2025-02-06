@@ -805,6 +805,128 @@
     <!-- Active js -->
     <script src="js/active.js"></script>
 
+    <script>
+
+const addToCart = async (req, res) => {
+    try {
+        console.log('Request body:', req.body);
+        const { productId, quantity } = req.body;
+        const userId = req.session.user;
+
+        // Input validation
+        if (!productId) {
+            return res.status(400).json({ 
+                success: false,
+                message: "Product ID is required" 
+            });
+        }
+
+        // Find product and get its price
+        const product = await Product.findById(productId);
+        console.log("product",product);
+        if (!product) {
+            return res.status(404).json({ 
+                success: false,
+                message: "Product not found" 
+            });
+        }
+        console.log("salePrice",product.salePrice)
+        // Ensure product price exists
+        if (!product.salePrice) {
+            return res.status(400).json({ 
+                success: false,
+                message: "Invalid product price" 
+            });
+        }
+
+        // Convert quantity to number and validate
+        const itemQuantity = parseInt(quantity) || 1;
+        
+        // Find or create cart
+        let cart = await Cart.findOne({ userId });
+        if (!cart) {
+            cart = new Cart({
+                userId,
+                items: [],
+                cartTotal: 0
+            });
+        }
+
+
+        // find the item in the cart
+        const existingItemIndex = cart.items.findIndex(item => 
+            item.productId.toString() === productId.toString()
+        );
+
+        if (existingItemIndex > -1) {
+
+            //get current quantity
+            let newQuantity = cart.items[existingItemIndex].quantity + itemQuantity;
+
+            if(newQuantity >5){
+                return res.status(400).json({ 
+                    success: false,
+                    message: "You can only order up to 5 items" 
+                });
+            }
+            if(newQuantity > product.quantity){
+                return res.status(400).json({ 
+                    success: false,
+                    message: "You can not order more than available stock" 
+                });
+            }
+            if(newQuantity <1){
+                return res.status(400).json({ 
+                    success: false,
+                    message: "You can not order less than 1 item" 
+                });
+            }
+
+            // Update existing item
+            cart.items[existingItemIndex].quantity = newQuantity;
+            cart.items[existingItemIndex].totalPrice =  newQuantity * product.salePrice;
+               
+        } else {
+
+            // Add new item
+            cart.items.push({
+                productId,
+                quantity: itemQuantity,
+                price: product.salePrice,
+                totalPrice: product.salePrice * itemQuantity
+            });
+        }
+
+        // Calculate cart total
+        cart.cartTotal = cart.items.reduce((total, item) => {
+            return total + (Number(item.totalPrice) || 0);
+        }, 0);
+
+        await cart.save();
+
+        // Send success response
+        res.status(200).json({
+            
+            success: true,
+            message: "Product added to cart successfully",
+            cartTotal: cart.cartTotal,
+            itemsCount: cart.items.length
+        
+        });
+
+    } catch (error) {
+        console.error("Error in add to cart:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to add product to cart"
+        });
+        throw new Error(error);
+    }
+};
+
+
+    </script>
+
 </body>
 
 </html>
