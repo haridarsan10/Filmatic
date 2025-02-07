@@ -6,19 +6,37 @@ const Cart=require('../../models/cartSchema')
 const mongoose=require('mongoose')
 
 
-const checkOut=async (req,res) => {
+const checkOut = async (req, res) => {
   try {
+    const userId = req.session.user;
+    const userData = req.session.userData;
 
-    const userId=req.session.user
-    const userData=req.session.userData
-    const cartData=await Cart.findOne({userId:userId})
+    const cartData = await Cart.findOne({ userId: userId }).populate({
+      path: "items.productId",
+      model: "Product", 
+    });
 
-    res.render('checkOut',{user:userData})    
+    const cartTotal=cartData.cartTotal
+
+    const addressData = await Address.findOne({ userId: userId });
+
+    if (!userData) {
+      return res.render("checkout", { cart: [], address: [] });
+    }
+
+    res.render("checkout", {
+      user: userData,
+      cart: cartData ? cartData.items : [], 
+      address: addressData ? addressData.address : [],
+      cartTotal
+    });
+
   } catch (error) {
-    console.log(error)
-    res.redirect('/pageNotFound')
+    console.error(error);
+    res.redirect("/pageNotFound");
   }
-}
+};
+
 
 
 

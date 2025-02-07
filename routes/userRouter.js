@@ -5,6 +5,8 @@ const productController=require('../controller/user/productController')
 const profileController=require('../controller/user/profileController')
 const cartController=require('../controller/user/cartController')
 const checkOutController=require('../controller/user/checkOutController')
+const orderController=require('../controller/user/orderController')
+
 const passport = require('passport');
 const {userAuth,isBlocked}=require('../middlewares/auth')
 
@@ -71,5 +73,10 @@ router.post('/deleteItem',cartController.deleteItem)
 
 //checkout
 router.get('/checkOut',userAuth,checkOutController.checkOut)
+
+//Orders
+router.post('/orders',userAuth,orderController.orders)
+router.get('/orders',userAuth,orderController.loadOrders)
+
 
 module.exports= router;
