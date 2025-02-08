@@ -9,7 +9,7 @@ const orderSchema = new Schema({
       default: () => uuidv4(),
       unique: true
    },
-   user_id: {
+   userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true
@@ -64,7 +64,7 @@ const orderSchema = new Schema({
       type: Date,
       default: Date.now
    },
-   coupenApplied: {
+   couponApplied: {
       type: String,
       default: false
    },

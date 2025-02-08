@@ -257,7 +257,9 @@
                             <% for(let i = 0; i < address.length; i++) { %>
                                 <div class="address-card">
                                     <div class="address-header">
-                                        <input type="radio" id="address-radio" name="shipping_address" value="<%= address[i]._id %>">
+                                        <input type="radio" id="address-radio-<%= i %>" name="shipping_address" value="<%= address[i]._id %>" 
+                                            <% if (i === 0) { %> checked <% } %>>  
+                                        
                                         <input type="hidden" id="addressId" value="<%= address[i]._id %>">
                                         <span class="address-type"><%= address[i].addressType %></span>
                                         <button onclick="openModalBtnonclick('<%= address[i]._id %>')" id="edit-btn" class="edit-btn">&#9998; Edit</button>
@@ -271,6 +273,7 @@
                                     </div>
                                 </div>
                             <% } %>
+                            
                             
 
                             <button onclick="openaddModalBtnonclick()" class="btn essence-btn">+ Add Another Address</button>
@@ -789,41 +792,49 @@
 
             
 
-            function placeOrder() {
+            async function placeOrder() {
+                try{
                 const shippingAddress = document.querySelector('input[name="shipping_address"]:checked')?.value;
                 const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
                 const totalPrice = JSON.parse('<%- JSON.stringify(cartTotal) %>'); // Assuming this is correctly passed from the server-side.
+                const cartItems = JSON.parse('<%- JSON.stringify(cartItems) %>'); // Ensure `cart` is passed to EJS
+
 
                 console.log(shippingAddress);
                 console.log(paymentMethod);
                 console.log(totalPrice);
 
-                if (!shippingAddress) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Warning',
-                        text: "Please select a shipping address"
-                    });
-                    return; 
-                }
-
+            
                 if (!paymentMethod) {
                     Swal.fire({
-                        icon: 'warning',
-                        title: 'Warning',
+                        icon: 'info',
+                        title: 'Info',
                         text: "Please select a payment method"
                     });
                     return; 
                 }
 
+                const result = await Swal.fire({
+                    title: "Are you sure?",
+                    text: "Do you want to place the order?",
+                    icon: "info",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes!",
+                    cancelButtonText: "Cancel"
+                });
+
+                if (result.isConfirmed) { 
 
                 $.ajax({
                     type: 'POST',
                     url: '/orders',
                     dataType: 'json',
                     contentType: "application/json",
-                    data: JSON.stringify({ addressId: shippingAddress, paymentMethod, totalPrice }),
+                    data: JSON.stringify({ addressId: shippingAddress, paymentMethod, totalPrice,cartItems }),
                     success: function (response) {
+
                         if (response.success) {
                             Swal.fire({
                                 icon: 'success',
@@ -851,7 +862,16 @@
                         });
                     }
                 });
+             } 
             }
+            catch(error){
+                Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'Something went wrong. Please try again.'
+            });
+            }
+        }
 
 
 

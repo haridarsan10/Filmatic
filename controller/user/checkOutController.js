@@ -16,6 +16,8 @@ const checkOut = async (req, res) => {
       model: "Product", 
     });
 
+    const cartItems=cartData.items
+
     const cartTotal=cartData.cartTotal
 
     const addressData = await Address.findOne({ userId: userId });
@@ -28,7 +30,8 @@ const checkOut = async (req, res) => {
       user: userData,
       cart: cartData ? cartData.items : [], 
       address: addressData ? addressData.address : [],
-      cartTotal
+      cartTotal,
+      cartItems
     });
 
   } catch (error) {

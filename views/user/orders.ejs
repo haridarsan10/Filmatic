@@ -1,274 +1,204 @@
-<%- include("../../views/partials/user/header") %>
+<%- include("../../views/partials/user/header") %>
 
-    <style>
-    .cart-item {
-    background: #f8f8f8;
-    padding: 20px;
+<style>
+  .card-green {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
     border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .dashboard-menu {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .dashboard-menu .nav-link {
+    font-weight: bold;
+    color: #2c3e50;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .dashboard-menu .nav-link:hover, .dashboard-menu .nav-link.active {
+    background-color: #007bff;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+  }
+
+  .card {
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    background: #ffffff;
+  }
+
+  .card-header {
+    color: rgb(205, 205, 205);
+    border-radius: 12px 12px 0 0;
+    text-align: center;
+  }
+
+  .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    padding: 8px 15px;
+    border-radius: 8px;
+    transition: background 0.3s;
+  }
+
+  .btn-success:hover {
+    background-color: #218838;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .required {
+    color: red;
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-menu {
+      padding: 15px;
     }
 
-    .cart-product {
-        display: flex;
-        align-items: center;
-        gap: 20px;
+    .card {
+      margin-bottom: 15px;
     }
+  }
 
-    .cart-product-image {
-        width: 80px;
-        height: 80px;
-    }
+  .page-header.breadcrumb-wrap {
+    background-color: #f5f5f5;
+    border-radius: 8px;
+  }
 
-    .cart-product-details {
-        flex: 1;
-    }
+  .breadcrumb-container {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+  }
 
-    .quantity-selector {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
+  .breadcrumb {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    padding-left: 50px;
+  }
 
-    .quantity-selector input {
-        width: 40px;
-        text-align: center;
-    }
+  .breadcrumb li {
+    display: flex;
+    align-items: center;
+  }
 
-    .summary-table {
-        list-style: none;
-        padding: 0;
-    }
+  .breadcrumb a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
 
-    .summary-table li {
-        display: flex;
-        justify-content: space-between;
-        font-size: 16px;
-        padding: 5px 0;
-    }
+  .breadcrumb a:hover {
+    color: #0056b3;
+  }
 
-    .checkout-btn a {
-        display: block;
-        text-align: center;
-        padding: 10px;
-        background: black;
-        color: white;
-        border-radius: 5px;
-        text-decoration: none;
-    }
+  .breadcrumb span {
+    margin: 0 8px;
+    color: #555;
+  }
 
-    .cart-item-details {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
+</style>
 
-    .cart-item-quantity {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px; /* Adds space between buttons and input */
-        border: 1px solid #ddd; /* Light border around the quantity selector */
-        padding: 5px;
-        border-radius: 5px;
-    }
+<main class="main">
 
-    .cart-item-quantity button {
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-        border-radius: 5px;
-    }
+  <nav class="breadcrumb-container">
+    <ul class="breadcrumb">
+      <li><a href="/">Profile</a></li>
+      <li><span>&raquo;</span></li>
+      <li><a href="/userProfile">Dashboard</a></li>
+      <li><span>&raquo;</span></li>
+      <li>Orders</li>
+    </ul>
+  </nav>
 
-    .cart-item-quantity input {
-        width: 50px;
-        text-align: center;
-        font-weight: bold;
-        border: none;
-        outline: none;
-        background: transparent;
-    }
-
-        .remove-item {
-        background-color: #dc3545; /* Bootstrap danger color */
-        color: white;
-        border: none;
-        padding: 6px 12px;
-        font-size: 14px;
-        border-radius: 5px;
-        margin-left: auto;
-        cursor: pointer;
-        transition: background 0.3s ease-in-out;
-        }
-
-        .remove-item:hover {
-            background-color: #c82333; /* Darker shade on hover */
-        }
-    
-
-    </style>
-
-    <!-- ##### Right Side Cart Area ##### -->
-    <div class="cart-bg-overlay"></div>
-
-    <div class="right-side-cart-area">
-
-        <!-- Cart Button -->
-        <div class="cart-button">
-            <a href="#" id="rightSideCart"><img src="img/core-img/bag.svg" alt=""> <span>3</span></a>
-        </div>
-
-        <div class="cart-content d-flex">
-
-            <!-- Cart List Area -->
-            <div class="cart-list">
-                <!-- Single Cart Item -->
-                <div class="single-cart-item">
-                    <a href="#" class="product-image">
-                        <img src="img/product-img/product-1.jpg" class="cart-thumb" alt="">
-                        <!-- Cart Item Desc -->
-                        <div class="cart-item-desc">
-                          <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
-                            <span class="badge">Mango</span>
-                            <h6>Button Through Strap Mini Dress</h6>
-                            <p class="size">Size: S</p>
-                            <p class="color">Color: Red</p>
-                            <p class="price">$45.00</p>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Single Cart Item -->
-                <div class="single-cart-item">
-                    <a href="#" class="product-image">
-                        <img src="img/product-img/product-2.jpg" class="cart-thumb" alt="">
-                        <!-- Cart Item Desc -->
-                        <div class="cart-item-desc">
-                          <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
-                            <span class="badge">Mango</span>
-                            <h6>Button Through Strap Mini Dress</h6>
-                            <p class="size">Size: S</p>
-                            <p class="color">Color: Red</p>
-                            <p class="price">$45.00</p>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Single Cart Item -->
-                <div class="single-cart-item">
-                    <a href="#" class="product-image">
-                        <img src="img/product-img/product-3.jpg" class="cart-thumb" alt="">
-                        <!-- Cart Item Desc -->
-                        <div class="cart-item-desc">
-                          <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
-                            <span class="badge">Mango</span>
-                            <h6>Button Through Strap Mini Dress</h6>
-                            <p class="size">Size: S</p>
-                            <p class="color">Color: Red</p>
-                            <p class="price">$45.00</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Cart Summary -->
-            <div class="cart-amount-summary">
-
-                <h2>Summary</h2>
-                <ul class="summary-table">
-                    <li><span>subtotal:</span> <span>$274.00</span></li>
-                    <li><span>delivery:</span> <span>Free</span></li>
-                    <li><span>discount:</span> <span>-15%</span></li>
-                    <li><span>total:</span> <span>$232.00</span></li>
+  <section class="pt-10 pb-10" style="margin-top: 50px; margin-bottom: 50px;">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-10 m-auto">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="dashboard-menu">
+                <ul class="nav flex-column" role="tablist">
+                  <li class="nav-item">
+                    <a class="nav-link" id="dashboard-tab" data-bs-toggle="tab" href="/userProfile" role="tab">Dashboard</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="/address" role="tab">My Address</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link active" id="orders-tab" data-bs-toggle="tab" href="/orders" role="tab">Orders</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" id="wallet-tab" data-bs-toggle="tab" href="#track-orders" role="tab">Wallet Status</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" id="wallet-history-tab" data-bs-toggle="tab" href="#wallet-history" role="tab">Wallet History</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" id="referal-tab" data-bs-toggle="tab" href="#referal" role="tab">Referrals</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                  </li>
                 </ul>
-                <div class="checkout-btn mt-100">
-                    <a href="checkout.html" class="btn essence-btn">Cart</a>
-                </div>
+              </div>
             </div>
-        </div>
-    </div>
-    <!-- ##### Right Side Cart End ##### -->
-
-    <!-- ##### Breadcumb Area Start ##### -->
-    <div class="breadcumb_area bg-img" style="background-image: url(img/bg-img/breadcumb.jpg);">
-        <div class="container h-100">
-            <div class="row h-100 align-items-center">
-                <div class="col-12">
-                    <div class="page-title text-center">
-                        <h2>Orders</h2>
+            <div class="col-md-8">
+              <div class="tab-content dashboard-content">
+                <div class="tab-pane fade show active" id="orders" role="tabpanel">
+                  <div class="card card-green">
+                    <div class="card-header">
+                      <h5 class="mb-0 text-center">Order History</h5>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- ##### Breadcumb Area End ##### -->
-
-    <!-- ##### Cart Area Start ##### -->
-        <div class="checkout_area section-padding-80">
-            <div class="container">
-                <div class="row">
-
-                    <div class="col-12 col-md-6 col-lg-7">
-
-                        <div class="shopping-cart">
-     
-                                    <div class="cart-item d-flex align-items-center" id="cart-item">
-                                        <img src="" alt="Watch" class="cart-item-image" style="width: 150px; height: auto;">
-                                        <div class="d-flex flex-column" style="margin-left: 30px;">
-                                            <h7 style="font-weight: bold;">njdfdnsjf</h7>
-                                            <p class="cart-item-price">₹<span id="unit-price">njdjfn</span></p>
-                                            <div class="cart-item-details flex-grow-1" style="align-items: first baseline;">
-                                                <div class="cart-item-quantity d-flex justify-content-center align-items-center">
-                                                    kdnsjandjasdk
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <button class="remove-item" >Remove</button>
-                                    </div>
-                    
-                                <div class="empty-cart text-center">
-                                    <h5>Your shopping cart is empty.</h5>
-                                    <p>Browse our products and add items to your cart.</p>
-                                </div>
+                    <div class="card-body">
+                      <div class="table-responsive">
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>Order ID</th>
+                              <th>Date</th>
+                              <th>Status</th>
+                              <th>Total Amount</th>
+                              <th>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
                            
-                        </div>
-                        
-                        
-                        <a style="margin-top: 30px;" href="/shop" class="btn essence-btn">Continue Shopping</a>
-
+                              <tr>
+                                <td>jfdsfjd</td>
+                                <td>FONFJAS</td>
+                                <td>JNAJDNAJKDNJKAS</td>
+                                <td>ASIJFOIAJOFIAJF</td>
+                                <td>
+                                  <a href="" class="btn btn-sm btn-success">View Details</a>
+                                </td>
+                              </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
-
-                    
-                    <div class="col-12 col-md-6 col-lg-5 ml-lg-auto">
-                        <div class="order-details-confirmation" style="margin-left: 40px;">
-                            <div class="cart-page-heading">
-                                <h5>Cart summary</h5>
-                                <p>The Details</p>
-                            </div>
-                            
-                            <ul class="order-details-form mb-4 text-right">
-                                <li><span>Subtotal</span> <span>₹<span id="cart-subtotal">jojfdjf</span></span></li>
-                                <li><span>Total</span> <span>₹<span id="cart-total">ncjjdsidsif</span></span></li>
-                            </ul>
-
-                          
-                            <a href="/checkOut"  class="btn essence-btn">Checkout</a>
-                         
-                        </div>
-                    </div>
-
+                  </div>
                 </div>
+              </div>
             </div>
+          </div>
         </div>
-    <!-- ##### Cart Area End ##### -->
+      </div>
+    </div>
+  </section>
+</main>
 
-    <script>
-
-
-
-
-    </script>
-
-    <%- include("../../views/partials/user/footer") %>
+<%- include("../../views/partials/user/footer") %>
