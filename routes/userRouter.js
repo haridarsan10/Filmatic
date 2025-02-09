@@ -77,6 +77,7 @@ router.get('/checkOut',userAuth,checkOutController.checkOut)
 //Orders
 router.post('/orders',userAuth,orderController.orders)
 router.get('/orders',userAuth,orderController.loadOrders)
-
+router.get('/order-details',userAuth,orderController.loadOrderDetails)
+router.post('/cancel-order',userAuth,orderController.cancelOrder)
 
 module.exports= router;

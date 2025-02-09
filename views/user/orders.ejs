@@ -1,119 +1,238 @@
 <%- include("../../views/partials/user/header") %>
 
 <style>
-  .card-green {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+/* General Styles */
+body {
+  overflow-x: hidden;
+}
+
+/* Table */
+.table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* Card Styling */
+.card {
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  margin-bottom: 20px;
+}
+
+.card-header {
+  color: #343a40;
+  background: #f8f9fa;
+  padding: 10px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 12px 12px 0 0;
+}
+
+/* Sidebar Styling */
+.dashboard-menu {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  height: 350px;
+  width: 290px;
+  margin-left: 15px;
+  flex: 0 0 290px;
+}
+
+.dashboard-menu .nav-link {
+  font-weight: bold;
+  color: #2c3e50;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+}
+
+.dashboard-menu .nav-link:hover, 
+.dashboard-menu .nav-link.active {
+  background-color: #007bff;
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+}
+
+/* Layout */
+.container {
+  display: flex;
+  justify-content: center;
+
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+/* Orders Sidebar */
+.right {
+  width: 100%;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Order Items */
+.cart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Order Image */
+.cart-item img {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* Order Details */
+.order-details {
+  flex-grow: 1;
+  padding-left: 15px;
+}
+
+.order-id {
+  font-size: 14px;
+  color: #333;
+}
+
+.cart-item-price {
+  font-size: 16px;
+  color: #d9534f;
+  font-weight: bold;
+}
+
+/* Order Status */
+.order-status {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  color: white;
+}
+
+.order-status.pending {
+  background-color: orange;
+}
+
+.order-status.shipped {
+  background-color: blue;
+}
+
+.order-status.delivered {
+  background-color: green;
+}
+
+.order-status.cancelled {
+  background-color: red;
+}
+
+/* View Order Button */
+.view-order {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.view-order:hover {
+  background-color: #0056b3;
+}
+
+/* No Orders Message */
+.no-orders {
+  text-align: center;
+  padding: 20px;
+  font-size: 16px;
+  color: #555;
+}
+
+/* Breadcrumb Navigation */
+.breadcrumb-container {
+  font-size: 14px;
+}
+
+.breadcrumb {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  padding-left: 50px;
+}
+
+.breadcrumb li {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb a:hover {
+  color: #0056b3;
+}
+
+.breadcrumb span {
+  margin: 0 8px;
+  color: #555;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column;
   }
 
   .dashboard-menu {
-    background-color: #ffffff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  }
-
-  .dashboard-menu .nav-link {
-    font-weight: bold;
-    color: #2c3e50;
-    padding: 10px 15px;
-    border-radius: 8px;
-    transition: all 0.3s ease-in-out;
-  }
-
-  .dashboard-menu .nav-link:hover, .dashboard-menu .nav-link.active {
-    background-color: #007bff;
-    color: #ffffff;
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
-  }
-
-  .card {
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 35%; 
+    height: 350px;
     margin-bottom: 20px;
-    background: #ffffff;
   }
 
-  .card-header {
-    color: rgb(205, 205, 205);
-    border-radius: 12px 12px 0 0;
+  .right {
+    max-width: 100%;
+  }
+
+  .cart-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cart-item img {
+    width: 100px;
+  }
+
+  .view-order {
+    width: 100%;
     text-align: center;
   }
-
-  .btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
-    padding: 8px 15px;
-    border-radius: 8px;
-    transition: background 0.3s;
-  }
-
-  .btn-success:hover {
-    background-color: #218838;
-  }
-
-  .form-group {
-    margin-bottom: 15px;
-  }
-
-  .required {
-    color: red;
-  }
-
-  @media (max-width: 768px) {
-    .dashboard-menu {
-      padding: 15px;
-    }
-
-    .card {
-      margin-bottom: 15px;
-    }
-  }
-
-  .page-header.breadcrumb-wrap {
-    background-color: #f5f5f5;
-    border-radius: 8px;
-  }
-
-  .breadcrumb-container {
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-  }
-
-  .breadcrumb {
-    list-style: none;
-    display: flex;
-    align-items: center;
-    padding-left: 50px;
-  }
-
-  .breadcrumb li {
-    display: flex;
-    align-items: center;
-  }
-
-  .breadcrumb a {
-    text-decoration: none;
-    color: #007bff;
-    font-weight: 500;
-    transition: color 0.3s ease;
-  }
-
-  .breadcrumb a:hover {
-    color: #0056b3;
-  }
-
-  .breadcrumb span {
-    margin: 0 8px;
-    color: #555;
-  }
+}
 
 </style>
 
 <main class="main">
-
   <nav class="breadcrumb-container">
     <ul class="breadcrumb">
       <li><a href="/">Profile</a></li>
@@ -124,78 +243,63 @@
     </ul>
   </nav>
 
-  <section class="pt-10 pb-10" style="margin-top: 50px; margin-bottom: 50px;">
+  <section class="pt-10 pb-10" style="margin-top: 50px; margin-bottom: 50px; margin-left: 160px;">
     <div class="container">
       <div class="row">
-        <div class="col-lg-10 m-auto">
-          <div class="row">
-            <div class="col-md-4">
-              <div class="dashboard-menu">
-                <ul class="nav flex-column" role="tablist">
-                  <li class="nav-item">
-                    <a class="nav-link" id="dashboard-tab" data-bs-toggle="tab" href="/userProfile" role="tab">Dashboard</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="/address" role="tab">My Address</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link active" id="orders-tab" data-bs-toggle="tab" href="/orders" role="tab">Orders</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" id="wallet-tab" data-bs-toggle="tab" href="#track-orders" role="tab">Wallet Status</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" id="wallet-history-tab" data-bs-toggle="tab" href="#wallet-history" role="tab">Wallet History</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" id="referal-tab" data-bs-toggle="tab" href="#referal" role="tab">Referrals</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="/logout">Logout</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div class="col-md-8">
-              <div class="tab-content dashboard-content">
-                <div class="tab-pane fade show active" id="orders" role="tabpanel">
-                  <div class="card card-green">
-                    <div class="card-header">
-                      <h5 class="mb-0 text-center">Order History</h5>
-                    </div>
-                    <div class="card-body">
-                      <div class="table-responsive">
-                        <table class="table">
-                          <thead>
-                            <tr>
-                              <th>Order ID</th>
-                              <th>Date</th>
-                              <th>Status</th>
-                              <th>Total Amount</th>
-                              <th>Action</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                           
-                              <tr>
-                                <td>jfdsfjd</td>
-                                <td>FONFJAS</td>
-                                <td>JNAJDNAJKDNJKAS</td>
-                                <td>ASIJFOIAJOFIAJF</td>
-                                <td>
-                                  <a href="" class="btn btn-sm btn-success">View Details</a>
-                                </td>
-                              </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="dashboard-menu">
+          <ul class="nav flex-column" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link" href="/userProfile">Dashboard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/address">My Address</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/orders">Orders</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#track-orders">Wallet Status</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#wallet-history">Wallet History</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#referal">Referrals</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/logout">Logout</a>
+            </li>
+          </ul>
         </div>
+
+
+
+        <div class="right" style="margin-left: 20px;">
+          <div class="card-header">
+            <h5 class="mb-0">Orders</h5>
+          </div>
+        
+          <% if (orders && orders.length > 0) { %>
+            <% for(let i = 0; i < orders.length; i++) { %>
+              <div class="cart-item">
+                <img class="order-image" src="/uploads/resized-images/<%= orders[i].image %>" alt="Product Image">
+        
+                <div class="order-details">
+                  <p class="order-id"><strong>Order ID:</strong> <%= orders[i].orderId %></p>
+                  <p class="order-status <%= orders[i].status.toLowerCase() %>"><%= orders[i].status %></p>
+                  <p class="cart-item-price"><strong>Total:</strong> ₹<span id="unit-price"><%= orders[i].total %></span></p>
+                </div>
+        
+                <a class="view-order" href="/order-details?id= <%= orders[i].orderId %>" >View</a>
+              </div>
+            <% } %>
+          <% } else { %>
+            <div class="no-orders">
+              <p>No previous orders</p>
+            </div>
+          <% } %>
+        </div>
+        
       </div>
     </div>
   </section>

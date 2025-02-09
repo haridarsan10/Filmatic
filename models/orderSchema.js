@@ -66,7 +66,7 @@ const orderSchema = new Schema({
    },
    couponApplied: {
       type: String,
-      default: false
+      default: false 
    },
 }, { timestamps: true });
 
