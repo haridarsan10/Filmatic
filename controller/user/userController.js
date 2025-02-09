@@ -288,11 +288,39 @@ const loadShopPage=async (req,res) => {
     const page=parseInt(req.query.page) || 1;
     const limit=9
     const skip=(page-1)*limit;
+
+    const selectedSort = req.query.sort || 'newArrivals';
+
+    let sortOption = { createdOn: -1 };
+
+    if (req.query.sort) {
+      switch (req.query.sort) {
+        case "popularity":
+          sortOption = { quantity: -1 };  
+          break;
+        case "priceLowToHigh":
+          sortOption = { salePrice: 1 }; 
+          break;
+        case "priceHighToLow":
+          sortOption = { salePrice: -1 }; 
+          break;
+        case "newArrivals":
+          sortOption = { createdOn: -1 }; 
+          break;
+        case "aToZ":
+          sortOption = { productName: 1 };
+          break;
+        case "zToA":
+          sortOption = { productName: -1 }; 
+          break;
+      }
+    }
+
     const products=await Product.find({
       isBlocked:false,
       category:{$in:categoryIds},
       quantity:{$gt:0}
-    }).sort({createdOn:-1}).skip(skip).limit(limit)
+    }).sort(sortOption).collation({ locale: "en", strength: 2 }).skip(skip).limit(limit)
 
 
     const totalProducts=await Product.countDocuments({
@@ -301,9 +329,20 @@ const loadShopPage=async (req,res) => {
       quantity:{$gt:0}
     })
 
+    console.log(products)
+
     const totalPages=Math.ceil(totalProducts/limit)
 
     const categoriesWithIds=categories.map(category=>({_id:category._id,name:category.name}))
+
+    if (req.get('X-Requested-With') === 'Fetch') {
+      return res.json({
+        products: products,
+        totalProducts: totalProducts,
+        totalPages: totalPages
+      });
+    }
+
 
     res.render('shop',{
       user:userData,
@@ -311,7 +350,8 @@ const loadShopPage=async (req,res) => {
       category:categoriesWithIds,
       totalProducts:totalProducts,
       currentPage:page,
-      totalPages:totalPages
+      totalPages:totalPages,
+      selectedSort: selectedSort 
     })
 
   } catch (error) {

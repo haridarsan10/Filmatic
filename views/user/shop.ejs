@@ -20,7 +20,7 @@
                         <img src="img/product-img/product-1.jpg" class="cart-thumb" alt="">
                         <!-- Cart Item Desc -->
                         <div class="cart-item-desc">
-                          <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
+                            <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
                             <span class="badge">Mango</span>
                             <h6>Button Through Strap Mini Dress</h6>
                             <p class="size">Size: S</p>
@@ -36,7 +36,7 @@
                         <img src="img/product-img/product-2.jpg" class="cart-thumb" alt="">
                         <!-- Cart Item Desc -->
                         <div class="cart-item-desc">
-                          <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
+                            <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
                             <span class="badge">Mango</span>
                             <h6>Button Through Strap Mini Dress</h6>
                             <p class="size">Size: S</p>
@@ -52,7 +52,7 @@
                         <img src="img/product-img/product-3.jpg" class="cart-thumb" alt="">
                         <!-- Cart Item Desc -->
                         <div class="cart-item-desc">
-                          <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
+                            <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
                             <span class="badge">Mango</span>
                             <h6>Button Through Strap Mini Dress</h6>
                             <p class="size">Size: S</p>
@@ -113,45 +113,13 @@
                                     <!-- Single Item -->
                                     <li data-toggle="collapse" data-target="#clothing">
                                         <ul class="sub-menu collapse show" id="clothing">
-                                          <% for(let i=0;i<category.length;i++) { %>
-                                            <li><a href="#"><%= category[i].name %></a></li>
-                                          <% } %>
+                                            <% for(let i=0;i<category.length;i++) { %>
+                                                <li><a href="#">
+                                                        <%= category[i].name %>
+                                                    </a></li>
+                                                <% } %>
                                         </ul>
                                     </li>
-                                    <!-- Single Item
-                                    <li data-toggle="collapse" data-target="#shoes" class="collapsed">
-                                        <a href="#">shoes</a>
-                                        <ul class="sub-menu collapse" id="shoes">
-                                            <li><a href="#">All</a></li>
-                                            <li><a href="#">Bodysuits</a></li>
-                                            <li><a href="#">Dresses</a></li>
-                                            <li><a href="#">Hoodies &amp; Sweats</a></li>
-                                            <li><a href="#">Jackets &amp; Coats</a></li>
-                                            <li><a href="#">Jeans</a></li>
-                                            <li><a href="#">Pants &amp; Leggings</a></li>
-                                            <li><a href="#">Rompers &amp; Jumpsuits</a></li>
-                                            <li><a href="#">Shirts &amp; Blouses</a></li>
-                                            <li><a href="#">Shirts</a></li>
-                                            <li><a href="#">Sweaters &amp; Knits</a></li>
-                                        </ul>
-                                    </li> -->
-                                    <!-- Single Item -->
-                                    <!-- <li data-toggle="collapse" data-target="#accessories" class="collapsed">
-                                        <a href="#">accessories</a>
-                                        <ul class="sub-menu collapse" id="accessories">
-                                            <li><a href="#">All</a></li>
-                                            <li><a href="#">Bodysuits</a></li>
-                                            <li><a href="#">Dresses</a></li>
-                                            <li><a href="#">Hoodies &amp; Sweats</a></li>
-                                            <li><a href="#">Jackets &amp; Coats</a></li>
-                                            <li><a href="#">Jeans</a></li>
-                                            <li><a href="#">Pants &amp; Leggings</a></li>
-                                            <li><a href="#">Rompers &amp; Jumpsuits</a></li>
-                                            <li><a href="#">Shirts &amp; Blouses</a></li>
-                                            <li><a href="#">Shirts</a></li>
-                                            <li><a href="#">Sweaters &amp; Knits</a></li>
-                                        </ul>
-                                    </li> -->
                                 </ul>
                             </div>
                         </div>
@@ -165,10 +133,14 @@
 
                             <div class="widget-desc">
                                 <div class="slider-range">
-                                    <div data-min="49" data-max="360" data-unit="$" class="slider-range-price ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all" data-value-min="49" data-value-max="360" data-label-result="Range:">
+                                    <div data-min="49" data-max="360" data-unit="$"
+                                        class="slider-range-price ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"
+                                        data-value-min="49" data-value-max="360" data-label-result="Range:">
                                         <div class="ui-slider-range ui-widget-header ui-corner-all"></div>
-                                        <span class="ui-slider-handle ui-state-default ui-corner-all" tabindex="0"></span>
-                                        <span class="ui-slider-handle ui-state-default ui-corner-all" tabindex="0"></span>
+                                        <span class="ui-slider-handle ui-state-default ui-corner-all"
+                                            tabindex="0"></span>
+                                        <span class="ui-slider-handle ui-state-default ui-corner-all"
+                                            tabindex="0"></span>
                                     </div>
                                     <div class="range-price">Range: $49.00 - $360.00</div>
                                 </div>
@@ -176,8 +148,8 @@
                         </div>
 
                         <!-- ##### Single Widget ##### -->
-                        <div class="widget color mb-50">
-                            <!-- Widget Title 2 -->
+                        <!-- <div class="widget color mb-50">
+                            Widget Title 2
                             <p class="widget-title2 mb-30">Color</p>
                             <div class="widget-desc">
                                 <ul class="d-flex">
@@ -193,7 +165,7 @@
                                     <li><a href="#" class="color10"></a></li>
                                 </ul>
                             </div>
-                        </div>
+                        </div> -->
 
                     </div>
                 </div>
@@ -205,96 +177,68 @@
                                 <div class="product-topbar d-flex align-items-center justify-content-between">
                                     <!-- Total Products -->
                                     <div class="total-products">
-                                        <p><span><%=products.length%></span> products found</p>
+                                        <p><span>
+                                                <%=products.length%>
+                                            </span> products found</p>
                                     </div>
                                     <!-- Sorting -->
                                     <div class="product-sorting d-flex">
                                         <p>Sort by:</p>
-                                        <form action="#" method="get">
-                                            <select name="select" id="sortByselect">
-                                                <option value="value">Highest Rated</option>
-                                                <option value="value">Newest</option>
-                                                <option value="value">Price: $$ - $</option>
-                                                <option value="value">Price: $ - $$</option>
+                                        <form id="sortForm" action="/shop" method="GET">
+                                            <select name="sort" id="sortSelect" onchange="applySortFilter()">
+                                                <option value="priceLowToHigh" <%=selectedSort==="priceLowToHigh"
+                                                    ? "selected" : "" %>>Price: Low to High</option>
+                                                <option value="priceHighToLow" <%=selectedSort==="priceHighToLow"
+                                                    ? "selected" : "" %>>Price: High to Low</option>
+                                                <option value="newArrivals" <%=selectedSort==="newArrivals" ? "selected"
+                                                    : "" %>>New Arrivals</option>
+                                                <option value="aToZ" <%=selectedSort==="aToZ" ? "selected" : "" %>>A-Z
+                                                </option>
+                                                <option value="zToA" <%=selectedSort==="zToA" ? "selected" : "" %>>Z-A
+                                                </option>
                                             </select>
-                                            <input type="submit" class="d-none" value="">
                                         </form>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="row">
-                          <!-- Single Product -->
-                          <% for(let i=0; i < products.length; i++) { %>
-                          <div class="col-12 col-sm-6 col-lg-4">
-                              <div class="single-product-wrapper">
-                                  <!-- Wrap everything inside the <a> tag -->
-                                  <a href="/productDetails?id=<%= products[i]._id %>">
-                                      <!-- Product Image -->
-                                      <div class="product-img">
-                                          <img src="uploads/resized-images/<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
-                                          <!-- Hover Thumb -->
-                                          <img class="hover-img" src="uploads/resized-images/<%= products[i].productImage[1] %>" alt="">
-                      
-                                          <!-- Product Badge -->
-                                          <div class="product-badge offer-badge">
-                                              <span>-<%= products[i].regularPrice - products[i].salePrice %>₹</span>
-                                          </div>
-                                          <!-- Favourite -->
-                                          <div class="product-favourite">
-                                              <a href="#" class="favme fa fa-heart"></a>
-                                          </div>
-                                      </div>
-                      
-                                      <!-- Product Description -->
-                                      <div class="product-description">
-                                          <h6><%= products[i].productName %></h6>
-                                          <p class="product-price">
-                                              <span class="old-price">₹ <%= products[i].regularPrice %></span>₹ <%= products[i].salePrice %>
-                                          </p>
-                                      </div>
-                                  </a>
-                      
-                                  <!-- Hover Content (kept outside to prevent navigation issues) -->
-                                  <div class="hover-content">
-                                      <!-- Add to Cart -->
-                                      <div class="add-to-cart-btn">
-                                          <a href="#" onclick="addToCart('<%= products[i]._id %>')" class="btn essence-btn">Add to Cart</a>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
-                          <% } %>
-                      </div>
-                      
+
+                        <div class="row" id="productList">
+
+                        </div>
+
+
+
                     </div>
-                   <!-- Pagination -->
-                          <nav aria-label="navigation">
-                            <ul class="pagination mt-50 mb-70">
-                                <% if (currentPage > 1) { %>
-                                    <li class="page-item">
-                                        <a class="page-link" href="/shop?page=<%= currentPage - 1 %>">
-                                            <i class="fa fa-angle-left"></i>
-                                        </a>
-                                    </li>
+                    <!-- Pagination -->
+                    <nav aria-label="navigation">
+                        <ul class="pagination mt-50 mb-70">
+                            <% if (currentPage> 1) { %>
+                                <li class="page-item">
+                                    <a class="page-link" href="/shop?page=<%= currentPage - 1 %>">
+                                        <i class="fa fa-angle-left"></i>
+                                    </a>
+                                </li>
                                 <% } %>
 
-                                <% for (let i = 1; i <= totalPages; i++) { %>
-                                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                                        <a class="page-link" href="/shop?page=<%= i %>"><%= i %></a>
-                                    </li>
-                                <% } %>
+                                    <% for (let i=1; i <=totalPages; i++) { %>
+                                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                            <a class="page-link" href="/shop?page=<%= i %>">
+                                                <%= i %>
+                                            </a>
+                                        </li>
+                                        <% } %>
 
-                                <% if (currentPage < totalPages) { %>
-                                    <li class="page-item">
-                                        <a class="page-link" href="/shop?page=<%= currentPage + 1 %>">
-                                            <i class="fa fa-angle-right"></i>
-                                        </a>
-                                    </li>
-                                <% } %>
-                            </ul>
-                          </nav>
+                                            <% if (currentPage < totalPages) { %>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="/shop?page=<%= currentPage + 1 %>">
+                                                        <i class="fa fa-angle-right"></i>
+                                                    </a>
+                                                </li>
+                                                <% } %>
+                        </ul>
+                    </nav>
 
                 </div>
             </div>
@@ -303,45 +247,49 @@
     <!-- ##### Shop Grid Area End ##### -->
 
     <script>
+
+        document.addEventListener('DOMContentLoaded',applySortFilter)
+
+
         async function addToCart(productId) {
 
-                try {
-                    
-                const response=await fetch('/addToCart',{
-                    method:'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body:JSON.stringify({productId:productId,quantity:1})
+            try {
+
+                const response = await fetch('/addToCart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId: productId, quantity: 1 })
                 })
 
-                const data=await response.json()
+                const data = await response.json()
 
                 if (!data.success && data.redirectUrl) {
-                window.location.href = data.redirectUrl; 
-                return;
+                    window.location.href = data.redirectUrl;
+                    return;
                 }
 
-                if(data.success){
+                if (data.success) {
                     Toastify({
-                    text: "Added to Cart",
-                    duration: 2000,
-                    gravity: "top",
-                    position: "right", 
-                    backgroundColor: "green",
-                    stopOnFocus: true
-                }).showToast();
+                        text: "Added to Cart",
+                        duration: 2000,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "green",
+                        stopOnFocus: true
+                    }).showToast();
                 }
-                else{
+                else {
                     Toastify({
-                    text: data.message,
-                    duration: 2000,
-                    gravity: "top",
-                    position: "right",
-                    backgroundColor: "red",
-                    stopOnFocus: true
-                }).showToast();
+                        text: data.message,
+                        duration: 2000,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "red",
+                        stopOnFocus: true
+                    }).showToast();
                 }
 
-                } catch (error) {
+            } catch (error) {
                 console.error('Error:', error);
                 Toastify({
                     text: "Something went wrong. Please try again.",
@@ -351,8 +299,74 @@
                     backgroundColor: "red",
                     stopOnFocus: true
                 }).showToast();
+            }
+        }
+
+
+        function applySortFilter() {
+
+            const sortValue = document.getElementById('sortSelect').value;
+            const url = `/shop?sort=${sortValue}`;
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'Fetch'
                 }
-                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const products = data.products
+                    const productList = document.getElementById('productList')
+                    productList.innerHTML = '';
+                    let innerData = ''
+                    for (let i = 0; i < products.length; i++) {
+
+                        innerData += `
+                            <div class="col-12 col-sm-6 col-lg-4">
+                                <div class="single-product-wrapper">
+                                    <a href="/productDetails?id=${products[i]._id}">
+                                        <div class="product-img">
+                                            <img src="uploads/resized-images/${products[i].productImage[0]}" alt="${products[i].productName}">
+                                            <img class="hover-img" src="uploads/resized-images/ ${products[i].productImage[1]} " alt="">
+                                            <div class="product-badge offer-badge">
+                                                <span>-  ${products[i].regularPrice - products[i].salePrice}₹</span>
+                                            </div>
+                                            <div class="product-favourite">
+                                                <a href="#" class="favme fa fa-heart"></a>
+                                            </div>
+                                        </div>
+                                        <div class="product-description">
+                                            <h6>${products[i].productName}</h6>
+                                            <p class="product-price">
+                                                <span class="old-price">₹ ${products[i].regularPrice}</span>₹  ${products[i].salePrice}
+                                            </p>
+                                        </div>
+                                    </a>
+                                    <div class="hover-content">
+                                        <div class="add-to-cart-btn">
+                                            <a href="#" onclick="addToCart('${products[i]._id}')" class="btn essence-btn">Add to Cart</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                    }
+                    console.log(innerData)
+                    productList.innerHTML = innerData;
+
+
+
+
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+
+        }
+
+
     </script>
 
     <%- include("../../views/partials/user/footer") %>
