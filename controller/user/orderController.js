@@ -78,43 +78,43 @@ const orders=async (req,res) => {
   }
 }
 
-const loadOrderDetails = async (req, res) => {
-  try {
+  const loadOrderDetails = async (req, res) => {
+    try {
 
-    const userData = req.session.userData;
-    const orderId = req.query.id.trim(); 
+      const userData = req.session.userData;
+      const orderId = req.query.id.trim(); 
 
-    const order = await Order.findOne({ orderId })
-      .populate('order_items.productId', 'productName productImage') 
-      .exec();
-
-
-      // console.log(order)
-
-      const addressId=order.address_id.toString()
-
-      const address = await Address.findOne({
-        "address._id": addressId
-      }).select("address.$");  
-      
-      const foundAddress = address?.address[0] || {}; 
-
-      const products = order.order_items.map(item => ({
-        productImage: item.productId?.productImage || 'default-image.jpg', 
-        productName: item.productName,
-        price: item.price,
-        quantity: item.quantity,
-        total: item.price * item.quantity
-      }));
+      const order = await Order.findOne({ orderId })
+        .populate('order_items.productId', 'productName productImage') 
+        .exec();
 
 
-    res.render('order-details',{ user:userData,products:products,order:order,address:foundAddress})
+        // console.log(order)
 
-  } catch (error) {
-    console.log("Error fetching order details:", error);
-    res.status(500).send("Internal Server Error");
-  }
-};
+        const addressId=order.address_id.toString()
+
+        const address = await Address.findOne({
+          "address._id": addressId
+        }).select("address.$");  
+        
+        const foundAddress = address?.address[0] || {}; 
+
+        const products = order.order_items.map(item => ({
+          productImage: item.productId?.productImage || 'default-image.jpg', 
+          productName: item.productName,
+          price: item.price,
+          quantity: item.quantity,
+          total: item.price * item.quantity
+        }));
+
+
+      res.render('order-details',{ user:userData,products:products,order:order,address:foundAddress})
+
+    } catch (error) {
+      console.log("Error fetching order details:", error);
+      res.status(500).send("Internal Server Error");
+    }
+  };
 
 
 const cancelOrder=async (req,res) => {
