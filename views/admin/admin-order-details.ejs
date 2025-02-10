@@ -343,9 +343,10 @@ body {
                 <p class="order-id"><strong>Name: </strong><%= address.name %></p>
                 <p class="order-id"><strong>Phone: </strong><%= address.phone %></p>
                 <p class="order-id"><strong>Type: </strong><%= address.addressType %></p>
-                <div style="width: 200px; ">
-                <p class=""><%= address.city %>,<%= address.landMark %>,<%= address.state %>,<%= address.pincode %></p>
-               </div> 
+                <div style="width: 300px">
+                  <p style="margin: 0;"><%= address.city %>, <%= address.landMark %>, <%= address.state %>, <%= address.pincode %></p>
+                </div>
+                
               </div>
         </div>
         
@@ -393,9 +394,11 @@ body {
 
   async function cancelOrder(orderId){
 
-    console.log(orderId)
 
     try {
+
+      console.log(orderId)
+
       const result = await Swal.fire({
             title: "Are you sure?",
             text: "Do you really want to cancel this order?",
@@ -411,7 +414,7 @@ body {
         
           $.ajax({
             type:'post',
-            url: '/cancel-order', 
+            url: '/admin/cancelOrder', 
             dataType:'json',
             contentType: "application/json",
             data: JSON.stringify({orderId:orderId}),
@@ -425,7 +428,7 @@ body {
                     timer:1500
                 })
                 setTimeout(()=>{
-                window.location.replace('/orders')
+                window.location.replace('/admin/orders')
                 },2000)
                 }
             else{

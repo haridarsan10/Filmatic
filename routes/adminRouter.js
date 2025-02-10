@@ -51,7 +51,8 @@ router.post('/editProduct/:id', adminAuth, uploads.array('images', 3), productCo
 router.post('/deleteImage',adminAuth,productController.deleteSingleImage)
 
 //Order Management
-router.get('/orders',adminOrderController.loadOrders)
-router.get('/order-details',adminOrderController.orderDetails)
+router.get('/orders',adminAuth,adminOrderController.loadOrders)
+router.get('/order-details',adminAuth,adminOrderController.orderDetails)
+router.post('/cancelOrder',adminAuth,adminOrderController.adminCancelOrder)
 
 module.exports=router

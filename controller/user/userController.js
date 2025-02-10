@@ -329,7 +329,7 @@ const loadShopPage=async (req,res) => {
       quantity:{$gt:0}
     })
 
-    console.log(products)
+    // console.log(products)
 
     const totalPages=Math.ceil(totalProducts/limit)
 

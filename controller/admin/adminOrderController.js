@@ -60,6 +60,8 @@ const orderDetails = async (req, res) => {
         total: item.price * item.quantity
       }));
 
+      
+
 
     res.render('admin-order-details',{products:products,order:order,address:foundAddress})
 
@@ -70,8 +72,38 @@ const orderDetails = async (req, res) => {
 };
 
 
+const adminCancelOrder=async (req,res) => {
+  try {
+    const orderId = req.body.orderId.trim(); 
+      // console.log(orderId);
+    
+      if (!orderId) {
+        return res.json({ success: false, message: "Invalid Order ID." });
+      }
+
+      const order = await Order.findOne({ orderId: orderId });
+
+      if (!order) {
+        return res.json({ success: false, message: "Order not found." });
+      }
+      
+      const updateResult=await Order.updateOne({orderId},{$set:{status:"cancelled"}})
+
+      if (updateResult.modifiedCount > 0) {
+        return res.json({ success: true, message: "Order cancelled successfully." });
+      } else {
+        return res.json({ success: false, message: "Order status update failed." });
+      }
+
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({success:false,message:"Some error occured"})
+  } 
+}
+
 
 module.exports={
   loadOrders,
-  orderDetails
+  orderDetails,
+  adminCancelOrder
 }
