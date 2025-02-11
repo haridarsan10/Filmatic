@@ -72,12 +72,11 @@ const addProducts=async (req,res) => {
       })
 
       await newProduct.save()
-      return res.redirect('/admin/addProducts')
-
+      return res.status(200).json({ success: true, message: 'Product added Successfully' });
     }
     else{
-      return res.status(400).send('Product already exists');
-    }
+      return res.status(400).json({ success: false, message: 'Product already exists!' });
+     }
 
   } catch (error) {
     console.log(error)
@@ -213,15 +212,30 @@ const editProduct = async (req, res) => {
 
       // Process images
       const images = [];
-      if (req.files && req.files.length > 0) {
-          for (const file of req.files) {
-              if (file.filename) {
-                  images.push(file.filename);
-              }
-          }
-      }
+      // if (req.files && req.files.length > 0) {
+      //     for (const file of req.files) {
+      //         if (file.filename) {
+      //             images.push(file.filename);
+      //         }
+      //     }
+      // }
 
+      if(req.files && req.files.length>0){
+        for(let i=0;i<req.files.length;i++){
+          const originalImagePath=req.files[i].path;
+
+          const resizedImagePath = path.join(
+            'public',
+            'uploads',
+            'resized-images',
+            req.files[i].filename // Create a unique resized file name
+          );
+          await sharp(originalImagePath).resize({width:440,height:440}).toFile(resizedImagePath)
+          images.push(req.files[i].filename)
+        }
+      }
    
+
 
       // Prepare update fields with data validation
       const updateFields = {
@@ -265,70 +279,77 @@ const editProduct = async (req, res) => {
 };
 
 const deleteSingleImage = async (req, res) => {
-    try {
-        const { imageNameToServer, productIdToServer } = req.body;
+  try {
+      const { imageNameToServer, productIdToServer } = req.body;
 
-        // Validate inputs
-        if (!imageNameToServer || !productIdToServer) {
-            return res.status(400).json({ 
-                status: false, 
-                error: "Missing image name or product ID" 
-            });
-        }
+      // Validate inputs
+      if (!imageNameToServer || !productIdToServer) {
+          return res.json({ 
+              success: false, 
+              message: "Missing image name or product ID" 
+          });
+      }
 
-        // Validate product existence
-        const product = await Product.findById(productIdToServer);
-        if (!product) {
-            return res.status(404).json({ 
-                status: false, 
-                error: "Product not found" 
-            });
-        }
+      // Validate product existence
+      const product = await Product.findById(productIdToServer);
+      if (!product) {
+          return res.json({ 
+              success: false, 
+              message: "Product not found" 
+          });
+      }
 
-        // Check if image exists in product
-        if (!product.productImage.includes(imageNameToServer)) {
-            return res.status(404).json({ 
-                status: false, 
-                error: "Image not found in product" 
-            });
-        }
+      // Ensure productImage exists and has at least 3 images
+      if (!product.productImage || product.productImage.length <= 3) {
+          return res.json({ 
+              success: false, 
+              message: "Minimum 3 images are required!" 
+          });
+      }
 
-        // Remove image from database
-        await Product.findByIdAndUpdate(
-            productIdToServer,
-            { $pull: { productImage: imageNameToServer } }
-        );
+      // Check if image exists in product
+      if (!product.productImage.includes(imageNameToServer)) {
+          return res.json({ 
+              success: false, 
+              message: "Image not found in product" 
+          });
+      }
 
-        // Delete image file
-        const imagePath = path.join('public', 'uploads', 'product-images', imageNameToServer);
+      // Remove image from database
+      await Product.findByIdAndUpdate(
+          productIdToServer,
+          { $pull: { productImage: imageNameToServer } }
+      );
 
-        if (fs.existsSync(imagePath)) {
-            try {
-                await fs.promises.unlink(imagePath);
-                console.log(`Image ${imageNameToServer} deleted successfully`);
-            } catch (unlinkError) {
-                console.error('Error deleting image file:', unlinkError);
-                return res.status(500).json({ 
-                    status: false, 
-                    error: "Failed to delete image file" 
-                });
-            }
-        } else {
-            console.log(`Image file ${imageNameToServer} not found`);
-        }
+      // Delete image file from server
+      const imagePath = path.join('public', 'uploads', 'product-images', imageNameToServer);
 
-        res.json({ status: true, message: "Image deleted successfully" });
+      if (fs.existsSync(imagePath)) {
+          try {
+              await fs.promises.unlink(imagePath);
+              console.log(`Image ${imageNameToServer} deleted successfully`);
+          } catch (unlinkError) {
+              console.error('Error deleting image file:', unlinkError);
+              return res.json({ 
+                  success: false, 
+                  message: "Failed to delete image file" 
+              });
+          }
+      } else {
+          console.log(`Image file ${imageNameToServer} not found`);
+      }
 
-    } catch (error) {
-        console.error('Error in deleteSingleImage:', error);
-        res.status(500).json({ 
-            status: false, 
-            error: "Internal server error", 
-            details: error.message 
-        });
-    }
+      res.json({ success: true, message: "Image deleted successfully" });
+
+  } catch (error) {
+      console.error('Error in deleteSingleImage:', error);
+      res.json({ 
+          success: false, 
+          message: "Internal server error", 
+          details: error.message 
+      });
+  }
 };
-
 
 module.exports={
   geProductsAddPage,

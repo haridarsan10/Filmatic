@@ -70,6 +70,13 @@ const orders=async (req,res) => {
 
       await newOrder.save()
 
+      for (let item of cartItems) { 
+        await Product.findByIdAndUpdate(
+            item.productId._id, 
+            { $inc: { quantity: -item.quantity } }  // Decrease stock
+        );
+    }      
+
     return res.status(200).json({ success: true, message: "Order Placed successfully" });
 
   } catch (error) {
