@@ -14,6 +14,7 @@ const loadCart=async (req,res) => {
     const cartData = await Cart.findOne({ userId: userId }).populate("items.productId");
     res.render('cart',{user:userData,cartData:cartData})
 
+
   } catch (error) {
    console.log(error)
    res.redirect('/pageNotFound') 

@@ -5,6 +5,8 @@ const customerController=require('../controller/admin/customerController');
 const categoryController=require('../controller/admin/categoryController')
 const productController=require('../controller/admin/productController')
 const adminOrderController=require('../controller/admin/adminOrderController')
+const couponController=require('../controller/admin/couponController')
+
 const {userAuth,adminAuth}=require('../middlewares/auth')
 
 const multer = require('multer');
@@ -54,5 +56,8 @@ router.post('/deleteImage',adminAuth,productController.deleteSingleImage)
 router.get('/orders',adminAuth,adminOrderController.loadOrders)
 router.get('/order-details',adminAuth,adminOrderController.orderDetails)
 router.post('/cancelOrder',adminAuth,adminOrderController.adminCancelOrder)
+
+//Coupon Management
+router.get('/coupon',adminAuth,couponController.loadCoupon)
 
 module.exports=router

@@ -1,0 +1,262 @@
+<%- include("../partials/admin/admin-header") %>
+
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            padding-left: 280px;
+            padding-right: 50px;
+        }
+
+        .content-header {
+            background-color: #fff;
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .content-title {
+            font-size: 24px;
+            color: #4a4a4a;
+        }
+
+        .input-group {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            margin-top: 10px;
+        }
+
+        .input-group input {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 25px;
+        }
+
+        .input-group button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .input-group button:hover {
+            background-color: #45a049;
+        }
+
+        .right {
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        td button {
+            padding: 5px 10px;
+            margin: 5px;
+            font-size: 12px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        td button a {
+            color: white;
+            text-decoration: none;
+        }
+
+        td button:hover {
+            opacity: 0.8;
+        }
+    
+        .btn-info {
+            background-color: #17a2b8;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+}
+
+.table th, .table td {
+    padding: 1rem;
+    text-align: left;
+    border: 1px solid #e5e7eb; /* Border color for all cells */
+}
+
+.table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.table td {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.table tr:last-child td {
+    border-bottom: none; /* No border for the last row */
+}
+
+.table tr:hover {
+    background: #e5e7eb;
+}
+
+
+        @media (max-width: 768px) {
+            .input-group {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+
+            td button {
+                font-size: 10px;
+                padding: 5px;
+            }
+        }
+
+        .pagination {
+    display: flex;
+    justify-content: center; /* Center it horizontally */
+    align-items: center; /* Align it vertically */
+    padding: 10px 0; /* Add some space around */
+    gap: 5px; /* Space between the buttons */
+    margin-left: 20px; /* Slightly move the pagination to the right */
+}
+
+.pagination .page-item {
+    list-style: none;
+}
+
+.pagination .page-item a {
+    display: block;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #007bff; /* Default color */
+    text-decoration: none;
+    border: 1px solid #ddd; /* Border for buttons */
+    border-radius: 4px; /* Rounded corners */
+    background-color: #fff; /* Button background */
+    transition: all 0.3s ease; /* Smooth hover effect */
+}
+
+.pagination .page-item a:hover {
+    background-color: #007bff; /* Change on hover */
+    color: #fff; /* Text color on hover */
+    border-color: #007bff; /* Border color on hover */
+}
+
+.pagination .page-item.active a {
+    background-color: #4caf50; /* Active button color */
+    color: white;
+    border-color: #4caf50;
+    pointer-events: none; /* Disable click on active button */
+}
+    </style>
+
+</head>
+<div class="content-header">
+    <div>
+        <h2 class="content-title card-title">Products</h2>
+    </div>
+</div>
+<header class="card-header text-center mb-20">
+    <form action="" method="get" class="d-inline">
+        <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
+            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search products or brands" name="search">
+            <button class="btn  border-0" type="submit">Search</button>
+        </div>
+    </form>
+</header>
+<div class="right mt-5">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col"><b>Product name</b></th>
+                <th scope="col"><b>Category</b></th>
+                <th scope="col"><b>Regular Price</b></th>
+                <th scope="col"><b>Sale Price</b></th>
+                <!-- <th scope="col"><b>Offer</b></th> -->
+                <th scope="col"><b>Quantity</b></th>
+                <th scope="col"><b>Color</b></th>
+                <th scope="col"><b>Status</b></th>
+                <th scope="col"><b>Action</b></th>
+                <th scope="col"><b>Edit</b></th>
+            </tr>
+        </thead>
+        
+
+    </table>
+</div>
+</div>
+</div>
+
+<div class="container mt-3">
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center mb-20" style="margin-right: 200px;">
+ 
+ 
+          
+ 
+ 
+        </ul>
+    </nav>
+ </div>
+ 
+ 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<%- include("../partials/admin/admin-footer") %>

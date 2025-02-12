@@ -6,6 +6,8 @@ const profileController=require('../controller/user/profileController')
 const cartController=require('../controller/user/cartController')
 const checkOutController=require('../controller/user/checkOutController')
 const orderController=require('../controller/user/orderController')
+const wishlistController=require('../controller/user/wishlistController')
+
 
 const passport = require('passport');
 const {userAuth,isBlocked}=require('../middlewares/auth')
@@ -79,5 +81,10 @@ router.post('/orders',userAuth,orderController.orders)
 router.get('/orders',userAuth,orderController.loadOrders)
 router.get('/order-details',userAuth,orderController.loadOrderDetails)
 router.post('/cancel-order',userAuth,orderController.cancelOrder)
+
+//Wishlist
+router.get('/wishlist',userAuth,wishlistController.loadWishlist)
+router.post('/addToWishlist',wishlistController.addToWishlist)
+router.post('/removeWishlist',wishlistController.removeWishlist)
 
 module.exports= router;
