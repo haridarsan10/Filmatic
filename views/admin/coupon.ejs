@@ -11,6 +11,7 @@
             color: #333;
             padding-left: 280px;
             padding-right: 50px;
+            padding-bottom: 500px;
         }
 
         .content-header {
@@ -204,6 +205,122 @@
     border-color: #4caf50;
     pointer-events: none; /* Disable click on active button */
 }
+
+.add-coupon {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s ease-in-out;
+}
+
+.add-coupon:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+.add-coupon-div {
+    display: flex;
+    justify-content: flex-end; /* Aligns button to the right */
+    padding: 10px;
+}
+
+
+    /* Modal Background */
+    #myModal {
+        display: none; /* Hidden by default */
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
+        overflow-y: auto; /* Allows scrolling if modal content is too large */
+    }
+
+    /* Modal Content Box */
+    .modal-content {
+        background: white;
+        width: 90%;
+        max-width: 500px; /* Limits max width */
+        margin: 50px auto; /* Centers the modal */
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        position: relative;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    /* Close Button */
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 20px;
+        cursor: pointer;
+        color: #555;
+    }
+
+    .close:hover {
+        color: red;
+    }
+
+    /* Form Inputs */
+    input, select {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    /* Error Messages */
+    .error {
+        color: red;
+        font-size: 0.9em;
+        display: block;
+        margin-top: -5px;
+    }
+
+    /* Submit Button */
+    .mybtn {
+        width: 100%;
+        padding: 10px;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 10px;
+    }
+
+    .mybtn:hover {
+        background: #218838;
+    }
+
+    /* Fade In Animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+
+    .submit-btn{
+        width: 100%;
+        padding: 10px;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 10px;
+    }
+
     </style>
 
 </head>
@@ -220,6 +337,10 @@
         </div>
     </form>
 </header>
+
+<div class="add-coupon-div">
+    <button id="myBtn" class="add-coupon">Add new Coupon</button>
+</div>
 <div class="right mt-5">
     <table class="table table-hover">
         <thead>
@@ -240,23 +361,256 @@
 
     </table>
 </div>
-</div>
+
+
+
+<!-- Modal -->
+<div id="myModal" style="display: none;">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Add Coupon</h2>
+
+        <!-- Coupon Form -->
+        <form id="couponForm">
+            <!-- Coupon Code -->
+            <label for="code">Coupon Code:</label>
+            <input type="text" id="code" name="code">
+            <span id="codeError" class="error"></span>
+
+            <!-- Discount Amount -->
+            <label for="discount">Discount Amount:</label>
+            <input type="number" id="discount" name="discount">
+            <span id="discountError" class="error"></span>
+
+            <!-- Discount Type -->
+            <label for="discountType">Discount Type:</label>
+            <select id="discountType" name="discountType">
+                <option value="percentage">Percentage (%)</option>
+                <option value="fixed">Fixed Amount</option>
+            </select>
+
+            <!-- Minimum Purchase -->
+            <label for="minPurchase">Minimum Purchase Amount:</label>
+            <input type="number" id="minPurchase" name="minPurchase">
+            <span id="minPurchaseError" class="error"></span>
+
+            <!-- Maximum Discount -->
+            <label for="maxDiscount">Maximum Discount:</label>
+            <input type="number" id="maxDiscount" name="maxDiscount">
+            <span id="maxDiscountError" class="error"></span>
+
+            <!-- Valid From Date -->
+            <label for="validFrom">Valid From:</label>
+            <input type="date" id="validFrom" name="validFrom">
+            <span id="validFromError" class="error"></span>
+
+            <!-- Valid To Date -->
+            <label for="validTo">Valid To:</label>
+            <input type="date" id="validTo" name="validTo">
+            <span id="validToError" class="error"></span>
+
+            <!-- Usage Limit -->
+            <label for="usageLimit">Usage Limit:</label>
+            <input type="number" id="usageLimit" name="usageLimit">
+            <span id="usageLimitError" class="error"></span>
+
+            <!-- Submit Button -->
+            <button class="submit-btn" type="submit">Add Coupon</button>
+        </form>
+    </div>
 </div>
 
-<div class="container mt-3">
-    <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center mb-20" style="margin-right: 200px;">
- 
- 
-          
- 
- 
-        </ul>
-    </nav>
- </div>
- 
+
+
+
  
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script>
+
+// Get the modal, button, and close elements
+var modal = document.getElementById("myModal");
+var span = document.getElementsByClassName("close")[0];
+var btn = document.getElementById("myBtn");
+
+// Form and error display elements
+const couponForm = document.getElementById("couponForm");
+const codeError = document.getElementById("codeError");
+const discountError = document.getElementById("discountError");
+const validFromError = document.getElementById("validFromError");
+const validToError = document.getElementById("validToError");
+const usageLimitError = document.getElementById("usageLimitError");
+const minPurchaseError = document.getElementById("minPurchaseError");
+const maxDiscountError = document.getElementById("maxDiscountError");
+
+
+// Open Modal
+btn.onclick = function() {
+    modal.style.display = "block";
+}
+
+// Close Modal
+function closeModal() {
+    modal.style.display = "none";
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+
+span.onclick = closeModal;
+
+// Form Validation and Submission
+couponForm.onsubmit = function(event) {
+    event.preventDefault(); // Prevent form from submitting normally
+
+    // Clear previous errors
+    codeError.textContent = '';
+    discountError.textContent = '';
+    validFromError.textContent = '';
+    validToError.textContent = '';
+    usageLimitError.textContent = '';
+    minPurchaseError.textContent = '';
+    maxDiscountError.textContent = '';
+
+
+    let isValid = true;
+
+    // Validate Coupon Code (uppercase and alphanumeric)
+    const code = document.getElementById("code").value;
+    const codePattern = /^[A-Z0-9]+$/;
+    if (!code.match(codePattern)) {
+        codeError.textContent = "Coupon code must be uppercase and alphanumeric.";
+        isValid = false;
+    }
+
+    // Validate Discount (positive number)
+    const discount = parseFloat(document.getElementById("discount").value);
+    if (discount <= 0 || isNaN(discount)) {
+        discountError.textContent = "Discount amount must be a positive number.";
+        isValid = false;
+    }
+
+
+
+    // Validate Valid From and Valid To (Valid date range)
+    const validFrom = new Date(document.getElementById("validFrom").value);
+    const validTo = new Date(document.getElementById("validTo").value);
+    if (isNaN(validFrom) || isNaN(validTo) || validFrom >= validTo) {
+        validFromError.textContent = "Valid 'From' date should be earlier than 'To' date.";
+        validToError.textContent = "Valid 'From' date should be earlier than 'To' date.";
+        isValid = false;
+    }
+
+    // Validate Usage Limit (positive integer)
+    const usageLimit = parseInt(document.getElementById("usageLimit").value);
+    if (usageLimit < 1 || isNaN(usageLimit)) {
+        usageLimitError.textContent = "Usage limit must be at least 1.";
+        isValid = false;
+    }
+
+    const minPurchase = document.getElementById("minPurchase").value.trim();
+    const minPurchaseValue = minPurchase ? parseFloat(minPurchase) : null;
+    if (minPurchaseValue === null || minPurchaseValue < 0 || isNaN(minPurchaseValue)) {
+        minPurchaseError.textContent = "Minimum purchase amount must be a positive number.";
+        isValid = false;
+    }
+
+    const maxDiscountValue = document.getElementById("maxDiscount").value.trim();
+    if (!maxDiscountValue) {
+        maxDiscountError.textContent = "Maximum discount is required.";
+        isValid = false;
+    } else {
+        const maxDiscount = parseFloat(maxDiscountValue);
+        if (maxDiscount <= 0 || isNaN(maxDiscount)) {
+            maxDiscountError.textContent = "Maximum discount must be a positive number.";
+            isValid = false;
+        }
+    }
+
+    // Function to clear error messages when user starts typing
+        function clearErrorOnInput(inputId, errorId) {
+            document.getElementById(inputId).addEventListener("input", function () {
+                document.getElementById(errorId).textContent = ""; // Clear error message
+            });
+        }
+
+        // Apply the function to all fields
+        clearErrorOnInput("code", "codeError");
+        clearErrorOnInput("discount", "discountError");
+        clearErrorOnInput("validFrom", "validFromError");
+        clearErrorOnInput("validTo", "validToError");
+        clearErrorOnInput("usageLimit", "usageLimitError");
+        clearErrorOnInput("minPurchase", "minPurchaseError");
+        clearErrorOnInput("maxDiscount", "maxDiscountError");
+
+
+
+    if (isValid) {
+        // Prepare the data for submission
+        const formData = {
+            code: code,
+            discount: discount,
+            discountType: document.getElementById("discountType").value,
+            minPurchase: parseFloat(document.getElementById("minPurchase").value) || 0,
+            maxDiscount: document.getElementById("maxDiscount").value ? parseFloat(document.getElementById("maxDiscount").value) : null,
+            validFrom: validFrom.toISOString(),
+            validTo: validTo.toISOString(),
+            usageLimit: usageLimit,
+        };
+
+        // Send data using fetch
+        fetch('/add-coupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Coupon successfully added!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+
+                setTimeout(() => {
+                    closeModal(); 
+                    couponForm.reset(); // Reset form fields after success
+                }, 1500);
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'Failed to add coupon.',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An unexpected error occurred.',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        });
+    }
+}
+
+
+</script>
 
 <%- include("../partials/admin/admin-footer") %>

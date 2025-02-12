@@ -11,6 +11,17 @@ const loadCoupon=async (req,res) => {
   }
 }
 
+const addCoupon=async (req,res) => {
+  try {
+    
+    console.log(req.body)
+
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 module.exports={
-  loadCoupon
+  loadCoupon,
+  addCoupon
 }
