@@ -60,5 +60,7 @@ router.post('/cancelOrder',adminAuth,adminOrderController.adminCancelOrder)
 //Coupon Management
 router.get('/coupon',adminAuth,couponController.loadCoupon)
 router.post('/add-coupon',couponController.addCoupon)
+router.get('/blockCoupon',couponController.blockCoupon)
+router.get('/unblockCoupon',couponController.unblockCoupon)
 
 module.exports=router

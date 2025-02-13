@@ -329,35 +329,79 @@
         <h2 class="content-title card-title">Products</h2>
     </div>
 </div>
-<header class="card-header text-center mb-20">
-    <form action="" method="get" class="d-inline">
-        <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
-            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search products or brands" name="search">
-            <button class="btn  border-0" type="submit">Search</button>
-        </div>
-    </form>
+<header class="card-header mb-20">
+    <div class="d-flex align-items-center justify-content-between" style="width: 100%;">
+        <!-- Search Bar -->
+        <form action="" method="get" class="d-flex">
+            <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px;">
+                <input type="text" class="form-control border-0 rounded-pill" placeholder="Search products or brands" name="search">
+                <button class="btn border-0" type="submit">Search</button>
+            </div>
+        </form>
+
+        <!-- Add Coupon Button -->
+        <button id="myBtn" class="add-coupon">Add new Coupon</button>
+    </div>
 </header>
 
-<div class="add-coupon-div">
-    <button id="myBtn" class="add-coupon">Add new Coupon</button>
-</div>
+
 <div class="right mt-5">
     <table class="table table-hover">
         <thead>
             <tr>
-                <th scope="col"><b>Product name</b></th>
-                <th scope="col"><b>Category</b></th>
-                <th scope="col"><b>Regular Price</b></th>
-                <th scope="col"><b>Sale Price</b></th>
-                <!-- <th scope="col"><b>Offer</b></th> -->
-                <th scope="col"><b>Quantity</b></th>
-                <th scope="col"><b>Color</b></th>
-                <th scope="col"><b>Status</b></th>
+                <th scope="col"><b>Coupon Code</b></th>
+                <th scope="col"><b>Discount(%)</b></th>
+                <th scope="col"><b>Max Purchase</b></th>
+                <th scope="col"><b>Max Discount</b></th>
+                <th scope="col"><b>validFrom</b></th>
+                <th scope="col"><b>validTo</b></th>
+                <th scope="col"><b>Limit</b></th>
+                <th scope="col"><b>Active</b></th>
                 <th scope="col"><b>Action</b></th>
-                <th scope="col"><b>Edit</b></th>
             </tr>
         </thead>
-        
+
+        <thead>
+            <tbody>
+                <% for(let i=couponData.length-1;i>=0;i--) {%>
+                <tr>
+                    <td><%=couponData[i].code %></td>
+                    <td><%=couponData[i]?.discount %></td>
+                    <td><%=couponData[i].minPurchase %></td>
+                    <td><%=couponData[i].maxDiscount %></td>
+                    <td><%= new Date(couponData[i].validFrom).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></td>
+                    <td><%= new Date(couponData[i].validTo).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></td>                    
+                    <td><%=couponData[i].usageLimit %></td>
+                    <td><%=couponData[i].isActive %></td>
+
+                    <!-- <td>
+                    
+                        <button class="btn btn-info" onclick="" style="width: 100px;">
+                            <a href="#" class="text-white">Add Offer</a>
+                        </button>
+            
+                        <button class="btn btn-info" onclick="" style="width: 100px;">
+                            <a href="#" class="text-white">Remove</a>
+                        </button>
+                    
+                    </td> -->
+                    <!-- <td></td> -->
+                    <td>
+                        <% if(couponData[i].isActive===true) { %>
+                        <button class="btn btn-danger" style="width: 80px;">
+                            <a href="/admin/blockCoupon?id=<%=couponData[i]._id %>" class="text-white" style="text-decoration: none;">Block</a>
+                        </button>
+                        <% }else{ %>
+                        <button class="btn btn-success" style="width: 80px;">
+                            <a href="/admin/unblockCoupon?id=<%=couponData[i]._id %>" class="text-white" style="text-decoration: none;">Unblock</a>
+                        </button>
+                        <% } %>
+                    </td>
+                </tr>
+                <% } %>
+            </tbody>
+        </thead>
+
 
     </table>
 </div>
@@ -378,16 +422,16 @@
             <span id="codeError" class="error"></span>
 
             <!-- Discount Amount -->
-            <label for="discount">Discount Amount:</label>
+            <label for="discount">Discount (%):</label>
             <input type="number" id="discount" name="discount">
             <span id="discountError" class="error"></span>
 
             <!-- Discount Type -->
-            <label for="discountType">Discount Type:</label>
+            <!-- <label for="discountType">Discount Type:</label>
             <select id="discountType" name="discountType">
-                <option value="percentage">Percentage (%)</option>
+                <option value="percentage">Percentage </option>
                 <option value="fixed">Fixed Amount</option>
-            </select>
+            </select> -->
 
             <!-- Minimum Purchase -->
             <label for="minPurchase">Minimum Purchase Amount:</label>
@@ -489,11 +533,14 @@ couponForm.onsubmit = function(event) {
     }
 
     // Validate Discount (positive number)
-    const discount = parseFloat(document.getElementById("discount").value);
-    if (discount <= 0 || isNaN(discount)) {
-        discountError.textContent = "Discount amount must be a positive number.";
-        isValid = false;
-    }
+    const discount = parseFloat(document.getElementById("discount").value.trim());
+
+        if (isNaN(discount) || discount <= 0 || discount > 100) {
+            discountError.textContent = "Discount must be a number between 1 and 100.";
+            isValid = false;
+        } else {
+            discountError.textContent = "";
+        }
 
 
 
@@ -555,7 +602,6 @@ couponForm.onsubmit = function(event) {
         const formData = {
             code: code,
             discount: discount,
-            discountType: document.getElementById("discountType").value,
             minPurchase: parseFloat(document.getElementById("minPurchase").value) || 0,
             maxDiscount: document.getElementById("maxDiscount").value ? parseFloat(document.getElementById("maxDiscount").value) : null,
             validFrom: validFrom.toISOString(),
@@ -564,8 +610,8 @@ couponForm.onsubmit = function(event) {
         };
 
         // Send data using fetch
-        fetch('/add-coupon', {
-            method: 'POST',
+        fetch('/admin/add-coupon', {
+            method: 'post',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -578,7 +624,7 @@ couponForm.onsubmit = function(event) {
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
-                    text: 'Coupon successfully added!',
+                    text: data.message,
                     showConfirmButton: false,
                     timer: 1500
                 });

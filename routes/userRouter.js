@@ -7,6 +7,7 @@ const cartController=require('../controller/user/cartController')
 const checkOutController=require('../controller/user/checkOutController')
 const orderController=require('../controller/user/orderController')
 const wishlistController=require('../controller/user/wishlistController')
+const couponController=require('../controller/user/couponController')
 
 
 const passport = require('passport');
@@ -86,5 +87,8 @@ router.post('/cancel-order',userAuth,orderController.cancelOrder)
 router.get('/wishlist',userAuth,wishlistController.loadWishlist)
 router.post('/addToWishlist',wishlistController.addToWishlist)
 router.post('/removeWishlist',wishlistController.removeWishlist)
+
+//Coupon
+router.post('/applyCoupon',couponController.applyCoupon)
 
 module.exports= router;

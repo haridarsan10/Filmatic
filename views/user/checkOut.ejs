@@ -180,6 +180,22 @@
     color: #555;
   }
 
+  
+  .coupon-card {
+        background: #f8f9fa; /* Light gray background */
+        border-radius: 8px;
+        padding: 15px;
+    }
+    .coupon-content p {
+        margin: 5px 0;
+        font-size: 14px;
+    }
+    .coupon-code {
+        font-size: 16px;
+        font-weight: bold;
+    }
+    
+
     </style>
 
    
@@ -343,13 +359,37 @@
                     <div class="order-details-confirmation " style="margin-bottom: 10px;">
                         <ul class="order-details-form mb-4">
                             <li><span>Have a coupon ?</span></li>
-                            <input type="text" class="form-control" id="first_name" value="">
+                            <input type="text" class="form-control" id="coupon-input" value="">
                         </ul>
-                        <a href="#" class="btn essence-btn">Apply coupon</a>
-                        
+                        <button onclick="applyCoupon()" id="apply-coupon-btn" class="btn essence-btn">Apply coupon</button>
                     </div>
 
-
+                   <div class="order-details-confirmation" style="margin-bottom: 10px;">
+                        <% if (couponData && couponData.length > 0) { %>
+                            <ul class="order-details-form mb-4">
+                                <li><span><strong>Available Coupons</strong></span></li>
+                                <% couponData.forEach(coupon => { 
+                                    let expiryDate = new Date(coupon.validTo);
+                                    let isExpired = expiryDate < new Date(); // Check if expired
+                                %>
+                                    <% if (!isExpired) { %>  <!-- Only show non-expired coupons -->
+                                        <li class="coupon-card border p-3 rounded mb-3">
+                                            <div class="coupon-content">
+                                                <p class="coupon-code"><strong>Code:</strong> <%= coupon.code %></p>
+                                                <p class="coupon-discount"><strong>Discount:</strong> <%= coupon.discount %> <%= coupon.discountType %></p>
+                                                <p class="coupon-min-purchase"><strong>Min Purchase:</strong> ₹<%= coupon.minPurchase %></p>
+                                                <p class="coupon-expiry"><strong>Expires on:</strong> <%= expiryDate.toLocaleDateString('en-GB') %></p>
+                                                <button class="btn btn-primary btn-block copy-btn mt-2" data-code="<%= coupon.code %>">Copy Code</button>
+                                            </div>
+                                        </li>
+                                    <% } %>
+                                <% }); %>
+                            </ul>
+                        <% } else { %>
+                            <p class="text-muted">No coupons available.</p>
+                        <% } %>
+                    </div>
+                    
                     <div class="order-details-confirmation" style="margin-bottom: 10px;">
 
                         <div class="cart-page-heading">
@@ -358,10 +398,10 @@
                         </div>
 
                         <ul class="order-details-form mb-4">
-                            <li><span>Subtotal</span> <span>₹ <%= cartTotal  %></span></li>
+                            <li><span>Subtotal</span> <span id="cart-subtotal" data-total="<%= cartTotal %>">₹ <%= cartTotal %></span></li>
                             <li><span>Shipping</span> <span>Free</span></li>
-                            <li><span>Discount</span> <span>₹ 0</span></li>
-                            <li><span>Total</span> <span>₹ <%= cartTotal  %></span></li>
+                            <li><span>Discount</span> <span id="discount-element">₹ 0</span></li>
+                            <li><span>Total</span> <span id="total-element">₹ <%= cartTotal %></span></li>
                         </ul>
 
                     
@@ -371,7 +411,7 @@
                                     <h6 class="mb-0 payment-option">
                                         <label>
                                             <input type="radio" name="payment_method" value="upi">
-                                            UPI
+                                            Razor Pay
                                         </label>
                                     </h6>
                                 </div>
@@ -388,31 +428,10 @@
                                 </div>
                             </div>
                         
-                            <div class="card">
-                                <div class="card-header" role="tab" id="headingThree">
-                                    <h6 class="mb-0 payment-option">
-                                        <label>
-                                            <input type="radio" name="payment_method" value="wallet">
-                                            Wallet
-                                        </label>
-                                    </h6>
-                                </div>
-                            </div>
-
-                            <div class="card">
-                                <div class="card-header" role="tab" id="headingThree">
-                                    <h6 class="mb-0 payment-option">
-                                        <label>
-                                            <input type="radio" name="payment_method" value="credit_card">
-                                            Credit Card
-                                        </label>
-                                    </h6>
-                                </div>
-                            </div>
         
                         </div>
 
-                        <button href="#" onclick="placeOrder()" class="btn essence-btn">Place Order</add-Modal>
+                        <button href="#" onclick="placeOrder()" class="btn essence-btn">Place Order</button>
                     </div>
                 </div>
             </div>
@@ -831,9 +850,8 @@
                 try{
                 const shippingAddress = document.querySelector('input[name="shipping_address"]:checked')?.value;
                 const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
-                const totalPrice = JSON.parse('<%- JSON.stringify(cartTotal) %>'); // Assuming this is correctly passed from the server-side.
-                const cartItems = JSON.parse('<%- JSON.stringify(cartItems) %>'); // Ensure `cart` is passed to EJS
-
+                const totalPrice = JSON.parse('<%- JSON.stringify(cartTotal) %>'); 
+                const cartItems = JSON.parse('<%- JSON.stringify(cartItems) %>');
 
                 console.log(shippingAddress);
                 console.log(paymentMethod);
@@ -908,6 +926,101 @@
             }
         }
 
+
+        document.querySelectorAll('.copy-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const couponCode = this.getAttribute('data-code');
+            navigator.clipboard.writeText(couponCode).then(() => {
+                Toastify({
+                    text: "Coupon code copied: " + couponCode,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "center",
+                    backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+                    stopOnFocus: true
+                }).showToast();
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        });
+    });
+
+
+    async function applyCoupon() {
+        try {
+
+            const couponInput = document.getElementById('coupon-input');
+            const couponCode = couponInput.value.trim(); 
+
+            if (!couponCode) {
+                Toastify({
+                    text: "Please enter a coupon code!",
+                    duration: 2000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "red",
+                    stopOnFocus: true
+                }).showToast();
+                return;     
+            }
+
+
+            const subtotal = parseFloat(document.getElementById('cart-subtotal').getAttribute('data-total'));
+
+                const response=await fetch('/applyCoupon',{
+                method:'POST',
+                headers: {'Content-Type': 'application/json'},
+                body:JSON.stringify({couponCode:couponCode,subtotal:subtotal})
+                })
+
+                const data=await response.json()
+
+
+                if(data.success){
+
+                    const discountElement=document.getElementById('discount-element')
+                    discountElement.textContent = `₹ ${data.discountAmount.toFixed(2)}`;
+                    const totalElement=document.getElementById('total-element')
+                    totalElement.textContent = `₹ ${(data.finalTotal).toFixed(2)}`;
+
+                    couponInput.disabled = true;
+                    document.getElementById('apply-coupon-btn').disabled = true;
+
+
+                    Toastify({
+                    text: data.message,
+                    duration: 2000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "green",
+                    stopOnFocus: true
+                }).showToast();
+                }
+                else{
+                    Toastify({
+                    text: data.message,
+                    duration: 2000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "red",
+                    stopOnFocus: true
+                }).showToast();
+                }
+            }
+
+
+            catch (error) {
+                console.error('Error:', error);
+                    Toastify({
+                        text: "Something went wrong. Please try again.",
+                        duration: 2000,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "red",
+                        stopOnFocus: true
+                    }).showToast();      
+            }
+    }
 
 
     </script>

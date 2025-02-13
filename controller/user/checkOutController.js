@@ -3,6 +3,7 @@ const Address=require('../../models/addressSchema')
 const Product=require('../../models/productSchema')
 const Category=require('../../models/categorySchema')
 const Cart=require('../../models/cartSchema')
+const Coupon=require('../../models/couponSchema')
 const mongoose=require('mongoose')
 
 
@@ -19,6 +20,14 @@ const checkOut = async (req, res) => {
     const cartItems=cartData.items
 
     const cartTotal=cartData.cartTotal
+    const currentDate = new Date();
+
+    const couponData = await Coupon.find({
+      minPurchase: { $lte: cartTotal },
+      validTo: { $gte: currentDate }, 
+    });
+    
+
 
     const addressData = await Address.findOne({ userId: userId });
 
@@ -31,7 +40,8 @@ const checkOut = async (req, res) => {
       cart: cartData ? cartData.items : [], 
       address: addressData ? addressData.address : [],
       cartTotal,
-      cartItems
+      cartItems,
+      couponData
     });
 
   } catch (error) {

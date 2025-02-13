@@ -15,8 +15,8 @@ const couponSchema = new mongoose.Schema({
   },
   discountType: {
     type: String,
-    enum: ['percentage', 'fixed'],
-    required: true
+    enum: ['percentage'],
+    default:"percentage"
   },
   minPurchase: {
     type: Number,
@@ -38,13 +38,7 @@ const couponSchema = new mongoose.Schema({
     type: Number, 
     default: 1
   },
-  usersUsed: [
-    {
-      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-      usedAt: { type: Date, default: Date.now }
-    }
-  ],
-  status: {
+  isActive: {
     type: Boolean,
     default: true
   }
