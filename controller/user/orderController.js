@@ -4,6 +4,7 @@ const Product=require('../../models/productSchema')
 const Category=require('../../models/categorySchema')
 const Cart=require('../../models/cartSchema')
 const Order=require('../../models/orderSchema')
+const Coupon=require('../../models/couponSchema')
 
 const mongoose=require('mongoose')
 
@@ -13,11 +14,21 @@ const loadOrders = async (req, res) => {
     const userData = req.session.userData;
     const userId = req.session.user;
 
+    let page=parseInt(req.query.page) || 1
+    let limit=5
+    let skip=(page-1)*limit
+
+    const totalOrders = await Order.countDocuments({ userId: userId });
+    const totalPages = Math.ceil(totalOrders / limit);  // Calculate total page
+
     const userOrders = await Order.find({ userId: userId })
       .populate({
         path: 'order_items.productId',
         select: 'productImage' 
-      });
+      })
+      .skip(skip)
+      .limit(limit)
+      .sort({createdAt:-1})
 
     const ordersData = userOrders.map(order => ({
       orderId: order.orderId,
@@ -28,7 +39,7 @@ const loadOrders = async (req, res) => {
         : 'default.jpg'
     }));
 
-    res.render('orders', { user: userData, orders: ordersData });
+    res.render('orders', { user: userData, orders: ordersData,currentPage: page,totalPages: totalPages  });
 
   } catch (error) {
     console.log(error);
@@ -39,7 +50,7 @@ const loadOrders = async (req, res) => {
 
 const orders=async (req,res) => {
   try {
-    const {addressId,paymentMethod,totalPrice,cartItems}=req.body
+    const {addressId,paymentMethod,totalPrice,cartItems,couponCode }=req.body
     const userId=req.session.user
     // console.log(req.body)
 
@@ -48,7 +59,13 @@ const orders=async (req,res) => {
     const couponApplied = req.body.couponApplied || false;  
 
 
-    // console.log(cartItems)
+    if (couponCode && couponCode !== 'null') {
+      const coupon = await Coupon.findOne({ code: couponCode });
+
+      coupon.usageLimit -= 1;
+      await coupon.save();  
+    }
+
 
       const newOrder=new Order({
         userId:userId, 

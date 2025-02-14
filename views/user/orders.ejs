@@ -230,6 +230,55 @@ body {
   }
 }
 
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 20px;
+    margin-bottom: 50px;
+}
+
+.pagination a {
+    padding: 6px 12px;
+    font-size: 15px;
+    color: #333;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: transparent;
+    transition: 0.3s;
+}
+
+.pagination a:hover {
+    background: #007bff;
+    color: #fff;
+}
+
+.pagination a.active {
+    background: #007bff;
+    color: #fff;
+    border-color: #007bff;
+    pointer-events: none;
+}
+
+/* Style for Previous and Next buttons */
+.pagination a.prev-btn,
+.pagination a.next-btn {
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 20px; /* Rounded shape */
+    background: #f8f9fa;
+}
+
+.pagination a.prev-btn:hover,
+.pagination a.next-btn:hover {
+    background: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+
 </style>
 
 <nav aria-label="breadcrumb">
@@ -298,10 +347,29 @@ body {
             </div>
           <% } %>
         </div>
+
         
       </div>
     </div>
   </section>
+
+  <div class="pagination">
+    <% if (currentPage > 1) { %>
+        <a href="/orders?page=<%= currentPage - 1 %>" class="prev-btn">Previous</a>
+    <% } %>
+
+    <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="/orders?page=<%= i %>" class="page-btn <%= i === currentPage ? 'active' : '' %>">
+            <%= i %>
+        </a>
+    <% } %>
+
+    <% if (currentPage < totalPages) { %>
+        <a href="/orders?page=<%= currentPage + 1 %>" class="next-btn">Next</a>
+    <% } %>
+</div>
+
+
 </main>
 
 <%- include("../../views/partials/user/footer") %>

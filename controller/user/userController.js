@@ -278,87 +278,103 @@ const pageNotFound =async (req,res) => {
   }
 }
 
-const loadShopPage=async (req,res) => {
+const loadShopPage = async (req, res) => {
   try {
+    const user = req.session.user;
+    const userData = await User.findOne({ _id: user });
 
-    const user=req.session.user
-    const userData=await User.findOne({_id:user})
-    const categories=await Category.find({isListed:true})
-    const categoryIds=categories.map((category)=>category._id.toString())
-    const page=parseInt(req.query.page) || 1;
-    const limit=9
-    const skip=(page-1)*limit;
+    const categories = await Category.find({ isListed: true });
+    const categoryIds = categories.map(category => category._id.toString());
+
+    let selectedCategories = req.query.categories 
+      ? req.query.categories.split(',') 
+      : categoryIds;
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = 9;
+    const skip = (page - 1) * limit;
 
     const selectedSort = req.query.sort || 'newArrivals';
-
     let sortOption = { createdOn: -1 };
 
-    if (req.query.sort) {
-      switch (req.query.sort) {
-        case "popularity":
-          sortOption = { quantity: -1 };  
-          break;
-        case "priceLowToHigh":
-          sortOption = { salePrice: 1 }; 
-          break;
-        case "priceHighToLow":
-          sortOption = { salePrice: -1 }; 
-          break;
-        case "newArrivals":
-          sortOption = { createdOn: -1 }; 
-          break;
-        case "aToZ":
-          sortOption = { productName: 1 };
-          break;
-        case "zToA":
-          sortOption = { productName: -1 }; 
-          break;
-      }
+    switch (selectedSort) {
+      case "popularity":
+        sortOption = { quantity: -1 };
+        break;
+      case "priceLowToHigh":
+        sortOption = { salePrice: 1 };
+        break;
+      case "priceHighToLow":
+        sortOption = { salePrice: -1 };
+        break;
+      case "aToZ":
+        sortOption = { productName: 1 };
+        break;
+      case "zToA":
+        sortOption = { productName: -1 };
+        break;
     }
 
-    const products=await Product.find({
-      isBlocked:false,
-      category:{$in:categoryIds},
-      quantity:{$gt:0}
-    }).sort(sortOption).collation({ locale: "en", strength: 2 }).skip(skip).limit(limit)
+    // Initialize filter
+    const filter = {
+      isBlocked: false,
+      category: { $in: selectedCategories },  
+    };
+
+    // Apply Price Filtering
+    if (req.query.minPrice) {
+      filter.salePrice = { $gte: parseInt(req.query.minPrice) };
+    }
+
+    if (req.query.maxPrice) {
+      filter.salePrice = { ...filter.salePrice, $lte: parseInt(req.query.maxPrice) };
+    }
+
+    if (req.query.search) {
+      const searchRegex = new RegExp(req.query.search, 'i'); // Case-insensitive search
+      filter.productName = { $regex: searchRegex };
+    }
 
 
-    const totalProducts=await Product.countDocuments({
-      isBlocked:false,
-      category:{$in:categoryIds},
-      quantity:{$gt:0}
-    })
+    // Fetch Products
+    const products = await Product.find(filter)
+      .sort(sortOption)
+      .collation({ locale: "en", strength: 2 })
+      .skip(skip)
+      .limit(limit);
 
-    // console.log(products)
+    const totalProducts = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalProducts / limit);
 
-    const totalPages=Math.ceil(totalProducts/limit)
-
-    const categoriesWithIds=categories.map(category=>({_id:category._id,name:category.name}))
+    const categoriesWithIds = categories.map(category => ({ _id: category._id, name: category.name }));
 
     if (req.get('X-Requested-With') === 'Fetch') {
       return res.json({
-        products: products,
-        totalProducts: totalProducts,
-        totalPages: totalPages
+        products,
+        totalProducts,
+        totalPages
       });
     }
 
-
-    res.render('shop',{
-      user:userData,
-      products:products,
-      category:categoriesWithIds,
-      totalProducts:totalProducts,
-      currentPage:page,
-      totalPages:totalPages,
-      selectedSort: selectedSort 
-    })
+    res.render('shop', {
+      user: userData,
+      products,
+      category: categoriesWithIds,
+      totalProducts,
+      currentPage: page,
+      totalPages,
+      selectedSort,
+      selectedCategories 
+    });
 
   } catch (error) {
-    console.log(error)
-    res.redirect('/pageNotFound')
+    console.log(error);
+    res.redirect('/pageNotFound');
   }
-}
+};
+
+
+
 
 module.exports={
   loadHomepage,

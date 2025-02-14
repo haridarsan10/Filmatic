@@ -308,9 +308,11 @@
         const cartData = JSON.parse('<%- JSON.stringify(cartData) %>');
         let quantityInput = document.getElementById(`quantity-${index}`);
         let newQuantity = Math.max(1, parseInt(quantityInput.value) +change); 
-        if(newQuantity > 0 && newQuantity <= 5){
+        const maxStock = cartData.items[index].productId.quantity; 
+        if(newQuantity > 0 && newQuantity <= 5 && newQuantity<=maxStock ){
             quantityInput.value = newQuantity; 
         }
+
 
         const productId=cartData.items[index].productId._id
     
@@ -338,7 +340,12 @@
                 stopOnFocus: true
             }).showToast();
 
+            const subtotal=document.getElementById('cart-subtotal')
+            subtotal.textContent=data.cartTotal
 
+
+            const total=document.getElementById('cart-total')
+            total.textContent=data.cartTotal
 
             }
             else{
@@ -407,6 +414,13 @@
                     showConfirmButton: data.showConfirmButton,
                     timer: 1500
                 });
+
+                const subtotal=document.getElementById('cart-subtotal')
+                subtotal.textContent=data.cartTotal
+
+
+                const total=document.getElementById('cart-total')
+                total.textContent=data.cartTotal
 
                 window.location.reload()
               

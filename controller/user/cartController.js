@@ -85,6 +85,7 @@ const addToCart = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Product added to cart successfully",
+      cartTotal:cartData.cartTotal
     });
 
   } catch (error) {
@@ -120,7 +121,7 @@ const deleteItem = async (req, res) => {
 
     await cartData.save();
 
-    return res.status(200).json({ success: true, message: "Item removed from cart" });
+    return res.status(200).json({ success: true, message: "Item removed from cart" ,cartTotal:cartData.cartTotal});
   } catch (error) {
     console.error("Error deleting item:", error);
     res.status(500).json({ success: false, message: "Failed to delete item" });

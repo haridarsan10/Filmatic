@@ -195,6 +195,44 @@
         font-weight: bold;
     }
     
+    
+    .coupon-buttons {
+    display: flex;
+    gap: 10px; /* Spacing between buttons */
+    justify-content: center; /* Centers the buttons */
+    margin-top: 15px;
+    }
+
+    .coupon-btn {
+        padding: 8px 15px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+    }
+
+    /* Apply Coupon Button */
+    .apply-btn {
+        background-color: #28a745; /* Green */
+        color: white;
+    }
+
+    .apply-btn:hover {
+        background-color: #218838; /* Darker Green */
+    }
+
+    /* Remove Coupon Button */
+    .remove-btn {
+        background-color: #dc3545; /* Red */
+        color: white;
+    }
+
+    .remove-btn:hover {
+        background-color: #c82333; /* Darker Red */
+    }
+
 
     </style>
 
@@ -361,7 +399,10 @@
                             <li><span>Have a coupon ?</span></li>
                             <input type="text" class="form-control" id="coupon-input" value="">
                         </ul>
-                        <button onclick="applyCoupon()" id="apply-coupon-btn" class="btn essence-btn">Apply coupon</button>
+                        <div class="coupon-buttons">
+                            <button onclick="applyCoupon()" id="apply-coupon-btn" class="btn coupon-btn apply-btn">Apply Coupon</button>
+                            <button onclick="removeCoupon()" id="remove-coupon-btn" class="btn coupon-btn remove-btn">Remove Coupon</button>
+                        </div>
                     </div>
 
                    <div class="order-details-confirmation" style="margin-bottom: 10px;">
@@ -850,7 +891,17 @@
                 try{
                 const shippingAddress = document.querySelector('input[name="shipping_address"]:checked')?.value;
                 const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
-                const totalPrice = JSON.parse('<%- JSON.stringify(cartTotal) %>'); 
+                const totalPrice = parseFloat(document.getElementById('total-element').textContent.replace('₹', '').trim());
+
+                const couponInput = document.getElementById('coupon-input');
+                let couponCode = null;
+
+                if (document.getElementById('apply-coupon-btn').disabled) {
+                    couponCode = couponInput.value.trim(); 
+                }
+
+
+
                 const cartItems = JSON.parse('<%- JSON.stringify(cartItems) %>');
 
                 console.log(shippingAddress);
@@ -885,7 +936,7 @@
                     url: '/orders',
                     dataType: 'json',
                     contentType: "application/json",
-                    data: JSON.stringify({ addressId: shippingAddress, paymentMethod, totalPrice,cartItems }),
+                    data: JSON.stringify({ addressId: shippingAddress, paymentMethod, totalPrice,cartItems,couponCode }),
                     success: function (response) {
 
                         if (response.success) {
@@ -1022,6 +1073,57 @@
             }
     }
 
+
+    async function removeCoupon() {
+            try {
+                const couponInput = document.getElementById('coupon-input');
+                const discountElement = document.getElementById('discount-element');
+                const totalElement = document.getElementById('total-element');
+                const applyButton = document.getElementById('apply-coupon-btn');
+
+                if (!couponInput.disabled) {
+                    Toastify({
+                        text: "No coupon applied!",
+                        duration: 2000,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "red",
+                        stopOnFocus: true
+                    }).showToast();
+                    return;
+                }
+
+                // Restore original values
+                couponInput.value = "";
+                couponInput.disabled = false;
+                applyButton.disabled = false;
+
+                const subtotal = parseFloat(document.getElementById('cart-subtotal').getAttribute('data-total'));
+
+                discountElement.textContent = "₹ 0.00"; 
+                totalElement.textContent = `₹ ${subtotal.toFixed(2)}`; 
+
+                Toastify({
+                    text: "Coupon removed successfully!",
+                    duration: 2000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "orange",
+                    stopOnFocus: true
+                }).showToast();
+
+            } catch (error) {
+                console.error("Error:", error);
+                Toastify({
+                    text: "Something went wrong. Please try again.",
+                    duration: 2000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "red",
+                    stopOnFocus: true
+                }).showToast();
+            }
+        }
 
     </script>
 

@@ -13,6 +13,8 @@ const applyCoupon=async (req,res) => {
 
     const couponData=await Coupon.findOne({code:couponCode})
 
+
+
     if(!couponData){
       return res.status(400).json({ success: false, message: 'Coupon  not found!' });
     }
@@ -20,6 +22,10 @@ const applyCoupon=async (req,res) => {
     const currentDate = new Date();
     if (!couponData.isActive || currentDate < couponData.validFrom || currentDate > couponData.validTo) {
       return res.status(400).json({ success: false, message: 'Coupon is not active or expired!' });
+    }
+
+    if (couponData.usageLimit <= 0) {
+      return res.status(400).json({ success: false, message: "Coupon usage limit reached" });
     }
 
     const calculatedDiscount = (subtotal * couponData.discount) / 100;
