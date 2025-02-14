@@ -7,10 +7,10 @@ const loadCoupon=async (req,res) => {
   try {
 
     const couponData=await Coupon.find({})
-
     res.render('coupon',{couponData:couponData})
   } catch (error) {
    console.log(error) 
+   res.redirect('/admin/pageError')
   }
 }
 

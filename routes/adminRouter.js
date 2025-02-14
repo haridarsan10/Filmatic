@@ -6,6 +6,8 @@ const categoryController=require('../controller/admin/categoryController')
 const productController=require('../controller/admin/productController')
 const adminOrderController=require('../controller/admin/adminOrderController')
 const couponController=require('../controller/admin/couponController')
+const offerController=require('../controller/admin/offerController')
+
 
 const {userAuth,adminAuth}=require('../middlewares/auth')
 
@@ -62,5 +64,14 @@ router.get('/coupon',adminAuth,couponController.loadCoupon)
 router.post('/add-coupon',couponController.addCoupon)
 router.get('/blockCoupon',couponController.blockCoupon)
 router.get('/unblockCoupon',couponController.unblockCoupon)
+
+
+//Offer Management
+router.post('/addOffer',offerController.addOffer)
+router.post('/removeOffer',offerController.removeOffer)
+
+router.post('/addCatOffer',offerController.addCatOffer)
+router.post('/removeCatOffer',offerController.removeCatOffer)
+
 
 module.exports=router

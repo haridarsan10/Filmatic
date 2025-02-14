@@ -69,6 +69,9 @@ router.get('/change-password',userAuth,profileController.changePassword)
 router.post('/change-password',userAuth,profileController.changePasswordValid)
 router.post('/verify-changepassword-otp',userAuth,profileController.verifyChangePassOtp)
 
+router.get('/userChangePassword',userAuth,profileController.userChangePassword)
+router.post('/userChangePassword',profileController.userChangePasswordValid)
+
 //Cart
 router.get('/cart',userAuth,cartController.loadCart)
 router.post('/addToCart',cartController.addToCart)
@@ -90,5 +93,6 @@ router.post('/removeWishlist',wishlistController.removeWishlist)
 
 //Coupon
 router.post('/applyCoupon',couponController.applyCoupon)
+
 
 module.exports= router;

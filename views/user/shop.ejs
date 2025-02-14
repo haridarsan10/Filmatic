@@ -350,12 +350,12 @@
             let url = `/shop?sort=${sortValue}&categories=${selectedCategories}`;
 
             if (priceRange) {
-                const [minPrice, maxPrice] = priceRange.split('-'); // Extract min & max price
+                const [minPrice, maxPrice] = priceRange.split('-'); 
 
                 if (maxPrice) {
                     url += `&minPrice=${minPrice}&maxPrice=${maxPrice}`;
                 } else {
-                    url += `&minPrice=${minPrice}`;  // Only pass minPrice if "above" is selected
+                    url += `&minPrice=${minPrice}`;  
                 }
             }
 
@@ -382,8 +382,8 @@
                                     <div class="product-img">
                                         <img src="uploads/resized-images/${products[i].productImage[0]}" alt="${products[i].productName}">
                                         <img class="hover-img" src="uploads/resized-images/${products[i].productImage[1]}" alt="">
-                                        <div class="product-badge offer-badge">
-                                            <span>- ${products[i].regularPrice - products[i].salePrice}₹</span>
+                                      <div class="product-badge offer-badge" style="${products[i].offer ? '' : 'display: none;'}">
+                                            <span>- ₹${products[i].offer}% OFF</span>
                                         </div>
                                         <div class="product-favourite">
                                             <a onclick="addToWishlist('${products[i]._id}')" class="favme fa fa-heart"></a>

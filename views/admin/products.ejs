@@ -116,35 +116,35 @@
         }
 
         .table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 2rem;
-}
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
 
-.table th, .table td {
-    padding: 1rem;
-    text-align: left;
-    border: 1px solid #e5e7eb; /* Border color for all cells */
-}
+        .table th, .table td {
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid #e5e7eb; /* Border color for all cells */
+        }
 
-.table th {
-    background: #f9fafb;
-    font-weight: 600;
-    color: #4b5563;
-}
+        .table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #4b5563;
+        }
 
-.table td {
-    background: #f3f4f6;
-    color: #4b5563;
-}
+        .table td {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
 
-.table tr:last-child td {
-    border-bottom: none; /* No border for the last row */
-}
+        .table tr:last-child td {
+            border-bottom: none; /* No border for the last row */
+        }
 
-.table tr:hover {
-    background: #e5e7eb;
-}
+        .table tr:hover {
+            background: #e5e7eb;
+        }
 
 
         @media (max-width: 768px) {
@@ -168,42 +168,113 @@
         }
 
         .pagination {
-    display: flex;
-    justify-content: center; /* Center it horizontally */
-    align-items: center; /* Align it vertically */
-    padding: 10px 0; /* Add some space around */
-    gap: 5px; /* Space between the buttons */
-    margin-left: 20px; /* Slightly move the pagination to the right */
-}
+            display: flex;
+            justify-content: center; /* Center it horizontally */
+            align-items: center; /* Align it vertically */
+            padding: 10px 0; /* Add some space around */
+            gap: 5px; /* Space between the buttons */
+            margin-left: 20px; /* Slightly move the pagination to the right */
+        }
 
-.pagination .page-item {
-    list-style: none;
-}
+        .pagination .page-item {
+            list-style: none;
+        }
 
-.pagination .page-item a {
-    display: block;
-    padding: 8px 12px;
-    font-size: 14px;
-    color: #007bff; /* Default color */
-    text-decoration: none;
-    border: 1px solid #ddd; /* Border for buttons */
-    border-radius: 4px; /* Rounded corners */
-    background-color: #fff; /* Button background */
-    transition: all 0.3s ease; /* Smooth hover effect */
-}
+        .pagination .page-item a {
+            display: block;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #007bff; /* Default color */
+            text-decoration: none;
+            border: 1px solid #ddd; /* Border for buttons */
+            border-radius: 4px; /* Rounded corners */
+            background-color: #fff; /* Button background */
+            transition: all 0.3s ease; /* Smooth hover effect */
+        }
 
-.pagination .page-item a:hover {
-    background-color: #007bff; /* Change on hover */
-    color: #fff; /* Text color on hover */
-    border-color: #007bff; /* Border color on hover */
-}
+        .pagination .page-item a:hover {
+            background-color: #007bff; /* Change on hover */
+            color: #fff; /* Text color on hover */
+            border-color: #007bff; /* Border color on hover */
+        }
 
-.pagination .page-item.active a {
-    background-color: #4caf50; /* Active button color */
-    color: white;
-    border-color: #4caf50;
-    pointer-events: none; /* Disable click on active button */
-}
+        .pagination .page-item.active a {
+            background-color: #4caf50; /* Active button color */
+            color: white;
+            border-color: #4caf50;
+            pointer-events: none; /* Disable click on active button */
+        }
+
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Transparent black overlay */
+        }
+
+        .modal-content {
+            background-color: white;
+            width: 50%;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Close Button */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: red;
+        }
+
+        /* Form Styles */
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .modal-form input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .modal-form button {
+            padding: 10px;
+            border: none;
+            background-color: blue;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal-form button:hover {
+            background-color: darkblue;
+        }
+
+        .text-danger {
+        color: red;
+        font-size: 14px;
+        font-weight: bold;
+        display: block;
+        margin-top: 5px;
+        }   
+
+
     </style>
 
 </head>
@@ -227,7 +298,6 @@
             <tr>
                 <th scope="col"><b>Product name</b></th>
                 <th scope="col"><b>Category</b></th>
-                <th scope="col"><b>Regular Price</b></th>
                 <th scope="col"><b>Sale Price</b></th>
                 <!-- <th scope="col"><b>Offer</b></th> -->
                 <th scope="col"><b>Quantity</b></th>
@@ -235,6 +305,7 @@
                 <th scope="col"><b>Status</b></th>
                 <th scope="col"><b>Action</b></th>
                 <th scope="col"><b>Edit</b></th>
+                <th scope="col"><b>Offer</b></th>
             </tr>
         </thead>
         <tbody>
@@ -242,7 +313,6 @@
             <tr>
                 <td><%=data[i].productName %></td>
                 <td><%=data[i]?.category?.name %></td>
-                <td><%=data[i].regularPrice %></td>
                 <td><%=data[i].salePrice %></td>
                 <td><%=data[i].quantity %></td>
                 <td><%=data[i].color %></td>
@@ -275,6 +345,14 @@
                         <a href="/admin/editProduct?id=<%= data[i]._id %>" class="text-white" style="text-decoration: none;">Edit</a>
                     </button>
                 </td>
+                <td>
+                    <% if (data[i].offer && data[i].offer > 0) { %>
+                        <button onclick="removeOffer('<%= data[i]._id %>')" class="btn btn-info" style="width: 80px; color: white;">Remove Offer</button>
+                    <% } else { %>
+                        <button onclick="openModal('<%= data[i]._id %>')" class="btn btn-info" style="width: 80px; color: white;">Add Offer</button>
+                    <% } %>
+                </td>
+
             </tr>
             <% } %>
         </tbody>
@@ -283,6 +361,29 @@
 </div>
 </div>
 </div>
+
+   <!-- Modal -->
+        <div id="offerModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Set Offer Details</h2><br>
+
+                <form id="offerForm" class="modal-form">
+                    <label for="offer">Offer (%)</label>
+                    <input type="number" id="offer" name="offer" placeholder="Enter offer percentage">
+                    <span id="offerError" class="text-danger"></span>
+
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate" name="endDate">
+                    <span id="endDateError" class="text-danger"></span>
+
+                    <!-- Changed button type to submit -->
+                    <button type="submit">Save Offer</button> 
+                </form>
+            </div>
+        </div>
+
+
 
 <div class="container mt-3">
     <nav aria-label="Page navigation">
@@ -300,8 +401,188 @@
     </nav>
  </div>
  
- 
+ <script>
+
+        let selectedProductId = null;
+
+        // Open Modal
+        function openModal(productId) {
+            selectedProductId = productId;
+            document.getElementById("offerModal").style.display = "block";
+            document.getElementById("offerError").textContent = "";
+            document.getElementById("endDateError").textContent = "";
+        }
+        
+        // Close Modal
+        function closeModal() {
+            document.getElementById("offerModal").style.display = "none";
+            document.getElementById("offerError").textContent = "";
+            document.getElementById("endDateError").textContent = "";
+        }
+        
+        // Close when clicking outside the modal
+        window.onclick = function (event) {
+            let modal = document.getElementById("offerModal");
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+        
+        document.getElementById("offerForm").addEventListener("submit", submitOffer);
+        
+        // Clear errors on user input
+        document.getElementById("offer").addEventListener("input", function () {
+            document.getElementById("offerError").textContent = "";
+        });
+        
+        document.getElementById("endDate").addEventListener("input", function () {
+            document.getElementById("endDateError").textContent = "";
+        });
+        
+        async function submitOffer(event) {
+            event.preventDefault();
+        
+            const offerValue = document.getElementById("offer").value.trim();
+            const endDateValue = document.getElementById("endDate").value.trim();
+            const today = new Date().toISOString().split("T")[0];
+        
+            let isValid = true;
+            document.getElementById("offerError").textContent = "";
+            document.getElementById("endDateError").textContent = "";
+        
+            if (!offerValue) {
+                document.getElementById("offerError").textContent = "Offer cannot be empty.";
+                isValid = false;
+            } else if (isNaN(offerValue) || offerValue < 1 || offerValue > 100) {
+                document.getElementById("offerError").textContent = "Offer must be between 1% and 100%.";
+                isValid = false;
+            }
+        
+            if (!endDateValue) {
+                document.getElementById("endDateError").textContent = "End date is required.";
+                isValid = false;
+            } else if (endDateValue < today) {
+                document.getElementById("endDateError").textContent = "End date must be in the future.";
+                isValid = false;
+            }
+        
+            if (!selectedProductId) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Product ID is missing.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+                return;
+            }
+        
+            if (!isValid) return;
+        
+            const confirmation = await Swal.fire({
+                title: "Are you sure?",
+                text: `You are about to add an offer of ${offerValue}% valid until ${endDateValue}.`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, add offer!",
+                cancelButtonText: "Cancel",
+                reverseButtons: true
+            });
+        
+            if (!confirmation.isConfirmed) return;
+        
+            try {
+                const response = await fetch("/admin/addOffer", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ offer: offerValue, endDate: endDateValue, productId: selectedProductId })
+                });
+        
+                const result = await response.json();
+        
+                if (result.success) {
+                    Swal.fire({
+                        title: "Success!",
+                        text: result.message,
+                        icon: "success",
+                        confirmButtonText: "OK"
+                    }).then(() => {
+                        closeModal();
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Error!",
+                        text: result.message || "Failed to add offer.",
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    });
+                }
+            } catch (error) {
+                console.error("Error submitting offer:", error);
+                Swal.fire({
+                    title: "Error!",
+                    text: "Something went wrong. Please try again.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            }
+        }
+
+
+        async function removeOffer(productId) {
+            const confirmation = await Swal.fire({
+                title: "Are you sure?",
+                text: `Do you want to remove the offer.`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, remove offer!",
+                cancelButtonText: "Cancel",
+                reverseButtons: true
+            });
+        
+            if (!confirmation.isConfirmed) return;
+        
+            try {
+                const response = await fetch("/admin/removeOffer", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ productId: productId })
+                });
+        
+                const result = await response.json();
+        
+                if (result.success) {
+                    Swal.fire({
+                        title: "Success!",
+                        text: result.message,
+                        icon: "success",
+                        confirmButtonText: "OK"
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Error!",
+                        text: result.message || "Failed to remove offer.",
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    });
+                }
+            } catch (error) {
+                console.error("Error removing offer:", error);
+                Swal.fire({
+                    title: "Error!",
+                    text: "Something went wrong. Please try again.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            }
+        }
+
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 <%- include("../partials/admin/admin-footer") %>
+

@@ -492,6 +492,55 @@ const changeEmailValid=async (req,res) => {
           return res.json({ success: false, message: "Something went wrong! Please try again" });
       }
   };
+
+  const userChangePassword=async (req,res) => {
+    try {
+      const user=req.session.userData
+      res.render('userChangePassword')
+    } catch (error) {
+      console.log(error)
+      res.redirect('/pageNotFound')    
+    }
+  }
+
+  const userChangePasswordValid=async (req,res) => {
+    try {
+      
+      const {currentPass,newPass1,newPass2}=req.body
+
+      const userId=req.session.user
+      const userData = await User.findById(userId);
+      const userPass=userData.password
+
+      const passwordMatch= await bcrypt.compare(currentPass,userPass)
+
+      if (!passwordMatch) {
+        return res.status(400).json({ success: false, message: "Current password is incorrect." });
+      }
+  
+      if (newPass1 !== newPass2) {
+        return res.status(400).json({ success: false, message: "New passwords do not match." });
+      }
+  
+      if (newPass1 === currentPass) {
+        return res.status(400).json({ success: false, message: "New password cannot be the same as the current password." });
+      }
+
+  
+      const hashedNewPassword = await bcrypt.hash(newPass1, 10);
+  
+      userData.password = hashedNewPassword;
+      await userData.save();
+  
+      return res.status(200).json({ success: true, message: "Password changed successfully." });
+  
+
+    } catch (error) {
+      console.error("Error in changing password:", error);
+      res.status(500).json({ success: false, message: "An error occurred." });  
+    }
+  }
+
   
 
 module.exports={
@@ -515,5 +564,7 @@ module.exports={
   addAddressValid,
   editAddress,
   editAddressValid,
-  deleteAddress
+  deleteAddress,
+  userChangePassword,
+  userChangePasswordValid
 }

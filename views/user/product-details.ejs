@@ -87,9 +87,11 @@
             <span class="old-price">₹ <%= products.regularPrice %></span>₹ <%= products.salePrice %>
         </p>
         <p class="product-desc"><%= products.description %></p>
-        <p class="product-desc <%= products.status === 'In stock' ? 'text-success' : (products.status === 'Out of stock' ? 'text-danger' : 'text-warning') %>">
-            <%= products.status %>
-        </p>
+        <p class="product-desc 
+        <%= products.quantity < 1 ? 'text-danger' : (products.quantity < 8 ? 'text-warning' : 'text-success') %>">
+        <%= products.quantity < 1 ? 'Out of stock' : (products.quantity < 8 ? 'Few items left' : 'In stock') %>
+         </p>
+    
         <p style="font-weight: bold; color: #333;">Color: <%= products.color %></p>
 
         <!-- Form -->

@@ -55,7 +55,23 @@ const productSchema=new mongoose.Schema({
   },
   createdOn: {
     type: Date,
-    default: Date.now }
+    default: Date.now
+  },
+  offer: { 
+    type: Number,
+    required: false,
+    default: null
+  },
+  offerStartDate: { 
+    type: Date,
+    required: false,
+    default: Date.now
+  },
+  offerEndDate: { 
+    type: Date,
+    required: false,
+    default: null
+  },
 })
 
 const Product=mongoose.model("Product",productSchema)

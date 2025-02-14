@@ -22,7 +22,22 @@ const categorySchema = new mongoose.Schema({
    createdAt:{
       type: Date,
       default: Date.now
-   }
+   },
+   categoryOffer: { 
+      type: Number,
+      required: false,
+      default: null
+    },
+    categoryOfferStartDate: { 
+      type: Date,
+      required: false,
+      default: Date.now
+    },
+    categoryOfferEndDate: { 
+      type: Date,
+      required: false,
+      default: null
+    },
 })
 const category = mongoose.model('Category', categorySchema);
 

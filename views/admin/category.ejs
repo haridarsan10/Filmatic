@@ -198,6 +198,77 @@
     border: none;
     font-weight: bold;
   }
+
+  .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Transparent black overlay */
+        }
+
+        .modal-content {
+            background-color: white;
+            width: 50%;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Close Button */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: red;
+        }
+
+        /* Form Styles */
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .modal-form input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .modal-form button {
+            padding: 10px;
+            border: none;
+            background-color: blue;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal-form button:hover {
+            background-color: darkblue;
+        }
+
+        .text-danger {
+        color: red;
+        font-size: 14px;
+        font-weight: bold;
+        display: block;
+        margin-top: 5px;
+        }   
+
+
   </style>
 
 </head>
@@ -241,12 +312,10 @@
                     <th class="text-center"></th>
                     <th>Name</th>
                     <th>Description</th>
-                    <!-- <th>Offer Price</th>
-                    <th>Offer</th> -->
-                    <!-- <th>Status</th> -->
                     <th>Status</th>
                     <th class="text-start">Listing</th>
                     <th>Edit</th>
+                    <th>Offer</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -287,6 +356,15 @@
                     <td class="text-start">
                       <a href="/admin/editCategory?id=<%=category._id %>" class="btn btn-info text-white">Edit</a>
                     </td>
+
+                    <td>
+                      <% if (category.categoryOffer && category.categoryOffer > 0) { %>
+                        <button onclick="removeOffer('<%= category._id %>')" class="btn btn-danger" style="width: 100px; color: white; background-color: #dc3545; border: none;">Remove Offer</button>
+                    <% } else { %>
+                        <button onclick="openModal('<%= category._id %>')" class="btn btn-success" style="width: 100px; color: white; background-color: #28a745; border: none;">Add Offer</button>
+                    <% } %>                  
+                   </td>
+
                   </tr>
                   <% }) %>
                 </tbody>
@@ -296,6 +374,27 @@
         </div>
       </div>
     </div>
+
+
+    <div id="offerModal" class="modal">
+      <div class="modal-content">
+          <span class="close-btn" onclick="closeModal()">&times;</span>
+          <h2>Set Offer Details</h2><br>
+
+          <form id="offerForm" class="modal-form">
+              <label for="offer">Offer (%)</label>
+              <input type="number" id="offer" name="offer" placeholder="Enter offer percentage">
+              <span id="offerError" class="text-danger"></span>
+
+              <label for="endDate">End Date</label>
+              <input type="date" id="endDate" name="endDate">
+              <span id="endDateError" class="text-danger"></span>
+
+              <!-- Changed button type to submit -->
+              <button type="submit">Save Offer</button> 
+          </form>
+      </div>
+  </div>
 
 
     <div class="pagination-container">
@@ -318,87 +417,184 @@
   </section>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  
   <script>
 
-  
-    
-function handelFormSubmit(event) {
-    event.preventDefault();
+      let selectedCategoryId = null;
 
-    // Get the input values with trim
-    const nameInput = document.getElementById('product_name');
-    const descriptionInput = document.getElementById('descriptionId');
-
-    const name = nameInput ? nameInput.value.trim() : "";
-    const description = descriptionInput ? descriptionInput.value.trim() : "";
-
-    console.log("Trimmed Name:", `"${name}"`);
-    console.log("Trimmed Description:", `"${description}"`);
-
-    // Error message containers
-    const nameError = document.getElementById('name-error');
-    const descriptionError = document.getElementById('description-error');
-
-    // Clear previous error messages
-    nameError.textContent = '';
-    descriptionError.textContent = '';
-
-    let isValid = true;
-
-    // Validate Name
-    if (name.length === 0) { 
-        nameError.textContent = 'Name is required.';
-        isValid = false;
-    } else if (name.length < 3) {
-        nameError.textContent = 'Name must be at least 3 characters long.';
-        isValid = false;
-    }
-
-    // Validate Description
-    if (description.length === 0) { 
-        descriptionError.textContent = 'Description is required.';
-        isValid = false;
-    } else if (description.length < 5) {
-        descriptionError.textContent = 'Description must be at least 5 characters long.';
-        isValid = false;
-    }
-
-
-    if(isValid){
-      $.ajax({
-      url:'/admin/addCategory',
-      type:'POST',
-      contentType: 'application/json',
-      dataType: 'json',
-      data: JSON.stringify({ name: name, description: description }), 
-      success:function(response){
-        if(response.success){
-          Swal.fire({
-            icon:'success',
-            title:'Success',
-            text:'Category created successfully',
-            showConfirmButton:false,
-            timer:1500
-          })
-        }
-        else{
-          Swal.fire({
-            icon:'error',
-            title:'Error',
-            text:'Category already exists'
-          })
-        }
-      },
-      error:function(){
-        Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Something went wrong. Please try again.'
-            });
+      // Open Modal
+      function openModal(categoryId) {
+        selectedCategoryId = categoryId;
+          document.getElementById("offerModal").style.display = "block";
+          document.getElementById("offerError").textContent = "";
+          document.getElementById("endDateError").textContent = "";
       }
-     })
-    }
+
+      // Close Modal
+      function closeModal() {
+          document.getElementById("offerModal").style.display = "none";
+          document.getElementById("offerError").textContent = "";
+          document.getElementById("endDateError").textContent = "";
+      }
+
+      // Close when clicking outside the modal
+      window.onclick = function (event) {
+          let modal = document.getElementById("offerModal");
+          if (event.target === modal) {
+              closeModal();
+          }
+      };
+
+      document.getElementById("offerForm").addEventListener("submit", submitOffer);
+
+      // Clear errors on user input
+      document.getElementById("offer").addEventListener("input", function () {
+          document.getElementById("offerError").textContent = "";
+      });
+
+      document.getElementById("endDate").addEventListener("input", function () {
+          document.getElementById("endDateError").textContent = "";
+      });
+
+      async function submitOffer(event) {
+          event.preventDefault();
+
+          const offerValue = document.getElementById("offer").value.trim();
+          const endDateValue = document.getElementById("endDate").value.trim();
+          const today = new Date().toISOString().split("T")[0];
+
+          let isValid = true;
+          document.getElementById("offerError").textContent = "";
+          document.getElementById("endDateError").textContent = "";
+
+          if (!offerValue) {
+              document.getElementById("offerError").textContent = "Offer cannot be empty.";
+              isValid = false;
+          } else if (isNaN(offerValue) || offerValue < 1 || offerValue > 100) {
+              document.getElementById("offerError").textContent = "Offer must be between 1% and 100%.";
+              isValid = false;
+          }
+
+          if (!endDateValue) {
+              document.getElementById("endDateError").textContent = "End date is required.";
+              isValid = false;
+          } else if (endDateValue < today) {
+              document.getElementById("endDateError").textContent = "End date must be in the future.";
+              isValid = false;
+          }
+
+          if (!selectedCategoryId) {
+              Swal.fire({
+                  title: "Error!",
+                  text: "Product ID is missing.",
+                  icon: "error",
+                  confirmButtonText: "OK"
+              });
+              return;
+          }
+
+          if (!isValid) return;
+
+          const confirmation = await Swal.fire({
+              title: "Are you sure?",
+              text: `You are about to add an offer of ${offerValue}% valid until ${endDateValue}.`,
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonText: "Yes, add offer!",
+              cancelButtonText: "Cancel",
+              reverseButtons: true
+          });
+
+          if (!confirmation.isConfirmed) return;
+
+          try {
+              const response = await fetch("/admin/addCatOffer", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ offer: offerValue, endDate: endDateValue, categoryId: selectedCategoryId })
+              });
+
+              const result = await response.json();
+
+              if (result.success) {
+                  Swal.fire({
+                      title: "Success!",
+                      text: result.message,
+                      icon: "success",
+                      confirmButtonText: "OK"
+                  }).then(() => {
+                      closeModal();
+                      window.location.reload();
+                  });
+              } else {
+                  Swal.fire({
+                      title: "Error!",
+                      text: result.message || "Failed to add offer.",
+                      icon: "error",
+                      confirmButtonText: "OK"
+                  });
+              }
+          } catch (error) {
+              console.error("Error submitting offer:", error);
+              Swal.fire({
+                  title: "Error!",
+                  text: "Something went wrong. Please try again.",
+                  icon: "error",
+                  confirmButtonText: "OK"
+              });
+          }
 }
+
+
+    async function removeOffer(categoryId) {
+        const confirmation = await Swal.fire({
+            title: "Are you sure?",
+            text: `Do you want to remove the offer.`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, remove offer!",
+            cancelButtonText: "Cancel",
+            reverseButtons: true
+        });
+
+        if (!confirmation.isConfirmed) return;
+
+        try {
+            const response = await fetch("/admin/removeCatOffer", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ categoryId: categoryId })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                Swal.fire({
+                    title: "Success!",
+                    text: result.message,
+                    icon: "success",
+                    confirmButtonText: "OK"
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    title: "Error!",
+                    text: result.message || "Failed to remove offer.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            }
+        } catch (error) {
+            console.error("Error removing offer:", error);
+            Swal.fire({
+                title: "Error!",
+                text: "Something went wrong. Please try again.",
+                icon: "error",
+                confirmButtonText: "OK"
+            });
+        }
+    }
 
 
   </script>
