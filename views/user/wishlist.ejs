@@ -180,9 +180,13 @@
                           <!-- Product Details -->
                           <div class="d-flex flex-column" style="flex: 1; margin-left: 20px;">
                               <h6 style="font-weight: bold; margin: 0;"><%= wishlist.items[i].productId.productName %></h6>
-                              <p class="cart-item-price mb-0 text-muted">₹<span id="unit-price"><%= wishlist.items[i].productId.salePrice %></span></p>
-                              <p class="cart-item-status mb-0" 
-                              style="font-size: 14px; font-weight: bold; color: <%= wishlist.items[i].productId.status === 'In stock' ? 'green' : 'red' %>;"><%= wishlist.items[i].productId.status %></p>
+                              <p class="cart-item-price mb-0 text-muted">₹<span id="unit-price"><%= wishlist.items[i].productId.pricing?.finalPrice %></span></p>
+                              <p style="font-size: 14px; font-weight: bold; color: 
+                              <%= wishlist.items[i].productId.quantity < 1 ? 'red' : 
+                                  wishlist.items[i].productId.quantity <= 8 ? 'orange' : 'green' %>;">
+                              <%= wishlist.items[i].productId.quantity < 1 ? 'Out of Stock' : 
+                                  wishlist.items[i].productId.quantity <= 8 ? 'Few Items Left' : 'In Stock' %>
+                            </p>
                           </div>
           
                           <!-- Buttons (Add to Cart & Remove) -->

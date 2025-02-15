@@ -375,38 +375,46 @@
 
                 let innerData = '';
                 for (let i = 0; i < products.length; i++) {
-                    innerData += `
-                        <div class="col-12 col-sm-6 col-lg-4">
-                            <div class="single-product-wrapper">
-                                <a href="/productDetails?id=${products[i]._id}">
-                                    <div class="product-img">
-                                        <img src="uploads/resized-images/${products[i].productImage[0]}" alt="${products[i].productName}">
-                                        <img class="hover-img" src="uploads/resized-images/${products[i].productImage[1]}" alt="">
-                                      <div class="product-badge offer-badge" style="${products[i].offer ? '' : 'display: none;'}">
-                                            <span>- ₹${products[i].offer}% OFF</span>
+                        const product = products[i];
+                        const bestOffer =  product.pricing?.bestOffer || product.offer || 0;
+                        const displayPrice = bestOffer > 0 ? product.pricing?.finalPrice : product.regularPrice;
+
+                        innerData += `
+                            <div class="col-12 col-sm-6 col-lg-4">
+                                <div class="single-product-wrapper">
+                                    <a href="/productDetails?id=${product._id}">
+                                        <div class="product-img">
+                                            <img src="uploads/resized-images/${product.productImage[0]}" alt="${product.productName}">
+                                            <img class="hover-img" src="uploads/resized-images/${product.productImage[1]}" alt="">
+                                            ${bestOffer > 0 ? `
+                                                <div class="product-badge offer-badge">
+                                                    <span>-${bestOffer}% OFF</span>
+                                                </div>
+                                            ` : ''}
+                                            <div class="product-favourite">
+                                                <a onclick="addToWishlist('${product._id}')" class="favme fa fa-heart"></a>
+                                            </div>
                                         </div>
-                                        <div class="product-favourite">
-                                            <a onclick="addToWishlist('${products[i]._id}')" class="favme fa fa-heart"></a>
+                                        <div class="product-description">
+                                            <h6>${product.productName}</h6>
+                                            <p class="product-price">
+                                                ${bestOffer > 0 ? `<span class="old-price">₹${product.regularPrice}</span>` : ''}
+                                                ₹${displayPrice}
+                                            </p>
                                         </div>
-                                    </div>
-                                    <div class="product-description">
-                                        <h6>${products[i].productName}</h6>
-                                        <p class="product-price">
-                                            <span class="old-price">₹ ${products[i].regularPrice}</span>₹ ${products[i].salePrice}
-                                        </p>
-                                    </div>
-                                </a>
-                                <div class="hover-content">
-                                    <div class="add-to-cart-btn">
-                                        <a href="#" onclick="addToCart('${products[i]._id}')" class="btn essence-btn">Add to Cart</a>
+                                    </a>
+                                    <div class="hover-content">
+                                        <div class="add-to-cart-btn">
+                                            <a href="#" onclick="addToCart('${product._id}')" class="btn essence-btn">Add to Cart</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
-                }
+                        `;
+                    }
 
-                productList.innerHTML = innerData;
+                    productList.innerHTML = innerData;
+
             })
             .catch(error => {
                 console.error('Error fetching data:', error);

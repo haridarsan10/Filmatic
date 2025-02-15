@@ -1,6 +1,7 @@
 const User=require('../../models/userSchema')
 const Product=require('../../models/productSchema')
 const Category=require('../../models/categorySchema')
+const { calculateFinalPrice } = require('../../helpers/priceHelper');
 
 
 const productDetails=async (req,res) => {
@@ -10,6 +11,8 @@ const productDetails=async (req,res) => {
     const productId=req.query.id
     const productData=await Product.findById(productId).populate('category')
     const category=productData.category
+
+    const { finalPrice, bestOffer } = calculateFinalPrice(productData);
 
     const relatedProducts = await Product.find({
       category: category,
@@ -21,7 +24,9 @@ const productDetails=async (req,res) => {
       user:userData,
       products:productData,
       category:category,
-      relatedProducts:relatedProducts
+      relatedProducts:relatedProducts,
+      finalPrice,
+      bestOffer
     })
 
   } catch (error) {

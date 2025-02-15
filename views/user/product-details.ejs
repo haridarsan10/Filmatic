@@ -84,8 +84,11 @@
             <h2><%= products.productName %></h2>
         </a>
         <p class="product-price">
-            <span class="old-price">₹ <%= products.regularPrice %></span>₹ <%= products.salePrice %>
-        </p>
+            <% if (finalPrice !== products.regularPrice) { %>
+                <span class="old-price">₹ <%= products.regularPrice %></span>
+            <% } %>
+            ₹ <%= finalPrice %>
+        </p>    
         <p class="product-desc"><%= products.description %></p>
         <p class="product-desc 
         <%= products.quantity < 1 ? 'text-danger' : (products.quantity < 8 ? 'text-warning' : 'text-success') %>">

@@ -4,6 +4,7 @@ const Product=require('../../models/productSchema')
 const Category=require('../../models/categorySchema')
 const Cart=require('../../models/cartSchema')
 const mongoose=require('mongoose')
+const { calculateFinalPrice } = require('../../helpers/priceHelper');
 
 
 
@@ -30,11 +31,18 @@ const addToCart = async (req, res) => {
       return res.json({ success: false, redirectUrl: '/login' });
     }
 
-    const productData = await Product.findOne({ _id: productId, isBlocked: false });
+    const productData = await Product.findOne({ _id: productId, isBlocked: false }).populate('category')
+
+      // console.log(productData)
 
     if (!productData) {
       return res.status(404).json({ success: false, message: "Product does not exist" });
     }
+
+     if (productData.quantity <= 0) {
+      return res.status(400).json({ success: false, message: "Out of stock" });
+    }
+
 
     const itemQuantity = parseInt(quantity) || 1;
 
@@ -66,14 +74,19 @@ const addToCart = async (req, res) => {
         return res.status(400).json({ success: false, message: "You cannot add more than available stock" });
       }
 
+      const { finalPrice, bestOffer } = calculateFinalPrice(productData);
+
       existingItem.quantity = newQuantity;
-      existingItem.totalPrice = newQuantity * productData.salePrice;
+      existingItem.totalPrice = newQuantity * finalPrice;
     } else {
+
+      const { finalPrice, bestOffer } = calculateFinalPrice(productData);
+
       cartData.items.push({
         productId,
         quantity: itemQuantity,
-        price: productData.salePrice,
-        totalPrice: productData.salePrice * itemQuantity
+        price: finalPrice,
+        totalPrice: finalPrice * itemQuantity
       });
     }
 

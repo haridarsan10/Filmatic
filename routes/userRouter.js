@@ -8,6 +8,9 @@ const checkOutController=require('../controller/user/checkOutController')
 const orderController=require('../controller/user/orderController')
 const wishlistController=require('../controller/user/wishlistController')
 const couponController=require('../controller/user/couponController')
+const  razorpayXController= require("../controller/razorpayXController");
+
+
 
 
 const passport = require('passport');
@@ -93,6 +96,11 @@ router.post('/removeWishlist',wishlistController.removeWishlist)
 
 //Coupon
 router.post('/applyCoupon',couponController.applyCoupon)
+
+//Payment 
+
+router.post("/create-order", razorpayXController.createOrder);
+router.post("/verify-payment", razorpayXController.verifyPayment);
 
 
 module.exports= router;

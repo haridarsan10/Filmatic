@@ -4,23 +4,50 @@ const Product=require('../../models/productSchema')
 const Category=require('../../models/categorySchema')
 const Cart=require('../../models/cartSchema')
 const WishList=require('../../models/wishlistSchema')
+const { calculateFinalPrice } = require('../../helpers/priceHelper');
+
 
 const mongoose=require('mongoose')
 
-const loadWishlist=async(req,res)=>{
+const loadWishlist = async (req, res) => {
   try {
+    const userId = req.session.user;
+    const userData = req.session.userData;
 
-    const userId=req.session.user
-    const userData=req.session.userData
-    const wishlistData = await WishList.findOne({ userId: userId }).populate("items.productId");
+    const wishlistData = await WishList.findOne({ userId: userId })
+      .populate({
+        path: "items.productId",
+        populate: { path: "category" } 
+      });
 
-    res.render('wishlist',{user:userData,wishlist:wishlistData})
+    if (!wishlistData) {
+      return res.render('wishlist', { user: userData, wishlist: null });
+    }
+
+    const updatedWishlist = {
+      ...wishlistData.toObject(),
+      items: wishlistData.items.map(item => {
+        const { finalPrice, bestOffer } = calculateFinalPrice(item.productId);
+        return {
+          ...item.toObject(),
+          productId: {
+            ...item.productId.toObject(),
+            pricing: {
+              finalPrice,
+              bestOffer
+            }
+          }
+        };
+      })
+    };
+
+    res.render('wishlist', { user: userData, wishlist: updatedWishlist });
 
   } catch (error) {
-    console.log(error)
-    res.redirect('/pageNotFound')
+    console.log(error);
+    res.redirect('/pageNotFound');
   }
-}
+};
 
 
 const addToWishlist=async(req,res)=>{

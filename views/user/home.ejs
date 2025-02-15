@@ -176,13 +176,25 @@
                                             <% if(products[i].productImage[1]) { %>
                                                 <img class="hover-img" src="uploads/resized-images/<%= products[i].productImage[1] %>" alt="">
                                             <% } %>
+
+                                            <% if (products[i].bestOffer > 0) { %>
+                                                <div class="product-badge offer-badge">
+                                                    <span>-<%= products[i].bestOffer %>% OFF</span>
+                                                </div>
+                                            <% } %>
+
                                             <div class="product-favourite">
                                                 <a onclick="addToWishlist('<%= products[i]._id  %>')" class="favme fa fa-heart"></a>
                                             </div>
                                         </div>
                                         <div class="product-description">
                                             <h6><%= products[i].productName %></h6>
-                                            <p class="product-price">₹<%= products[i].salePrice %></p>
+                                            <p class="product-price">
+                                                <% if (products[i].bestOffer > 0) { %>
+                                                    <span class="old-price">₹<%= products[i].regularPrice %></span>
+                                                <% } %>
+                                                ₹<%= products[i].finalPrice %>
+                                            </p> 
                                         </div>
                                     </a>
                                     <div class="add-to-cart-btn">
