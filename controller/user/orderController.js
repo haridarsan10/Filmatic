@@ -125,12 +125,13 @@ const orders=async (req,res) => {
 
         const products = order.order_items.map(item => ({
           productImage: item.productId?.productImage || 'default-image.jpg', 
-          productName: item.productName,
+          productName: item.productId.productName,
           price: item.price,
           quantity: item.quantity,
           total: item.price * item.quantity
         }));
 
+        console.log(products)
 
       res.render('order-details',{ user:userData,products:products,order:order,address:foundAddress})
 

@@ -275,32 +275,45 @@ body {
       
         <div class="right">
           <div class="card-header">
-            <h5 class="mb-0">Order Items</h5>
+              <h5 class="mb-0">Order Items</h5>
           </div>
-
+      
           <% if (products && products.length > 0) { %>
-            <% for(let i = 0; i < products.length; i++) { %>
-              <div class="cart-item">
-                <img class="order-image"  src="/uploads/resized-images/<%= products[i].productImage[0] %>" alt="Product Image">
-                <p class="order-id"><%= products[i].productName %></p>
-                <p class="order-status"><%= products[i].price %></p>
-                <p class="cart-item-price"><strong>Total:</strong> ₹<span id="unit-price"><%= products[i].total %></span></p>
-              </div>
-              <% } %>
-              <% } else { %>
-                <div class="no-orders">
-                  <p>No order details</p>
-                </div>
-              <% } %>
+              <% for (let i = 0; i < products.length; i++) { %>
+                  <div class="cart-item d-flex align-items-center justify-content-between p-3 border-bottom" id="order-item-<%= i %>">
+                      
+                      <!-- Product Image -->
+                      <img src="/uploads/resized-images/<%= products[i].productImage[0] %>" 
+                           alt="Product Image" class="cart-item-image" style="width: 120px; height: auto; border-radius: 5px;">
           
-              <% if (order.status !== "cancelled") { %>
-                <button class="remove-item" onclick="cancelOrder('<%= order.orderId %>')">Cancel Order</button>
+                      <!-- Product Details -->
+                      <div class="d-flex flex-column" style="flex: 1; margin-left: 20px;">
+                          <h6 style="font-weight: bold; margin: 0;"><%= products[i].productName %></h6>
+                          <p class="cart-item-price mb-0 text-muted">₹<span id="unit-price"><%= products[i].price %></span></p>
+                          <p class="cart-item-price"><strong>Total:</strong> ₹<span id="unit-price"><%= products[i].total %></span></p>
+                      </div>
+          
+                  </div>
               <% } %>
-                <div class="total-container" style="justify-items: end;">
-                <p>Total Amount:  <strong>₹ <%= order.total %></strong></p>
-              </div>           
-        
-        </div>
+          <% } else { %>
+              <div class="empty-cart text-center">
+                  <h5>No order details</h5>
+                  <p>Browse our products and place an order.</p>
+              </div>
+          <% } %>
+          
+           <!-- Buttons (Cancel Order) -->
+           <% if (order.status !== "cancelled") { %>
+            <button class="remove-item btn btn-sm" onclick="cancelOrder('<%= order.orderId %>')">
+              Cancel Order
+            </button>
+        <% } %>
+
+          <!-- Total Amount -->
+          <div class="total-container text-end mt-3">
+              <p><strong>Total Amount:</strong> ₹ <%= order.total %></p>
+          </div>
+      </div>
         
 
       </div>

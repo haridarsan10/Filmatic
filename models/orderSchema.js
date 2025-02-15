@@ -21,7 +21,7 @@ const orderSchema = new Schema({
    },
    payment_method: {
       type: String,
-      enum: ["credit_card","wallet","cod", "upi"],
+      enum: ["credit_card","wallet","cod","razorpay","upi"],
       required: true
    },
    order_items: [{
@@ -65,7 +65,7 @@ const orderSchema = new Schema({
       default: Date.now
    },
    couponApplied: {
-      type: String,
+      type: Boolean,
       default: false 
    },
 }, { timestamps: true });
