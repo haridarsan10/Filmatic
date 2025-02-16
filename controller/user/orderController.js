@@ -33,7 +33,7 @@ const loadOrders = async (req, res) => {
     const ordersData = userOrders.map(order => ({
       orderId: order.orderId,
       status: order.status,
-      total: order.total,
+      total: order.finalAmount,      
       image: order.order_items.length > 0 && order.order_items[0].productId 
         ? order.order_items[0].productId.productImage[0] || 'default.jpg' 
         : 'default.jpg'
@@ -50,13 +50,14 @@ const loadOrders = async (req, res) => {
 
 const orders=async (req,res) => {
   try {
-    const {addressId,paymentMethod,totalPrice,cartItems,couponCode }=req.body
+    const {addressId,paymentMethod,totalPrice,cartItems,couponCode,discountAmount}=req.body
     const userId=req.session.user
-    // console.log(req.body)
+    console.log(req.body)
 
     const discount = req.body.discount || 0;  
     const finalAmount = req.body.finalAmount || totalPrice;  
-    const couponApplied = req.body.couponApplied || false;  
+    
+    const couponApplied = couponCode ? true : false;
 
 
     if (couponCode && couponCode !== 'null') {
@@ -76,14 +77,18 @@ const orders=async (req,res) => {
           productName: item.productId.productName, 
           price: item.price, 
           quantity: item.quantity, 
-          totalPrice: item.totalPrice 
+          totalPrice: Math.round(item.totalPrice),      
+
         })),
-        total: totalPrice,
+        total: Math.round(totalPrice),
         status:"pending",
-        discount: discount,
-        finalAmount: finalAmount, 
-        couponApplied: couponApplied 
+        discount: Math.round(discountAmount),
+        finalAmount: Math.round(totalPrice-discountAmount), 
+        couponApplied: couponApplied,
+        couponCode:couponCode
       })
+
+      console.log(newOrder)
 
       await newOrder.save()
 
@@ -112,9 +117,6 @@ const orders=async (req,res) => {
         .populate('order_items.productId', 'productName productImage') 
         .exec();
 
-
-        // console.log(order)
-
         const addressId=order.address_id.toString()
 
         const address = await Address.findOne({
@@ -131,7 +133,6 @@ const orders=async (req,res) => {
           total: item.price * item.quantity
         }));
 
-        console.log(products)
 
       res.render('order-details',{ user:userData,products:products,order:order,address:foundAddress})
 
@@ -171,10 +172,30 @@ const cancelOrder=async (req,res) => {
   }
 }
 
+const returnOrder=async (req,res) => {
+  try {
+    console.log('hie')
+    const { orderId, reason } = req.body;
+
+    const order = await Order.findOne({orderId:orderId});
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    order.returnRequest = true;
+    order.returnStatus = "pending";
+    order.returnReason = reason;
+    await order.save();
+
+    res.status(200).json({ message: "Return request submitted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
 
 module.exports={
   orders,
   loadOrders,
   loadOrderDetails,
-  cancelOrder
+  cancelOrder,
+  returnOrder
 }

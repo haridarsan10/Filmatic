@@ -896,25 +896,49 @@
                     const shippingAddress = document.querySelector('input[name="shipping_address"]:checked')?.value;
                     const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
                     const totalPrice = parseFloat(document.getElementById('total-element').textContent.replace('₹', '').trim());
+                    const discountAmount= parseFloat(document.getElementById('discount-element').textContent.replace('₹', '').trim());
                     const cartItems = JSON.parse('<%- JSON.stringify(cartItems) %>');
                     const couponInput = document.getElementById('coupon-input');
                     let couponCode = null;
 
-                    // Validation checks
+                    console.log(discountAmount)
+
                     if (!shippingAddress) {
-                        throw new Error('Please select a shipping address');
-                    }
-                    if (!paymentMethod) {
-                        throw new Error('Please select a payment method');
-                    }
-                    if (!totalPrice || totalPrice <= 0) {
-                        throw new Error('Invalid order amount');
-                    }
-                    if (!cartItems || !cartItems.length) {
-                        throw new Error('Your cart is empty');
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Missing Address",
+                            text: "Please select a shipping address."
+                        });
+                        return;
                     }
 
-                    // Get coupon if applied
+                    if (!paymentMethod) {
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Missing Payment Method",
+                            text: "Please select a payment method."
+                        });
+                        return;
+                    }
+
+                    if (!totalPrice || totalPrice <= 0) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Invalid Order Amount",
+                            text: "The total price must be greater than zero."
+                        });
+                        return;
+                    }
+
+                    if (!cartItems || !cartItems.length) {
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Empty Cart",
+                            text: "Your cart is empty. Please add items before placing an order."
+                        });
+                        return;
+                    }
+
                     if (document.getElementById('apply-coupon-btn').disabled) {
                         couponCode = couponInput.value.trim();
                     }
@@ -946,6 +970,7 @@
                     paymentMethod, 
                     totalPrice, 
                     cartItems, 
+                    discountAmount,
                     couponCode 
                 })
             });
@@ -1017,7 +1042,8 @@
                                 price: item.price,
                                 totalPrice: item.totalPrice
                             })),
-                            couponCode
+                            couponCode,
+                            discountAmount
                         })
                     });
 

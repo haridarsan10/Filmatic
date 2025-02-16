@@ -1,0 +1,242 @@
+
+<%- include("../partials/admin/admin-header") %>
+
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding-top: 100px;
+  padding-left: 100px;
+}
+
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+.heading {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.return-requests {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.request-card {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-info {
+  flex: 1;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.accept-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.reject-btn {
+  background: #E74C3C;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Background blur effect */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); /* Dark semi-transparent background */
+  backdrop-filter: blur(5px); /* Adds blur effect */
+  z-index: 999;
+}
+
+/* Centered modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 450px; /* Increased width */
+  background: white;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+/* Modal content */
+.modal-content {
+  padding: 20px;
+  border-radius: 8px;
+  background: white;
+}
+
+/* Header with color */
+.modal-header {
+  background-color: #dc3545;
+  color: white;
+  padding: 12px;
+  font-size: 18px;
+  text-align: center;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+/* Modal body */
+.modal-body {
+  padding: 15px;
+  text-align: center;
+}
+
+/* Modal footer with buttons */
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+/* Input field */
+#rejectReason {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  resize: none;
+}
+
+/* Button styles */
+.btn-danger:hover {
+  background-color: #b02a37;
+}
+
+/* Error message */
+#error-message {
+  display: none;
+  color: red;
+  font-size: 14px;
+}
+
+
+</style>
+
+
+<div class="container">
+  <h2 class="heading">Return Requests</h2>
+
+  <div class="return-requests">
+    <% returnOrders.forEach(order => { %>
+      <div class="request-card">
+        <div class="order-info">
+          <p><strong>Order ID:</strong> <%= order.orderId %></p>
+          <p><strong>User:</strong> <%= order.userId.name %> (<%= order.userId.email %>)</p>
+          <p><strong>Final Amount:</strong> ₹<%= order.finalAmount %></p>
+          <p><strong>Reason:</strong> <%= order.returnReason %></p>
+        </div>
+
+        <div class="actions">
+          <form action="/admin/approve-return" method="POST">
+            <input type="hidden" name="orderId" value="<%= order._id %>">
+            <button type="submit" class="accept-btn">Accept</button>
+          </form>
+          <button class="reject-btn" onclick="openRejectModal('<%= order._id %>')">Reject</button>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+  <!-- Reject Reason Modal -->
+  <div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Reject Return Request</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Please provide a reason for rejecting this return request:</p>
+          <input type="hidden" id="rejectOrderId">
+          <textarea id="rejectReason" class="form-control" rows="3" placeholder="Enter rejection reason..."></textarea>
+          <p id="error-message" class="text-danger mt-2" style="display: none;">Reason is required!</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" onclick="submitRejection()">Reject</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+<script>
+  
+  function openRejectModal(orderId) {
+  document.getElementById("rejectOrderId").value = orderId;
+  document.getElementById("rejectReason").value = "";
+  document.getElementById("error-message").style.display = "none";
+  var rejectModal = new bootstrap.Modal(document.getElementById("rejectModal"));
+  rejectModal.show();
+}
+
+async function submitRejection() {
+  const orderId = document.getElementById("rejectOrderId").value;
+  const reason = document.getElementById("rejectReason").value.trim();
+
+  if (!reason) {
+    document.getElementById("error-message").style.display = "block";
+    return;
+  }
+
+  try {
+    const response = await fetch("/admin/reject-return", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId, reason })
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      Swal.fire("Rejected!", result.message, "success").then(() => location.reload());
+    } else {
+      Swal.fire("Error!", result.message, "error");
+    }
+  } catch (error) {
+    console.error("Error submitting rejection:", error);
+    Swal.fire("Error!", "Something went wrong!", "error");
+  }
+}
+
+
+
+</script>
+
+<%- include("../partials/admin/admin-footer") %>

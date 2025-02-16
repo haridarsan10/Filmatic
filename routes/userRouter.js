@@ -9,7 +9,7 @@ const orderController=require('../controller/user/orderController')
 const wishlistController=require('../controller/user/wishlistController')
 const couponController=require('../controller/user/couponController')
 const  razorpayXController= require("../controller/razorpayXController");
-
+const  walletController= require("../controller/user/walletController");
 
 
 
@@ -98,9 +98,15 @@ router.post('/removeWishlist',wishlistController.removeWishlist)
 router.post('/applyCoupon',couponController.applyCoupon)
 
 //Payment 
-
 router.post("/create-order", razorpayXController.createOrder);
 router.post("/verify-payment", razorpayXController.verifyPayment);
+
+//wallet
+router.get('/wallet',walletController.loadwallet)
+router.get('/wallet-history',walletController.loadwalletHistory)
+
+//Order return 
+router.post('/orderReturn',orderController.returnOrder)
 
 
 module.exports= router;

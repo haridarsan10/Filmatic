@@ -255,6 +255,65 @@ body {
             background-color: #c82333; /* Darker shade on hover */
         }
 
+
+        /* Modal Background Overlay */
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Modal Content */
+.modal-content {
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Modal Header */
+.modal-header {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-bottom: 2px solid #f5c6cb;
+}
+
+/* Close Button */
+.btn-close {
+  background: none;
+  border: none;
+}
+
+/* Modal Body */
+.modal-body {
+  padding: 20px;
+}
+
+/* Input Field */
+.form-control {
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+  padding: 10px;
+  font-size: 14px;
+}
+
+/* Submit Button */
+.btn-danger {
+  background-color: #dc3545;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: 0.3s ease-in-out;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+/* Responsive Styling */
+@media (max-width: 576px) {
+  .modal-dialog {
+    max-width: 90%;
+  }
+}
+
 </style>
 
 <main class="main">
@@ -264,15 +323,14 @@ body {
       <li class="breadcrumb-item"><a href="/">Home</a></li>
       <li class="breadcrumb-item"><a href="/userProfile">User Profile</a></li>
       <li class="breadcrumb-item"><a href="/orders">Orders</a></li>
-      <!-- <li class="breadcrumb-item"><a href="/shop">Shop</a></li> -->
-      <li class="breadcrumb-item active" aria-current="page">Order details</li>
+      <li class="breadcrumb-item active" aria-current="page">Order Details</li>
     </ol>
   </nav>
 
+  <!-- Order Items Section -->
   <section class="pt-10 pb-10">
     <div class="container">
       <div class="row">
-      
         <div class="right">
           <div class="card-header">
               <h5 class="mb-0">Order Items</h5>
@@ -286,13 +344,13 @@ body {
                       <img src="/uploads/resized-images/<%= products[i].productImage[0] %>" 
                            alt="Product Image" class="cart-item-image" style="width: 120px; height: auto; border-radius: 5px;">
           
-                      <!-- Product Details -->
+                      <!-- Product Details on the left -->
                       <div class="d-flex flex-column" style="flex: 1; margin-left: 20px;">
                           <h6 style="font-weight: bold; margin: 0;"><%= products[i].productName %></h6>
-                          <p class="cart-item-price mb-0 text-muted">₹<span id="unit-price"><%= products[i].price %></span></p>
-                          <p class="cart-item-price"><strong>Total:</strong> ₹<span id="unit-price"><%= products[i].total %></span></p>
+                          <p class="cart-item-price mb-0 text-muted">Price: ₹<span><%= products[i].price %></span></p>
+                          <p class="cart-item-quantity">Quantity: <%= products[i].quantity %></p>
+                          <p class="cart-item-price"><strong>Price:</strong> ₹<%= products[i].total %></p>
                       </div>
-          
                   </div>
               <% } %>
           <% } else { %>
@@ -301,82 +359,115 @@ body {
                   <p>Browse our products and place an order.</p>
               </div>
           <% } %>
-          
-           <!-- Buttons (Cancel Order) -->
-           <% if (order.status !== "cancelled") { %>
-            <button class="remove-item btn btn-sm" onclick="cancelOrder('<%= order.orderId %>')">
+
+          <!-- Coupon Applied -->
+          <% if (order.couponCode) { %>
+            <div class="coupon-container mt-3 p-2 border rounded">
+              <p class="text-success"><strong>Coupon Applied:</strong> <%= order.couponCode %> (₹<%= order.discount %> Off)</p>
+            </div>
+          <% } %>
+
+          <!-- Total Amount & Cancel Order Button -->
+          <div class="d-flex justify-content-between align-items-center mt-3">
+           <div class="order-summary">
+              <p style="color: red;" class="discount"><strong>Total Discount:</strong> ₹<%= order.discount %></p>
+              <p style="color: green;" class="final-amount"><strong>Final Amount:</strong> ₹<%= order.finalAmount %></p>
+          </div>
+
+          <% if (order.status === "delivered") { %>
+            <% if (order.returnReason) { %>
+              <p class="text-warning">Return request already submitted</p>
+            <% } else { %>
+              <button class="btn btn-sm btn-warning" onclick="openReturnModal('<%= order.orderId %>')">
+                Return Order
+              </button>
+            <% } %>         
+             <% } else if (order.status !== "cancelled") { %>
+            <button class="remove-item btn btn-sm btn-danger" onclick="cancelOrder('<%= order.orderId %>')">
               Cancel Order
             </button>
-        <% } %>
-
-          <!-- Total Amount -->
-          <div class="total-container text-end mt-3">
-              <p><strong>Total Amount:</strong> ₹ <%= order.total %></p>
-          </div>
-      </div>
-        
-
+          <% } %>
+          
+        </div>
       </div>
     </div>
   </section>
 
-
+  <!-- Delivery Address Section -->
   <section class="pt-10 pb-10">
     <div class="container">
       <div class="row">
-      
         <div class="right">
           <div class="card-header">
             <h5 class="mb-0">Delivery Address</h5>
           </div>
-      
-              <div class="cart-item">
-                <p class="order-id"><strong>Name: </strong><%= address.name %></p>
-                <p class="order-id"><strong>Phone: </strong><%= address.phone %></p>
-                <p class="order-id"><strong>Type: </strong><%= address.addressType %></p>
-                <div style="width: 200px; ">
-                <p class=""><%= address.city %>,<%= address.landMark %>,<%= address.state %>,<%= address.pincode %></p>
-               </div> 
-              </div>
+          <div class="cart-item">
+            <p class="order-id"><strong>Name: </strong><%= address.name %></p>
+            <p class="order-id"><strong>Phone: </strong><%= address.phone %></p>
+            <p class="order-id"><strong>Type: </strong><%= address.addressType %></p>
+            <div style="width: 200px;">
+              <p><%= address.city %>, <%= address.landMark %>, <%= address.state %>, <%= address.pincode %></p>
+            </div> 
+          </div>
         </div>
-        
-
       </div>
     </div>
   </section>
 
-
-  <section class="pt-10 pb-10" >
+  <!-- Order Details Section -->
+  <section class="pt-10 pb-10">
     <div class="container">
       <div class="row">
-      
         <div class="right">
           <div class="card-header">
             <h5 class="mb-0">Order Details</h5>
           </div>
-      
-              <div class="cart-item">
-                <p class="order-id"><strong>Order id: </strong><%= order._id.toString() %></p>
-                <p class="order-id"><strong>Date: </strong><%= new Date(order.invoiceDate).toLocaleString('en-IN', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric', 
-                  hour: '2-digit', 
-                  minute: '2-digit', 
-                  second: '2-digit' 
-              }) %></p>               
-                <p class="order-id"><strong>Status: </strong><%= order.status %></p>
-                <p class="order-id"><strong>Method: </strong><%= order.payment_method %></p>
-              </div>
+          <div class="cart-item">
+            <p class="order-id"><strong>Order ID: </strong><%= order._id.toString() %></p>
+            <p class="order-id"><strong>Date: </strong><%= new Date(order.invoiceDate).toLocaleString('en-IN', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric', 
+              hour: '2-digit', 
+              minute: '2-digit', 
+              second: '2-digit' 
+            }) %></p>               
+            <p class="order-id"><strong>Status: </strong><%= order.status %></p>
+            <p class="order-id"><strong>Payment Method: </strong><%= order.payment_method %></p>
+          </div>
         </div>
-        
-
       </div>
     </div>
   </section>
 
 </main>
+
+
+<!-- Return Order Modal -->
+<div class="modal fade" id="returnOrderModal" tabindex="-1" aria-labelledby="returnOrderModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="returnOrderModalLabel">Return Order</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="returnOrderForm">
+          <div class="mb-3">
+            <label for="returnReason" class="form-label">Reason for Return</label>
+            <p id="returnReasonError" style="color: red; font-size: 14px;"></p>
+            <textarea class="form-control" id="returnReason" rows="3" placeholder="Enter your reason" ></textarea>
+          </div>
+          <input type="hidden" id="returnOrderId">
+          <button type="submit" class="btn btn-danger w-100">Submit Return Request</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 
 <script>
@@ -450,6 +541,92 @@ body {
 
   }
 
+
+  function openReturnModal(orderId) {
+  document.getElementById("returnOrderId").value = orderId;
+  document.getElementById("returnReason").value = ""; // Clear previous input
+  document.getElementById("returnReasonError").textContent = ""; // Clear previous error message
+
+  var returnModal = new bootstrap.Modal(document.getElementById("returnOrderModal"));
+  returnModal.show();
+
+  // Clear error message when modal closes
+  document.getElementById("returnOrderModal").addEventListener("hidden.bs.modal", function () {
+    document.getElementById("returnReasonError").textContent = "";
+  });
+}
+
+// Listen for user input to remove error message when they start typing
+document.getElementById("returnReason").addEventListener("input", function () {
+  document.getElementById("returnReasonError").textContent = "";
+});
+
+document.getElementById("returnOrderForm").addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  const orderId = document.getElementById("returnOrderId").value;
+  const reason = document.getElementById("returnReason").value.trim();
+  const errorMessage = document.getElementById("returnReasonError");
+
+  // Validation: Ensure reason is provided and at least 10 characters long
+  if (!reason) {
+    errorMessage.textContent = "Please provide a reason for the return.";
+    return;
+  } else if (reason.length < 10) {
+    errorMessage.textContent = "Reason must be at least 10 characters long.";
+    return;
+  }
+
+  // Show confirmation dialog
+  Swal.fire({
+    title: "Are you sure?",
+    text: "Do you really want to submit this request?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, return it!"
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch('/orderReturn', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId, reason })
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+          Swal.fire({
+            title: "Request Submitted!",
+            text: result.message,
+            icon: "success",
+            confirmButtonText: "OK"
+          }).then(() => {
+            location.reload();
+          });
+        } else {
+          Swal.fire({
+            title: "Error!",
+            text: result.message,
+            icon: "error",
+            confirmButtonText: "OK"
+          });
+        }
+      } catch (error) {
+        console.error("Error submitting return request:", error);
+        Swal.fire({
+          title: "Error!",
+          text: "Something went wrong. Please try again.",
+          icon: "error",
+          confirmButtonText: "OK"
+        });
+      }
+    }
+  });
+});
+
+
 </script>
 
-<%- include("../../views/partials/user/footer") %>
+<%- include("../../views/partials/user/footer") %>function

@@ -1,0 +1,182 @@
+<%- include("../../views/partials/user/header") %>
+
+<style>
+  .dashboard-container {
+    display: flex;
+    gap: 20px;
+  }
+
+  .dashboard-menu {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    width: 35%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    height: 350px;
+  }
+
+  .dashboard-menu .nav-link {
+    font-weight: bold;
+    color: #2c3e50;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .dashboard-menu .nav-link:hover,
+  .dashboard-menu .nav-link.active {
+    background-color: #007bff;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+  }
+
+  .card {
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    width: 75%;
+    padding: 20px;
+  }
+
+  .card-header {
+    background-color: #ffffff;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+  }
+
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+
+  th,
+  td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+  }
+
+  .credit {
+    color: green;
+    font-weight: bold;
+  }
+
+  .debit {
+    color: red;
+    font-weight: bold;
+  }
+
+  .breadcrumb {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    padding-left: 50px;
+  }
+
+  .breadcrumb li {
+    display: flex;
+    align-items: center;
+  }
+
+  .breadcrumb a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  .breadcrumb a:hover {
+    color: #0056b3;
+  }
+
+  .breadcrumb span {
+    margin: 0 8px;
+    color: #555;
+  }
+</style>
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="/userProfile">User Profile</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Wallet History</li>
+  </ol>
+</nav>
+
+<section class="pt-10 pb-10" style="margin-top: 50px; margin-bottom: 50px;">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 m-auto">
+        <div class="dashboard-container">
+          <div class="dashboard-menu">
+            <ul class="nav flex-column" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link" href="/userProfile">Dashboard</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/address">My Address</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/orders">Orders</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="/wallet-history">Wallet History</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/referal">Referrals</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/logout">Logout</a>
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">Wallet Transaction History</h5>
+            </div>
+            <div class="card-body">
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Description</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                     
+                    <tr>
+                      <td>ahoaj</td>
+                      <td></td>
+                      <td class="">
+                       
+                      </td>
+                      <td>fasdfdf</td>
+                    </tr>
+  
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include("../../views/partials/user/footer") %>

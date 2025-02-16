@@ -60,6 +60,20 @@ const orderSchema = new Schema({
       enum: ["pending", "processing", "shipped", "delivered", "cancelled", "returned", "refunded"],
       default: "pending"
    },
+   returnStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected", "completed"],
+      default: "pending"
+   },
+   returnReason: {
+      type: String,
+      default: null
+   },
+   refundStatus: {
+      type: String,
+      enum: ["not processed", "processing", "completed", "failed"],
+      default: "not processed"
+   },
    invoiceDate: {
       type: Date,
       default: Date.now
@@ -68,6 +82,10 @@ const orderSchema = new Schema({
       type: Boolean,
       default: false 
    },
+   couponCode: {
+      type: String,
+      default: null 
+   }
 }, { timestamps: true });
 
 

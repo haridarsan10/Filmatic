@@ -63,7 +63,6 @@ body {
 .container {
   display: flex;
   justify-content: center;
-
 }
 
 .row {
@@ -121,11 +120,13 @@ body {
 
 /* Order Status */
 .order-status {
+  margin-top: 5px;
+  margin-bottom: 5px;
   display: inline-block;
-  padding: 5px 10px;
+  padding: 3px 7px;
   border-radius: 6px;
-  font-weight: bold;
   text-align: center;
+  font-size: 12px;
   color: white;
 }
 
@@ -168,104 +169,68 @@ body {
   color: #555;
 }
 
-/* Breadcrumb Navigation */
-.breadcrumb-container {
+.order-status-dropdown {
+  width: 200px; /* Adjust width as needed */
+  padding: 8px 12px;
+  font-size: 16px;
+  border: 2px solid #007bff;
+  border-radius: 5px;
+  background-color: white;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.order-status-dropdown:hover {
+  border-color: #0056b3;
+}
+
+.order-status-dropdown:focus {
+  border-color: #004085;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.order-status-dropdown option {
+  background-color: white;
+  color: #333;
   font-size: 14px;
 }
 
-.breadcrumb {
-  list-style: none;
-  display: flex;
-  align-items: center;
-  padding-left: 50px;
+.order-status-dropdown option:checked {
+  background-color: #007bff;
+  color: white;
 }
 
-.breadcrumb li {
-  display: flex;
-  align-items: center;
-}
-
-.breadcrumb a {
-  text-decoration: none;
-  color: #007bff;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-.breadcrumb a:hover {
-  color: #0056b3;
-}
-
-.breadcrumb span {
-  margin: 0 8px;
-  color: #555;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .row {
-    flex-direction: column;
-  }
-
-  .dashboard-menu {
-    width: 35%; 
-    height: 350px;
-    margin-bottom: 20px;
-  }
-
-  .right {
-    max-width: 100%;
-  }
-
-  .cart-item {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .cart-item img {
-    width: 100px;
-  }
-
-  .view-order {
-    width: 100%;
-    text-align: center;
-  }
-}
 
 </style>
 
 <main class="main">
-  <nav class="breadcrumb-container">
-    <ul class="breadcrumb">
-      <li><a href="/">Profile</a></li>
-      <li><span>&raquo;</span></li>
-      <li><a href="/userProfile">Dashboard</a></li>
-      <li><span>&raquo;</span></li>
-      <li>Orders</li>
-    </ul>
-  </nav>
-
   <section class="pt-10 pb-10" style="margin-top: 50px; margin-bottom: 50px; margin-left: 160px;">
     <div class="container">
       <div class="row">
-  
         <div class="right" style="margin-left: 20px;">
           <div class="card-header">
             <h5 class="mb-0">Orders</h5>
           </div>
-        
           <% if (orders && orders.length > 0) { %>
             <% for(let i = 0; i < orders.length; i++) { %>
               <div class="cart-item">
                 <img class="order-image" src="/uploads/resized-images/<%= orders[i].image %>" alt="Product Image">
-        
                 <div class="order-details">
                   <p class="order-id"><strong>Order ID:</strong> <%= orders[i].orderId %></p>
-                  <p class="order-status <%= orders[i].status.toLowerCase() %>"><%= orders[i].status %></p>
+                  <p id="status-<%= orders[i].orderId %>" class="order-status <%= orders[i].status.toLowerCase() %>">
+                    <%= orders[i].status %>
+                  </p>                                  
                   <p class="cart-item-price"><strong>Total:</strong> ₹<span id="unit-price"><%= orders[i].total %></span></p>
                 </div>
-        
-                <a class="view-order" href="/admin/order-details?id= <%= orders[i].orderId %>" >View</a>
+                <select class="order-status-dropdown" data-order-id="<%= orders[i].orderId %>" style="margin-right: 10px">
+                  <option value="pending" <%= orders[i].status === 'pending' ? 'selected' : '' %>>Pending</option>
+                  <option value="shipped" <%= orders[i].status === 'shipped' ? 'selected' : '' %>>Shipped</option>
+                  <option value="delivered" <%= orders[i].status === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                  <option value="cancelled" <%= orders[i].status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                </select>
+                <a class="view-order" href="/admin/order-details?id=<%= orders[i].orderId %>">View</a>
               </div>
             <% } %>
           <% } else { %>
@@ -274,10 +239,77 @@ body {
             </div>
           <% } %>
         </div>
-        
       </div>
     </div>
   </section>
 </main>
+
+<script>
+document.querySelectorAll('.order-status-dropdown').forEach(dropdown => {
+  dropdown.addEventListener('focus', function () {
+    this.setAttribute('data-previous-status', this.value);
+  });
+
+  dropdown.addEventListener('change', function () {
+    const orderId = this.getAttribute('data-order-id');
+    const newStatus = this.value;
+    const previousStatus = this.getAttribute('data-previous-status'); 
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: `You are about to change the order status to "${newStatus}".`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#007bff",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, change it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch('/admin/updateOrderStatus', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId, newStatus: newStatus })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire({
+              title: "Updated!",
+              text: data.message,
+              icon: "success",
+              confirmButtonColor: "#28a745"
+            });
+            dropdown.setAttribute('data-previous-status', newStatus); 
+
+              const statusElement = document.getElementById(`status-${orderId}`);
+              statusElement.innerText = newStatus;
+              statusElement.className = `order-status ${newStatus.toLowerCase()}`;
+
+          } else {
+            Swal.fire({
+              title: "Error!",
+              text: data.message,
+              icon: "error",
+              confirmButtonColor: "#d33"
+            });
+            dropdown.value = previousStatus; 
+          }
+        })
+        .catch(error => {
+          Swal.fire({
+            title: "Oops!",
+            text: "Something went wrong. Please try again later.",
+            icon: "error",
+            confirmButtonColor: "#d33"
+          });
+          dropdown.value = previousStatus; 
+        });
+      } else {
+        dropdown.value = previousStatus; 
+      }
+    });
+  });
+});
+</script>
 
 <%- include("../partials/admin/admin-footer") %>

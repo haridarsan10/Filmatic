@@ -52,7 +52,8 @@ const createOrder = async (req, res) => {
                     addressId,
                     totalPrice,
                     cartItems,
-                    couponCode
+                    couponCode,
+                    discountAmount
                 } = req.body;
 
 

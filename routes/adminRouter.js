@@ -7,7 +7,7 @@ const productController=require('../controller/admin/productController')
 const adminOrderController=require('../controller/admin/adminOrderController')
 const couponController=require('../controller/admin/couponController')
 const offerController=require('../controller/admin/offerController')
-
+const orderController=require('../controller/admin/orderController')
 
 const {userAuth,adminAuth}=require('../middlewares/auth')
 
@@ -58,6 +58,7 @@ router.post('/deleteImage',adminAuth,productController.deleteSingleImage)
 router.get('/orders',adminAuth,adminOrderController.loadOrders)
 router.get('/order-details',adminAuth,adminOrderController.orderDetails)
 router.post('/cancelOrder',adminAuth,adminOrderController.adminCancelOrder)
+router.post('/updateOrderStatus',adminAuth,adminOrderController.updateOrderStatus)
 
 //Coupon Management
 router.get('/coupon',adminAuth,couponController.loadCoupon)
@@ -73,5 +74,8 @@ router.post('/removeOffer',offerController.removeOffer)
 router.post('/addCatOffer',offerController.addCatOffer)
 router.post('/removeCatOffer',offerController.removeCatOffer)
 
+
+//Return requests
+router.get('/ordersRequests',orderController.loadReturn)
 
 module.exports=router

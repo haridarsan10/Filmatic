@@ -6,32 +6,45 @@ const Order=require('../../models/orderSchema')
 const Address=require('../../models/addressSchema')
 
 
-const loadOrders=async (req,res) => {
+const loadOrders = async (req, res) => {
   try {
-    
-      const userOrders = await Order.find()
+    const page = parseInt(req.query.page) || 1; // Get current page, default to 1
+    const limit = 5; // Orders per page
+    const skip = (page - 1) * limit;
+
+    const totalOrders = await Order.countDocuments(); // Get total order count
+    const totalPages = Math.ceil(totalOrders / limit);
+
+    const userOrders = await Order.find()
       .populate({
         path: 'order_items.productId',
-        select: 'productImage' 
-      });
+        select: 'productImage',
+      })
+      .sort({ createdAt: -1 }) // Latest orders first
+      .skip(skip)
+      .limit(limit);
 
-    const ordersData = userOrders.map(order => ({
+
+    const ordersData = userOrders.map((order) => ({
       orderId: order.orderId,
       status: order.status,
-      total: order.total,
-      image: order.order_items.length > 0 && order.order_items[0].productId 
-        ? order.order_items[0].productId.productImage[0] || 'default.jpg' 
-        : 'default.jpg'
+      total: order.finalAmount,
+      image:
+        order.order_items.length > 0 && order.order_items[0].productId
+          ? order.order_items[0].productId.productImage[0] || 'default.jpg'
+          : 'default.jpg',
     }));
 
-    res.render('admin-order',{orders:ordersData})
-   
-
+    res.render('admin-order', {
+      orders: ordersData,
+      currentPage: page,
+      totalPages,
+    });
   } catch (error) {
-    console.log(error)
-    res.redirect('/pageError')
+    console.log(error);
+    res.redirect('/pageError');
   }
-}
+};
 
 const orderDetails = async (req, res) => {
   try {
@@ -50,7 +63,10 @@ const orderDetails = async (req, res) => {
         "address._id": addressId
       }).select("address.$");  
       
+
       const foundAddress = address?.address[0] || {}; 
+
+      // console.log(foundAddress)
 
       const products = order.order_items.map(item => ({
         productImage: item.productId?.productImage || 'default-image.jpg', 
@@ -63,7 +79,7 @@ const orderDetails = async (req, res) => {
       
 
 
-    res.render('admin-order-details',{products:products,order:order,address:foundAddress})
+      res.render('admin-order-details',{products:products,order:order,address:foundAddress})
 
   } catch (error) {
     console.log("Error fetching order details:", error);
@@ -101,9 +117,31 @@ const adminCancelOrder=async (req,res) => {
   } 
 }
 
+const updateOrderStatus = async (req, res) => {
+  try {
+    const { orderId, newStatus } = req.body;
+    console.log("Received Order ID:", orderId, "New Status:", newStatus);
+
+    const order = await Order.findOne({ orderId });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found." });
+    }
+
+    await Order.updateOne({ orderId }, { $set: { status: newStatus } });
+
+    res.status(200).json({ success: true, message: "Order status updated successfully." });
+
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
 
 module.exports={
   loadOrders,
   orderDetails,
-  adminCancelOrder
+  adminCancelOrder,
+  updateOrderStatus
+
 }
