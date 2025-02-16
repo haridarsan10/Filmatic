@@ -77,5 +77,11 @@ router.post('/removeCatOffer',offerController.removeCatOffer)
 
 //Return requests
 router.get('/ordersRequests',orderController.loadReturn)
+router.post('/reject-return',orderController.rejectReturn)
+router.post('/approve-return',orderController.approveReturn)
+
+//Sales report
+router.get('/sales-report',adminAuth,orderController.getSalesReport)
+router.get('/salesReportPDF/pdf', adminAuth, orderController.getSalesReportPDF)
 
 module.exports=router

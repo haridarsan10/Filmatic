@@ -45,6 +45,7 @@ const createOrder = async (req, res) => {
 
         const verifyPayment = async (req, res) => {
             try {
+                console.log(req.session.user); // Check its structure
                 const { 
                     razorpay_order_id, 
                     razorpay_payment_id, 
@@ -106,8 +107,10 @@ const createOrder = async (req, res) => {
                     payment_method: 'razorpay',
                     order_items: formattedCartItems,
                     total: totalPrice,
-                    finalAmount:totalPrice,
-                    couponApplied
+                    finalAmount:totalPrice-discountAmount,
+                    couponApplied,
+                    couponCode,
+                    discountAmount
                 });
 
                 await newOrder.save();
