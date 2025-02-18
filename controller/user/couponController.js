@@ -32,12 +32,12 @@ const applyCoupon=async (req,res) => {
 
     const discountAmount = Math.min(calculatedDiscount, couponData.maxDiscount);
 
-    const finalTotal = subtotal - discountAmount;
+    const finalTotal = subtotal - Math.round(discountAmount);
 
     return res.status(200).json({
       success: true,
       message: 'Coupon applied successfully!',
-      discountAmount,
+      discountAmount:Math.round(discountAmount),
       finalTotal
     });
 

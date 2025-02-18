@@ -87,7 +87,7 @@ router.get('/checkOut',userAuth,checkOutController.checkOut)
 router.post('/orders',userAuth,orderController.orders)
 router.get('/orders',userAuth,orderController.loadOrders)
 router.get('/order-details',userAuth,orderController.loadOrderDetails)
-router.post('/cancel-order',userAuth,orderController.cancelOrder)
+router.post('/cancel-order',orderController.cancelOrder)
 
 //Wishlist
 router.get('/wishlist',userAuth,wishlistController.loadWishlist)

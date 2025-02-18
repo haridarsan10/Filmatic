@@ -105,12 +105,54 @@
     margin: 0 8px;
     color: #555;
   }
+
+  .page-header.breadcrumb-wrap {
+    background-color: #f5f5f5;
+    border-radius: 8px;
+  }
+
+  .breadcrumb-container {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+  }
+
+  .breadcrumb {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    padding-left: 50px;
+    
+  }
+
+  .breadcrumb li {
+    display: flex;
+    align-items: center;
+  }
+
+  .breadcrumb a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  .breadcrumb a:hover {
+    color: #0056b3;
+  }
+
+  .breadcrumb span {
+    margin: 0 8px;
+    color: #555;
+  }
+
+  
 </style>
 
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/">Home</a></li>
     <li class="breadcrumb-item"><a href="/userProfile">User Profile</a></li>
+    <li class="breadcrumb-item"><a href="/wallet">Wallet</a></li>
     <li class="breadcrumb-item active" aria-current="page">Wallet History</li>
   </ol>
 </nav>
@@ -158,16 +200,22 @@
                     </tr>
                   </thead>
                   <tbody>
-                     
-                    <tr>
-                      <td>ahoaj</td>
-                      <td></td>
-                      <td class="">
-                       
-                      </td>
-                      <td>fasdfdf</td>
-                    </tr>
-  
+                    <% if (transactions.length > 0) { %>
+                      <% transactions.forEach(transaction => { %>
+                        <tr>
+                          <td><%= transaction.date.toISOString().split('T')[0] %></td> 
+                          <td><%= transaction.description %></td>
+                          <td class="<%= transaction.type === 'credit' ? 'credit' : 'debit' %>">
+                            <%= transaction.type === 'credit' ? '+' : '-' %>₹<%= transaction.amount.toFixed(2) %>
+                          </td>
+                          <td><%= transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) %></td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="4">No transactions found</td>
+                      </tr>
+                    <% } %>
                   </tbody>
                 </table>
               </div>

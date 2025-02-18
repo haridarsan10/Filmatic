@@ -5,6 +5,8 @@ const Category=require('../../models/categorySchema')
 const Cart=require('../../models/cartSchema')
 const Order=require('../../models/orderSchema')
 const Coupon=require('../../models/couponSchema')
+const Wallet = require("../../models/walletSchema");
+
 
 const mongoose=require('mongoose')
 
@@ -95,7 +97,7 @@ const orders=async (req,res) => {
       for (let item of cartItems) { 
         await Product.findByIdAndUpdate(
             item.productId._id, 
-            { $inc: { quantity: -item.quantity } }  // Decrease stock
+            { $inc: { quantity: -item.quantity } }  
         );
     }      
 
@@ -143,38 +145,75 @@ const orders=async (req,res) => {
   };
 
 
-const cancelOrder=async (req,res) => {
-  try {
-    const orderId = req.body.orderId.trim(); 
-      // console.log(orderId);
-    
-      if (!orderId) {
-        return res.json({ success: false, message: "Invalid Order ID." });
-      }
-
-      const order = await Order.findOne({ orderId: orderId });
-
-      if (!order) {
-        return res.json({ success: false, message: "Order not found." });
-      }
+  const cancelOrder = async (req, res) => {
+    try {
+      const { orderId} = req.body;
       
-      const updateResult=await Order.updateOne({orderId},{$set:{status:"cancelled"}})
-
-      if (updateResult.modifiedCount > 0) {
-        return res.json({ success: true, message: "Order cancelled successfully." });
-      } else {
-        return res.json({ success: false, message: "Order status update failed." });
+      console.log(req.body);
+      
+      if (!orderId) {
+        return res.status(404).json({ success: false, message: "Invalid Order ID." });
       }
-
-  } catch (error) {
-    console.log(error)
-    res.status(500).json({success:false,message:"Some error occured"})
-  }
-}
+  
+      const order = await Order.findOne({ orderId: orderId });
+      console.log("Order found:", order);
+        
+      if (!order) {
+        return res.status(404).json({ success: false, message: "Order not found." });
+      }
+  
+      if (!order.userId || !order.userId._id) {
+        return res.status(404).json({ success: false, message: "User ID not found." });
+      }
+  
+      if (order.payment_method === "razorpay") {
+        const updateResult = await Order.updateOne({ orderId }, { $set: { status: "cancelled" } });
+  
+        if (updateResult.nModified > 0) {
+          let wallet = await Wallet.findOne({ userId: order.userId._id });
+  
+          if (!wallet) {
+            wallet = new Wallet({ userId: order.userId._id, balance: 0, transactions: [] });
+          }
+  
+          const refundAmount = order.finalAmount;
+          wallet.balance += refundAmount;
+  
+          wallet.transactions.push({
+            amount: refundAmount,
+            type: "credit",
+            description: `Refund for order ${order.orderId}`,
+            date: new Date()
+          });
+  
+          order.refundStatus = "completed";
+  
+          await wallet.save();
+          await order.save();
+  
+          return res.status(200).json({ success: true, message: "Order cancelled successfully and amount refunded to the wallet." });
+        } else {
+          return res.status(404).json({ success: false, message: "Order status update failed." });
+        }
+      }
+  
+      const updateResult = await Order.updateOne({ orderId }, { $set: { status: "cancelled" } });
+  
+      if (updateResult.nModified > 0) {
+        return res.status(200).json({ success: true, message: "Order cancelled successfully." });
+      } else {
+        return res.status(404).json({ success: false, message: "Order status update failed." });
+      }
+  
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: "Some error occurred." });
+    }
+  };
+  
 
 const returnOrder=async (req,res) => {
   try {
-    console.log('hie')
     const { orderId, reason } = req.body;
 
     const order = await Order.findOne({orderId:orderId});

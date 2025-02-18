@@ -224,7 +224,9 @@ body {
                   </p>                                  
                   <p class="cart-item-price"><strong>Total:</strong> ₹<span id="unit-price"><%= orders[i].total %></span></p>
                 </div>
-                <select class="order-status-dropdown" data-order-id="<%= orders[i].orderId %>" style="margin-right: 10px">
+                <select class="order-status-dropdown" data-order-id="<%= orders[i].orderId %>" 
+                  style="margin-right: 10px"
+                  <%= orders[i].status === 'cancelled' || orders[i].adminUpdated ? 'disabled' : '' %> >
                   <option value="pending" <%= orders[i].status === 'pending' ? 'selected' : '' %>>Pending</option>
                   <option value="shipped" <%= orders[i].status === 'shipped' ? 'selected' : '' %>>Shipped</option>
                   <option value="delivered" <%= orders[i].status === 'delivered' ? 'selected' : '' %>>Delivered</option>
@@ -284,6 +286,10 @@ document.querySelectorAll('.order-status-dropdown').forEach(dropdown => {
               const statusElement = document.getElementById(`status-${orderId}`);
               statusElement.innerText = newStatus;
               statusElement.className = `order-status ${newStatus.toLowerCase()}`;
+
+              setTimeout(()=>{
+                window.location.reload()
+              },1500)
 
           } else {
             Swal.fire({

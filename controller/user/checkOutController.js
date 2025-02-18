@@ -25,7 +25,7 @@ const checkOut = async (req, res) => {
     const couponData = await Coupon.find({
       minPurchase: { $lte: cartTotal },
       validTo: { $gte: currentDate }, 
-      usageLimit:{$gt:1}
+      usageLimit:{$gte:1}
     });
     
 

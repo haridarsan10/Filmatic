@@ -286,7 +286,7 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-3">
-            <form method="post" action="" onsubmit="return  handelFormSubmit(event)" novalidate>
+            <form onsubmit="handelFormSubmit(event)" novalidate>
               <div class="mb-4">
                 <label for="product_name" class="form-label">Name</label>
                 <input type="text" name="name" placeholder="Type here" class="form-control" id="product_name" required/>
@@ -422,7 +422,6 @@
 
       let selectedCategoryId = null;
 
-      // Open Modal
       function openModal(categoryId) {
         selectedCategoryId = categoryId;
           document.getElementById("offerModal").style.display = "block";
@@ -430,14 +429,12 @@
           document.getElementById("endDateError").textContent = "";
       }
 
-      // Close Modal
       function closeModal() {
           document.getElementById("offerModal").style.display = "none";
           document.getElementById("offerError").textContent = "";
           document.getElementById("endDateError").textContent = "";
       }
 
-      // Close when clicking outside the modal
       window.onclick = function (event) {
           let modal = document.getElementById("offerModal");
           if (event.target === modal) {
@@ -447,7 +444,7 @@
 
       document.getElementById("offerForm").addEventListener("submit", submitOffer);
 
-      // Clear errors on user input
+
       document.getElementById("offer").addEventListener("input", function () {
           document.getElementById("offerError").textContent = "";
       });
@@ -595,6 +592,89 @@
             });
         }
     }
+
+
+ 
+    async function handelFormSubmit(event) {
+  event.preventDefault(); 
+
+  const nameInput = document.getElementById("product_name");
+  const descriptionInput = document.getElementById("descriptionId");
+
+  const nameError = document.getElementById("name-error");
+  const descriptionError = document.getElementById("description-error");
+
+  let isValid = true;
+
+  if (nameInput.value.trim() === "") {
+    nameError.textContent = "Name is required.";
+    isValid = false;
+  } else {
+    nameError.textContent = "";
+  }
+
+  if (descriptionInput.value.trim() === "") {
+    descriptionError.textContent = "Description is required.";
+    isValid = false;
+  } else {
+    descriptionError.textContent = "";
+  }
+
+  if (!isValid) return;
+
+  const formData = {
+    name: nameInput.value.trim(),
+    description: descriptionInput.value.trim(),
+  };
+
+  try {
+
+    const response = await fetch("/admin/addcategory", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "Category created successfully!",
+        confirmButtonColor: "#3085d6",
+      });
+
+      nameInput.value = "";
+      descriptionInput.value = "";
+    } else {
+      Swal.fire({
+        icon: "info",
+        title: "Info",
+        text: result.message || "Something went wrong!",
+        confirmButtonColor: "#d33",
+      });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Failed to create category. Please try again.",
+      confirmButtonColor: "#d33",
+    });
+  }
+}
+
+document.getElementById("product_name").addEventListener("input", () => {
+  document.getElementById("name-error").textContent = "";
+});
+
+document.getElementById("descriptionId").addEventListener("input", () => {
+  document.getElementById("description-error").textContent = "";
+});
 
 
   </script>

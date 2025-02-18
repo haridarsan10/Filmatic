@@ -47,7 +47,49 @@
 
   .card-body {
     padding: 20px;
+
+}
+
+.page-header.breadcrumb-wrap {
+    background-color: #f5f5f5;
+    border-radius: 8px;
   }
+
+  .breadcrumb-container {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+  }
+
+  .breadcrumb {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    padding-left: 50px;
+    
+  }
+
+  .breadcrumb li {
+    display: flex;
+    align-items: center;
+  }
+
+  .breadcrumb a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  .breadcrumb a:hover {
+    color: #0056b3;
+  }
+
+  .breadcrumb span {
+    margin: 0 8px;
+    color: #555;
+  }
+
+  
 </style>
 
 <nav aria-label="breadcrumb">
@@ -90,7 +132,7 @@
               <h5 class="mb-0">Wallet Balance</h5>
             </div>
             <div class="card-body" style="margin-top: 20px;">
-              <h4 class="mb-3">Available Balance: ₹999999</h4>
+              <h4 class="mb-3">Available Balance: ₹<%= balance.toFixed(2) %></h4>
               <p class="mb-3">Use your wallet balance for easy payments.</p>
               <a href="/wallet-history" class="btn btn-primary mt-3">View Transaction History</a>
             </div>

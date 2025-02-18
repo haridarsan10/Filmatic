@@ -110,7 +110,7 @@ const createOrder = async (req, res) => {
                     finalAmount:totalPrice-discountAmount,
                     couponApplied,
                     couponCode,
-                    discountAmount
+                    discount:discountAmount
                 });
 
                 await newOrder.save();

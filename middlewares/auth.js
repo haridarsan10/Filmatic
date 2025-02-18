@@ -82,6 +82,24 @@ const isBlocked = async (req,res,next)=>{
 
 
 
+
+// const socketIO = require("socket.io");
+
+// let io;
+
+// exports.initSocketIO = (server) => {
+//   io = socketIO(server);
+// };
+
+// exports.emitPageReload = (req, res, next) => {
+//   if (io) {
+//     io.emit("dataUpdated"); 
+//   }
+//   next(); 
+// };
+
+
+
 module.exports={
   adminAuth,
   isBlocked,

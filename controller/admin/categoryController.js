@@ -35,11 +35,10 @@ const addCategory=async (req,res) => {
     const {name,description}=req.body
 
     const existingCategory= await category.findOne({
-      name: { $regex: `^${name}$`, $options: 'i' } // Case-insensitive regex match
+      name: { $regex: `^${name}$`, $options: 'i' } 
     })
     
     if(existingCategory){
-     
      return res.json({success:false,message:'Category already exists'})
     }
 
