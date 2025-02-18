@@ -156,7 +156,6 @@ const orders=async (req,res) => {
       }
   
       const order = await Order.findOne({ orderId: orderId });
-      console.log("Order found:", order);
         
       if (!order) {
         return res.status(404).json({ success: false, message: "Order not found." });
@@ -169,7 +168,8 @@ const orders=async (req,res) => {
       if (order.payment_method === "razorpay") {
         const updateResult = await Order.updateOne({ orderId }, { $set: { status: "cancelled" } });
   
-        if (updateResult.nModified > 0) {
+
+        if (updateResult.modifiedCount > 0) {
           let wallet = await Wallet.findOne({ userId: order.userId._id });
   
           if (!wallet) {
