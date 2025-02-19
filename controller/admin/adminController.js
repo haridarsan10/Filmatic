@@ -65,13 +65,8 @@ const pageError=async (req,res) => {
 
 const logout=async (req,res) => {
     try {
-      req.session.destroy((err)=>{
-        if(err){
-          console.log('Session destroy error!')
-          return res.redirect('/pageError')
-        }
-          res.redirect('/admin/login')
-      })
+        req.session.admin=false
+        res.redirect('/admin/login')
     } catch (error) {
       console.log('Logout error!')
       return res.redirect('/pageError')

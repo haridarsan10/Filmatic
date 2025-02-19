@@ -68,7 +68,7 @@ const isBlocked = async (req,res,next)=>{
      else{
         const user =await User.findById(req.session.user)
         if(user.isBlocked){
-           req.session.user = null;
+           req.session.user = false;
            req.session.userLoginError="User is Blocked"
            return res.redirect('/login')
         }
@@ -79,25 +79,6 @@ const isBlocked = async (req,res,next)=>{
      res.redirect('/pageerror')
    }
 }
-
-
-
-
-// const socketIO = require("socket.io");
-
-// let io;
-
-// exports.initSocketIO = (server) => {
-//   io = socketIO(server);
-// };
-
-// exports.emitPageReload = (req, res, next) => {
-//   if (io) {
-//     io.emit("dataUpdated"); 
-//   }
-//   next(); 
-// };
-
 
 
 module.exports={

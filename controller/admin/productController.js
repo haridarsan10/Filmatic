@@ -299,17 +299,17 @@ const deleteSingleImage = async (req, res) => {
           });
       }
 
-      // Ensure productImage exists and has at least 3 images
-      if (!product.productImage || product.productImage.length <= 3) {
-          return res.json({ 
-              success: false, 
-              message: "Minimum 3 images are required!" 
-          });
-      }
+      // // Ensure productImage exists and has at least 3 images
+      // if (!product.productImage || product.productImage.length <= 3) {
+      //     return res.json({ 
+      //         success: false, 
+      //         message: "Minimum 3 images are required!" 
+      //     });
+      // }
 
       // Check if image exists in product
       if (!product.productImage.includes(imageNameToServer)) {
-          return res.json({ 
+          return res.json({
               success: false, 
               message: "Image not found in product" 
           });

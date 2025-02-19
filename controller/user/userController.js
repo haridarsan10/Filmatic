@@ -270,13 +270,8 @@ const login=async (req,res) => {
 
 const logout=async(req,res) => {
  try {
-  req.session.destroy((err)=>{
-    if(err){
-      console.log('Failed to destroy session')
-      return res.redirect('/pageNotFound')
-    }
+  req.session.user=false;
     res.redirect('/login')
-  })
  } catch (error) {
   console.log('Logout error')
   res.redirect('/pageNotFound')
@@ -390,7 +385,6 @@ const pageNotFound =async (req,res) => {
           totalPages
         });
       }
-
 
       res.render('shop', {
         user: userData,
