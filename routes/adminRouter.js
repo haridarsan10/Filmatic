@@ -51,7 +51,7 @@ router.get('/products',adminAuth,productController.getAllProducts)
 router.get('/blockProducts',adminAuth,productController.blockProducts)
 router.get('/unblockProducts',adminAuth,productController.unblockProducts)
 router.get('/editProduct',adminAuth,productController.getEditProduct)
-router.post('/editProduct/:id', adminAuth, uploads.array('images', 3), productController.editProduct);
+router.post('/editProduct', adminAuth, uploads.array('images', 3), productController.editProduct);
 router.post('/deleteImage',adminAuth,productController.deleteSingleImage)
 
 //Order Management

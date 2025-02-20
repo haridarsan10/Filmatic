@@ -370,6 +370,7 @@
             .then(response => response.json())
             .then(data => {
                 const products = data.products;
+                
                 const productList = document.getElementById('productList');
                 productList.innerHTML = '';
 

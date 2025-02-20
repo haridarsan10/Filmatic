@@ -185,78 +185,69 @@ const getEditProduct=async (req,res) => {
 
 const editProduct = async (req, res) => {
   try {
-      const id = req.params.id;
       const data = req.body;
-      // console.log(data)
+      const id = data.productId.trim(); 
 
-      // Validate product ID
       if (!id) {
-          return res.status(400).json({ error: "Invalid product ID" });
+          return res.status(400).json({ success: false, error: "Invalid product ID" });
       }
 
-      // Find product and check existence
       const product = await Product.findById(id);
       if (!product) {
-          return res.status(404).json({ error: "Product not found" });
+          return res.status(404).json({ success: false, error: "Product not found" });
       }
 
-      // Check for duplicate product name
       const existingProduct = await Product.findOne({
           productName: data.productName,
-          _id: { $ne: id }
+          _id: { $ne: id } // Ensures we're not checking the same produc
       });
 
       if (existingProduct) {
-          return res.status(400).json({ error: "Product with this name already exists" });
+          return res.status(400).json({ success: false, error: "Product with this name already exists" });
       }
 
-      // Process images
+      // Process and validate images
       const images = [];
-      // if (req.files && req.files.length > 0) {
-      //     for (const file of req.files) {
-      //         if (file.filename) {
-      //             images.push(file.filename);
-      //         }
-      //     }
-      // }
+      if (req.files && req.files.length > 0) {
+          for (let i = 0; i < req.files.length; i++) {
+              const originalImagePath = req.files[i].path;
 
-      if(req.files && req.files.length>0){
-        for(let i=0;i<req.files.length;i++){
-          const originalImagePath=req.files[i].path;
+              const resizedImagePath = path.join(
+                  "public",
+                  "uploads",
+                  "resized-images",
+                  req.files[i].filename
+              );
+              await sharp(originalImagePath).resize({ width: 440, height: 440 }).toFile(resizedImagePath);
 
-          const resizedImagePath = path.join(
-            'public',
-            'uploads',
-            'resized-images',
-            req.files[i].filename // Create a unique resized file name
-          );
-          await sharp(originalImagePath).resize({width:440,height:440}).toFile(resizedImagePath)
-          images.push(req.files[i].filename)
-        }
+              images.push(req.files[i].filename);
+          }
       }
-   
 
+      // **Check if there are at least 3 images**
+      const totalImages = product.productImage.length + images.length;
+      if (totalImages < 3) {
+          return res.status(400).json({ success: false, message: "Min 3 images are required" });
+      }
 
-      // Prepare update fields with data validation
+      // Prepare update fields
       const updateFields = {
           productName: data.productName?.trim(),
-          description: data.description?.trim(),
-          category: data.category, // Keeping original category if not changed
+          description: data.descriptionData?.trim(),
+          category: data.category,
           regularPrice: parseFloat(data.regularPrice) || product.regularPrice,
           salePrice: parseFloat(data.salePrice) || product.salePrice,
           quantity: parseInt(data.quantity) || product.quantity,
-          size: data.size?.trim() || product.size,
           color: data.color?.trim() || product.color,
-          status: data.status || product.status  // Add status update
+          status: data.status || product.status
       };
 
-
-      // Add images if they exist
+      // If new images exist, push them to the existing product images array
       if (images.length > 0) {
           updateFields.$push = { productImage: { $each: images } };
       }
 
-      // Update product with validation
+      // Update the product
       const updatedProduct = await Product.findByIdAndUpdate(
           id,
           updateFields,
@@ -264,16 +255,17 @@ const editProduct = async (req, res) => {
       );
 
       if (!updatedProduct) {
-          return res.status(500).json({ error: "Failed to update product" });
+          return res.status(500).json({ success: false, error: "Failed to update product" });
       }
 
-      res.redirect('/admin/products');
+      return res.status(200).json({ success: true, message: "Product updated successfully" });
 
   } catch (error) {
-      console.error('Error in editProduct:', error);
-      res.status(500).json({ 
-          error: "Internal server error", 
-          details: error.message 
+      console.error("Error in editProduct:", error);
+      res.status(500).json({
+          success: false,
+          error: "Internal server error",
+          details: error.message
       });
   }
 };
