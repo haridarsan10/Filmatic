@@ -1,262 +1,300 @@
-<%- include("../partials/admin/admin-header") %>
+    <%- include("../partials/admin/admin-header") %>
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        margin: 0;
-        padding: 0;
-    }
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
 
-    .container {
-        width: 80%;
-        margin: auto;
-        background: white;
-        padding: 20px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        margin-top: 110px;
-        margin-left: 270px;
-    }
+        .container {
+            width: 80%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 110px;
+            margin-left: 270px;
+        }
 
-    h2 {
-        text-align: center;
-    }
+        h2 {
+            text-align: center;
+        }
 
-    .top-buttons {
-        display: flex;
-        justify-content: end;
-        gap: 10px;
-    }
+        .top-buttons {
+            display: flex;
+            justify-content: end;
+            gap: 10px;
+        }
 
-    button {
-        padding: 8px 12px;
-        border: none;
-        cursor: pointer;
-        border-radius: 4px;
-    }
+        button {
+            padding: 8px 12px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
 
-    .pdf-btn {
-        background: linear-gradient(to right, #FFD700, #FF8C00); /* Yellow to Orange */
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        font-weight: bold;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: 0.3s;
-        
-    }
-    .pdf-btn:hover{
-        background: linear-gradient(to right, #FF8C00, #FFD700); 
-    }
+        .pdf-btn {
+            background: linear-gradient(to right, #FFD700, #FF8C00); /* Yellow to Orange */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            
+        }
+        .pdf-btn:hover{
+            background: linear-gradient(to right, #FF8C00, #FFD700); 
+        }
 
-    .excel-btn {
-        background-color: green;
-        color: white;
-    }
+        .excel-btn {
+            background-color: green;
+            color: white;
+        }
 
-    .filters {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 20px;
-        padding: 10px;
-        background: #f9f9f9;
-        border-radius: 5px;
-    }
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
 
-    .filters input,
-    .filters select {
+        .filters input,
+        .filters select {
+            padding: 5px;
+        }
+
+        .generate-btn {
+            background: linear-gradient(to right, #77ff00, #00ff11); /* Yellow to Orange */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .generate-btn:hover{
+            background: linear-gradient(to right, #00ff11, #77ff00);
+        }
+
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .box {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            width: 30%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background: #333;
+            color: white;
+        }
+
+        .status {
         padding: 5px;
-    }
-
-    .generate-btn {
-        background: linear-gradient(to right, #77ff00, #00ff11); /* Yellow to Orange */
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        font-weight: bold;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-    .generate-btn:hover{
-        background: linear-gradient(to right, #00ff11, #77ff00);
-    }
-
-    .summary {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 20px;
-    }
-
-    .box {
-        background: #f0f0f0;
-        padding: 15px;
         border-radius: 5px;
         text-align: center;
-        width: 30%;
+        font-weight: bold;
     }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    table,
-    th,
-    td {
-        border: 1px solid #ddd;
-    }
-
-    th,
-    td {
-        padding: 10px;
-        text-align: left;
-    }
-
-    th {
-        background: #333;
+    /* Existing statuses */
+    .delivered {
+        background-color: #28a745; /* Green */
         color: white;
     }
 
-    .status {
-    padding: 5px;
-    border-radius: 5px;
-    text-align: center;
-    font-weight: bold;
-}
+    .cancelled {
+        background-color: #dc3545; /* Red */
+        color: white;
+    }
 
-/* Existing statuses */
-.delivered {
-    background-color: #28a745; /* Green */
-    color: white;
-}
+    .pending {
+        background-color: #c4b178; /* Yellow */
+        color: rgb(171, 126, 0);
+    }
 
-.cancelled {
-    background-color: #dc3545; /* Red */
-    color: white;
-}
+    /* New return statuses */
+    .return-rejected {
+        background-color: #dc3545; /* Red */
+        color: white;
+    }
 
-.pending {
-    background-color: #c4b178; /* Yellow */
-    color: rgb(171, 126, 0);
-}
+    .return-approved {
+        background-color: #88c16e; /* Blue */
+        color: rgb(19, 129, 0);
+    }
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
 
-/* New return statuses */
-.return-rejected {
-    background-color: #dc3545; /* Red */
-    color: white;
-}
+    .pagination a {
+        color: white;
+        background-color: black;
+        padding: 8px 12px;
+        margin: 2px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+    }
 
-.return-approved {
-    background-color: #88c16e; /* Blue */
-    color: rgb(19, 129, 0);
-}
-.pagination {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
+    .pagination a.active {
+        background-color: #444;
+    }
 
-.pagination a {
-    color: white;
-    background-color: black;
-    padding: 8px 12px;
-    margin: 2px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.pagination a.active {
-    background-color: #444;
-}
-
-.pagination a:hover {
-    background-color: #666;
-}
+    .pagination a:hover {
+        background-color: #666;
+    }
 
 
-</style>
-<div class="container">
-    <h2>Sales Report</h2>
-    <div class="top-buttons">
-        <a href="/admin/salesReportPDF/pdf"><button class="pdf-btn">Download PDF</button></a>
-        <!-- <button class="excel-btn">Download Excel</button> -->
-    </div>
-
-    <div class="filters">
-        <label>Filter By:</label>
-        <select>
-            <option>Monthly</option>
-            <option>Weekly</option>
-            <option>Daily</option>
-        </select>
-        <label>From:</label>
-        <input type="date">
-        <label>To:</label>
-        <input type="date">
-        <button class="generate-btn">Generate Report</button>
-    </div>
-
-    <div class="summary">
-        <div class="box">
-            <h4>Overall orders Count</h4>
-            <p><%- totalOrders %></p>
+    </style>
+    <div class="container">
+        <h2>Sales Report</h2>
+        <div class="top-buttons">
+            <a id="downloadPDF" href="#" 
+            style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; font-weight: bold; text-align: center;">
+            Download PDF
+         </a>
         </div>
-        <div class="box">
-            <h4>Overall Order Amount</h4>
-            <p>₹<%- totalRevenue %>.00</p>
-        </div>
-        <!-- <div class="box">
-            <h4>Overall Discount</h4>
-            <p>₹124.00</p>
-        </div> -->
-    </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Date</th>
-                <th>Customer Name</th>
-                <th>Order Status</th>
-                <th>Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% orders.forEach(order => { %>
-                <tr>
-                    <td><%- order._id %></td>
-                    <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
-                    <td><%= order.userId.name %></td>
-                    <td class="status <%= order.status.replace(/\s+/g, '-').toLowerCase() %>">
-                        <%= order.status %>
-                    </td>
-                    <td><%= order.finalAmount %></td>
-                </tr>
-            <% }) %>
-        </tbody>
+
+        <form id="filterForm" method="GET" action="/admin/sales-report">
+            <label>Filter By:</label>
+            <select name="filterBy" id="filterBy">
+                <option value="all" <%= filterBy === "all" ? "selected" : "" %>>All</option>
+                <option value="daily" <%= filterBy === "daily" ? "selected" : "" %>>Daily</option>
+                <option value="weekly" <%= filterBy === "weekly" ? "selected" : "" %>>Weekly</option>
+                <option value="monthly" <%= filterBy === "monthly" ? "selected" : "" %>>Monthly</option>
+            </select>            
         
-    </table>
-    <div class="pagination">
-        <% if (currentPage > 1) { %>
-            <a href="?page=<%= currentPage - 1 %>">&laquo; Prev</a>
-        <% } %>
+            <label>From:</label>
+            <input type="date" name="fromDate" id="fromDate" value="<%= fromDate %>">
+            
+            <label>To:</label>
+            <input type="date" name="toDate" id="toDate" value="<%= toDate %>">
+        
+            <button type="submit" 
+            style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; font-weight: bold; text-align: center;">
+            Generate Report</button>
+        </form>
+        
+       
     
-        <% for (let i = 1; i <= totalPages; i++) { %>
-            <a href="?page=<%= i %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
-        <% } %>
-    
-        <% if (currentPage < totalPages) { %>
-            <a href="?page=<%= currentPage + 1 %>">Next &raquo;</a>
-        <% } %>
-    </div>
-    
-</div>
+        <div class="summary">
+            <div class="box">
+                <h4>Overall orders Count</h4>
+                <p><%- totalOrders %></p>
+            </div>
+            <div class="box">
+                <h4>Overall Order Amount</h4>
+                <p>₹<%- totalRevenue %>.00</p>
+            </div>
+            <!-- <div class="box">
+                <h4>Overall Discount</h4>
+                <p>₹124.00</p>
+            </div> -->
+        </div>
 
-<%- include("../partials/admin/admin-footer") %>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Customer Name</th>
+                    <th>Order Status</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% orders.forEach(order => { %>
+                    <tr>
+                        <td><%- order._id %></td>
+                        <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
+                        <td><%= order.userId.name %></td>
+                        <td class="status <%= order.status.replace(/\s+/g, '-').toLowerCase() %>">
+                            <%= order.status %>
+                        </td>
+                        <td><%= order.finalAmount %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+            
+        </table>
+        <div class="pagination">
+            <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>">&laquo; Prev</a>
+            <% } %>
+        
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+            <% } %>
+        
+            <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>">Next &raquo;</a>
+            <% } %>
+        </div>
+        
+    </div>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            function updateDownloadLink() {
+                const filterBy = document.getElementById('filterBy').value;
+                const fromDate = document.getElementById('fromDate').value;
+                const toDate = document.getElementById('toDate').value;
+    
+                let query = [];
+                if (filterBy) query.push(`filterBy=${filterBy}`);
+                if (fromDate) query.push(`fromDate=${fromDate}`);
+                if (toDate) query.push(`toDate=${toDate}`);
+    
+                const queryString = query.length > 0 ? '?' + query.join('&') : '';
+                document.getElementById('downloadPDF').href = `/admin/salesReportPDF/pdf${queryString}`;
+            }
+    
+            updateDownloadLink();
+    
+            document.getElementById('filterBy').addEventListener('change', updateDownloadLink);
+            document.getElementById('fromDate').addEventListener('input', updateDownloadLink);
+            document.getElementById('toDate').addEventListener('input', updateDownloadLink);
+        });
+    </script>
+    
+        
+
+    <%- include("../partials/admin/admin-footer") %>

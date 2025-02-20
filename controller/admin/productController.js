@@ -322,7 +322,7 @@ const deleteSingleImage = async (req, res) => {
       );
 
       // Delete image file from server
-      const imagePath = path.join('public', 'uploads', 'product-images', imageNameToServer);
+      const imagePath = path.join('public', 'uploads', 'resized-images', imageNameToServer);
 
       if (fs.existsSync(imagePath)) {
           try {
