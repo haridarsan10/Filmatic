@@ -110,7 +110,7 @@ router.post('/applyCoupon',couponController.applyCoupon)
 router.post("/create-order", razorpayXController.createOrder);
 router.post("/verify-payment", razorpayXController.verifyPayment);
 // router.post('/payment-failed',razorpayXController.paymentFailed)
-// router.post('/retry-payment',razorpayXController.retryPayment)
+router.post('/retry-payment',razorpayXController.retryPayment)
 
 
 

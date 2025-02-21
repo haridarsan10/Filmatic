@@ -131,30 +131,78 @@ const createOrder = async (req, res) => {
         };
 
 
-
-
-        const paymentFailed=async (req,res) => {
+        const retryPayment = async (req, res) => {
             try {
-                const { orderId } = req.body;
-                console.log(orderId)
+                console.log("Received Retry Payment Data:", req.body);
         
-                const order = await Order.findOneAndUpdate(
-                    { status: "failed" },
-                );
+                const { 
+                    razorpay_order_id, 
+                    razorpay_payment_id, 
+                    razorpay_signature,
+                    orderId
+                } = req.body;
         
-                if (!order) {
-                    return res.status(404).json({ success: false, message: "Order not found" });
+                if (!orderId) {
+                    return res.status(400).json({ success: false, message: "Missing Order ID" });
                 }
         
-                res.json({ success: true, message: "Payment marked as failed" });
+                const order = await Order.findById(orderId);
+                if (!order) {
+                    return res.status(404).json({ success: false, message: "Order not found." });
+                }
+        
+                if (order.paymentStatus !== "failed") {
+                    return res.status(400).json({ success: false, message: "Order is not eligible for retry." });
+                }
+        
+                let paymentStatus = "failed";
+                let status = "failed";
+        
+                if (razorpay_payment_id && razorpay_signature) {
+                    if (!process.env.RAZORPAY_KEY_SECRET) {
+                        throw new Error("RAZORPAY_KEY_SECRET is not defined in .env");
+                    }
+        
+                    const generatedSignature = crypto
+                        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+                        .digest("hex");
+        
+                    if (generatedSignature !== razorpay_signature) {
+                        console.error("Invalid Payment Signature:", { razorpay_order_id, razorpay_payment_id });
+                        return res.status(400).json({ success: false, message: "Invalid payment signature" });
+                    }
+        
+                    paymentStatus = "success";
+                    status = "pending"; 
+                }
+        
+                order.paymentStatus = paymentStatus;
+                order.status = status;
+                await order.save();
+        
+                if (paymentStatus === "success") {
+                    await Cart.findOneAndUpdate(
+                        { userId: order.userId },
+                        { $set: { items: [], cartTotal: 0 } }
+                    );
+                }
+        
+                return res.status(200).json({
+                    success: true,
+                    message: `Retry payment processed with status: ${paymentStatus}`,
+                    orderId: order._id
+                });
+        
             } catch (error) {
-                console.error("Error handling payment failure:", error);
-                res.status(500).json({ success: false, message: "Internal Server Error" });
+                console.error("Retry Payment Error:", { error: error.message, stack: error.stack });
+                res.status(500).json({
+                    success: false,
+                    message: "Payment verification failed, please try again."
+                });
             }
-        }
+        };
+        
+    
 
-
-
-       
-
-module.exports = { verifyPayment, createOrder,paymentFailed };
+module.exports = { verifyPayment, createOrder,retryPayment };

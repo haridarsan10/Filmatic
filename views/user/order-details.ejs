@@ -638,7 +638,100 @@ document.getElementById("returnOrderForm").addEventListener("submit", async func
   });
 });
 
+async function retryPayment(orderId) {
+    try {
+        const response = await fetch('/retry-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId }),
+        });
 
+        const data = await response.json();
+
+        if (data.success) {
+            const options = {
+                key: data.key_id,
+                amount: data.amount,
+                currency: data.currency,
+                order_id: data.orderId,
+                name: "Filimatic",
+                description: "Retry Payment",
+                handler: async function (response) {
+                    // Verify the payment
+                    try {
+                        const verifyResponse = await fetch('/retry-payment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                orderId,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature
+                            }),
+                        });
+
+                        const verifyData = await verifyResponse.json();
+
+                        if (verifyData.success) {
+                            Swal.fire({
+                                title: "Payment Successful!",
+                                text: "Your payment has been processed successfully.",
+                                icon: "success",
+                                confirmButtonText: "OK",
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Payment Verification Failed",
+                                text: "Something went wrong during verification.",
+                                icon: "error",
+                                confirmButtonText: "Try Again",
+                            });
+                        }
+                    } catch (err) {
+                        console.error("Payment verification error:", err);
+                        Swal.fire({
+                            title: "Verification Error",
+                            text: "Something went wrong. Please try again.",
+                            icon: "error",
+                            confirmButtonText: "OK",
+                        });
+                    }
+                },
+                prefill: { email: data.email },
+                theme: { color: "#3399cc" },
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.on("payment.failed", function (response) {
+                Swal.fire({
+                    title: "Payment Failed",
+                    text: "Your transaction was not completed. Please try again.",
+                    icon: "error",
+                    confirmButtonText: "Retry",
+                });
+            });
+
+            rzp.open();
+        } else {
+            Swal.fire({
+                title: "Retry Payment Failed",
+                text: "Something went wrong while processing the retry payment.",
+                icon: "error",
+                confirmButtonText: "Try Again",
+            });
+        }
+    } catch (error) {
+        console.error("Error retrying payment:", error);
+        Swal.fire({
+            title: "Error!",
+            text: "Something went wrong. Please try again.",
+            icon: "error",
+            confirmButtonText: "OK",
+        });
+    }
+}
 
 </script>
 
