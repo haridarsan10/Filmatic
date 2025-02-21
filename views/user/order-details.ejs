@@ -374,19 +374,28 @@ body {
               <p style="color: green;" class="final-amount"><strong>Final Amount:</strong> ₹<%= order.finalAmount %></p>
           </div>
 
+
+
           <% if (order.status === "delivered") { %>
             <% if (order.returnReason) { %>
-              <p class="text-warning">Return request already submitted</p>
+                <p class="text-warning">Return request already submitted</p>
             <% } else { %>
-              <button class="btn btn-sm btn-warning" onclick="openReturnModal('<%= order.orderId %>')">
-                Return Order
-              </button>
-            <% } %>         
-             <% } else if (order.status !== "cancelled") { %>
+                <button class="btn btn-sm btn-warning" onclick="openReturnModal('<%= order.orderId %>')">
+                    Return Order
+                </button>
+            <% } %>
+        <% } else if (order.paymentStatus === "failed") { %>
+          <button class="btn btn-sm btn-primary" onclick="retryPayment('<%= order._id %>')">
+            Retry Payment
+        </button>    
+        <% } else if (order.status !== "cancelled") { %>
             <button class="remove-item btn btn-sm btn-danger" onclick="cancelOrder('<%= order.orderId %>')">
-              Cancel Order
+                Cancel Order
             </button>
-          <% } %>
+        <% } %>
+
+      
+
           
         </div>
       </div>
@@ -468,6 +477,9 @@ body {
 </div>
 
 
+
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 
 <script>
@@ -625,6 +637,7 @@ document.getElementById("returnOrderForm").addEventListener("submit", async func
     }
   });
 });
+
 
 
 </script>

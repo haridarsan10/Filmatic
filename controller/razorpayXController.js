@@ -45,7 +45,8 @@ const createOrder = async (req, res) => {
 
         const verifyPayment = async (req, res) => {
             try {
-                console.log(req.session.user); // Check its structure
+                console.log("Received Payment Data:", req.body);
+
                 const { 
                     razorpay_order_id, 
                     razorpay_payment_id, 
@@ -57,73 +58,66 @@ const createOrder = async (req, res) => {
                     discountAmount
                 } = req.body;
 
-
-                console.log(req.body)
-
-                // Validate required fields
-                if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-                    return res.status(400).json({
-                        success: false,
-                        message: "Missing payment verification parameters"
-                    });
+                if (!razorpay_order_id) {
+                    return res.status(400).json({ success: false, message: "Missing Razorpay order ID" });
                 }
 
-                // Verify Razorpay signature
-                const generatedSignature = crypto
-                    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-                    .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-                    .digest("hex");
+                let paymentStatus = "failed"; 
+                let status="failed"
 
-                if (generatedSignature !== razorpay_signature) {
-                    return res.status(400).json({
-                        success: false,
-                        message: "Invalid payment signature"
-                    });
-                }
+                if (razorpay_payment_id && razorpay_signature) {
 
-                // Validate and transform cart items
-                const formattedCartItems = cartItems.map(item => {
-                    if (!item.productId || typeof item.productId !== "string") {
-                        throw new Error("Invalid productId format");
+                    const generatedSignature = crypto
+                        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+                        .digest("hex");
+
+                    if (generatedSignature !== razorpay_signature) {
+                        return res.status(400).json({ success: false, message: "Invalid payment signature" });
                     }
 
-                    
+                    paymentStatus = "success"; 
+                    status="pending"
+                }
 
-                    return {
-                        productId: new mongoose.Types.ObjectId(item.productId),
-                        productName: item.productName || "Unknown Product",
-                        quantity: item.quantity,
-                        price: item.price
-                    };
-                });
+                const formattedCartItems = cartItems.map(item => ({
+                    productId: new mongoose.Types.ObjectId(item.productId),
+                    productName: item.productName || "Unknown Product",
+                    quantity: item.quantity,
+                    price: item.price
+                }));
 
-                const couponApplied=couponCode ? true:false
+                const couponApplied = couponCode ? true : false;
 
-                
-                // Create order object
+                // Save Order in Database
                 const newOrder = new Order({
                     userId: req.session.user,
-                    address_id: new mongoose.Types.ObjectId(addressId), // Ensure address is ObjectId
-                    payment_method: 'razorpay',
+                    address_id: new mongoose.Types.ObjectId(addressId),
+                    payment_method: "razorpay",
                     order_items: formattedCartItems,
                     total: totalPrice,
-                    finalAmount:totalPrice-discountAmount,
+                    finalAmount: totalPrice - discountAmount,
                     couponApplied,
                     couponCode,
-                    discount:discountAmount
+                    discount: discountAmount,
+                    paymentStatus,
+                    status,
+                    razorpayOrderId: razorpay_order_id,
+                    razorpayPaymentId: razorpay_payment_id || null 
                 });
 
                 await newOrder.save();
 
-                // Clear cart after successful order
-                await Cart.findOneAndUpdate(
-                    { userId: req.session.userId },
-                    { $set: { items: [], cartTotal: 0 } }
-                );
+                if (paymentStatus === "success") {
+                    await Cart.findOneAndUpdate(
+                        { userId: req.session.userId },
+                        { $set: { items: [], cartTotal: 0 } }
+                    );
+                }
 
-                res.status(200).json({
+                return res.status(200).json({
                     success: true,
-                    message: "Order placed successfully",
+                    message: `Order placed with payment status: ${paymentStatus}`,
                     orderId: newOrder._id
                 });
 
@@ -137,4 +131,30 @@ const createOrder = async (req, res) => {
         };
 
 
-module.exports = { verifyPayment, createOrder };
+
+
+        const paymentFailed=async (req,res) => {
+            try {
+                const { orderId } = req.body;
+                console.log(orderId)
+        
+                const order = await Order.findOneAndUpdate(
+                    { status: "failed" },
+                );
+        
+                if (!order) {
+                    return res.status(404).json({ success: false, message: "Order not found" });
+                }
+        
+                res.json({ success: true, message: "Payment marked as failed" });
+            } catch (error) {
+                console.error("Error handling payment failure:", error);
+                res.status(500).json({ success: false, message: "Internal Server Error" });
+            }
+        }
+
+
+
+       
+
+module.exports = { verifyPayment, createOrder,paymentFailed };

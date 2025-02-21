@@ -1018,31 +1018,89 @@
         }
 
         // 4. Initialize Razorpay
-        const options = {
-            key: orderData.key,
-            amount: orderData.amount,
-            currency: orderData.currency,
-            name: "Your Store Name",
-            description: "Order Payment",
-            order_id: orderData.order_id,
-            handler: async function (response) {
-                try {
-                    if (!response.razorpay_payment_id || !response.razorpay_order_id || !response.razorpay_signature) {
-                        throw new Error("Invalid payment response from Razorpay");
-                    }
+            const options = {
+                key: orderData.key,
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: "Filmatic",
+                description: "Order Payment",
+                order_id: orderData.order_id,
+                handler: async function (response) {
+                    try {
+                        if (!response.razorpay_payment_id || !response.razorpay_order_id || !response.razorpay_signature) {
+                            throw new Error("Invalid payment response from Razorpay");
+                        }
 
-                    const verifyResponse = await fetch("/verify-payment", {
+                        const verifyResponse = await fetch("/verify-payment", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_signature: response.razorpay_signature,
+                                addressId: shippingAddress,
+                                totalPrice,
+                                cartItems: cartItems.map(item => ({
+                                    productName: item.productName,
+                                    productId: item.productId._id || item.productId,
+                                    quantity: item.quantity,
+                                    price: item.price,
+                                    totalPrice: item.totalPrice
+                                })),
+                                couponCode,
+                                discountAmount
+                            })
+                        });
+
+                        if (!verifyResponse.ok) {
+                            throw new Error(`Server error: ${verifyResponse.statusText}`);
+                        }
+
+                        const verifyData = await verifyResponse.json();
+                        if (!verifyData.success) {
+                            throw new Error(verifyData.message || 'Payment verification failed');
+                        }
+
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Payment Successful',
+                            text: 'Your order has been placed!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+
+                        window.location.href = '/orders';
+
+                    } catch (error) {
+                        await Swal.fire({
+                            icon: 'error',
+                            title: 'Payment Verification Failed',
+                            text: error.message || 'Please contact support if payment was deducted'
+                        });
+                    }
+                },
+                prefill: {
+                    name: "<%= user.name %>",
+                    email: "<%= user.email %>",
+                    contact: "<%= user.phone %>"
+                },
+                theme: {
+                    color: "#3399cc"
+                },
+                modal: {  
+                ondismiss: async function() {
+                    await fetch("/verify-payment", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_signature: response.razorpay_signature,
+                            razorpay_order_id: orderData.order_id,
+                            razorpay_payment_id: null, 
+                            razorpay_signature: null,
                             addressId: shippingAddress,
                             totalPrice,
                             cartItems: cartItems.map(item => ({
-                                productName:item.productName,
-                                productId: item.productId._id || item.productId, 
+                                productName: item.productName,
+                                productId: item.productId._id || item.productId,
                                 quantity: item.quantity,
                                 price: item.price,
                                 totalPrice: item.totalPrice
@@ -1052,65 +1110,29 @@
                         })
                     });
 
-                    if (!verifyResponse.ok) {
-                        throw new Error(`Server error: ${verifyResponse.statusText}`);
-                    }
+                        rzp.close();
+                 
 
-                    const verifyData = await verifyResponse.json();
-                    if (!verifyData.success) {
-                        throw new Error(verifyData.message || 'Payment verification failed');
-                    }
-
-                    await Swal.fire({
-                        icon: 'success',
-                        title: 'Payment Successful',
-                        text: 'Your order has been placed!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-
-                    window.location.href = '/orders';
-
-                } catch (error) {
                     await Swal.fire({
                         icon: 'error',
-                        title: 'Payment Verification Failed',
-                        text: error.message || 'Please contact support if payment was deducted'
+                        title: 'Payment Failed',
+                        text: 'Your payment has failed. Your order has been saved as "Failed Order".',
+                        showConfirmButton: false,
+                        timer: 2000
                     });
-                }
-            },
-            prefill: {
-                name: "<%= user.name %>",
-                email: "<%= user.email %>",
-                contact: "<%= user.phone %>"
-            },
-            theme: {
-                color: "#3399cc"
-            }
-        };
 
-        // Store Razorpay instance in a variable accessible to modal handlers
-        const rzp = new Razorpay(options);
+                    
 
-        // Add modal handlers
-        options.modal = {
-            ondismiss: async function() {
-                const result = await Swal.fire({
-                    icon: 'warning',
-                    title: 'Payment Cancelled',
-                    text: 'Your payment was cancelled. Do you want to try again?',
-                    showCancelButton: true,
-                    confirmButtonText: 'Retry Payment',
-                    cancelButtonText: 'Select Another Method'
-                });
-
-                if (result.isConfirmed) {
-                    rzp.open();
+                    window.location.href = "/orders";
                 }
             }
-        };
 
-        rzp.open();
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.open();
+
+
 
     } catch (error) {
         await Swal.fire({
