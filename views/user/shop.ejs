@@ -213,10 +213,8 @@
                             <div class="col-12">
                                 <div class="product-topbar d-flex align-items-center justify-content-between">
                                     <!-- Total Products -->
-                                    <div class="total-products">
-                                        <p><span>
-                                                <%=products.length%>
-                                            </span> products found</p>
+                                    <div id="totalProducts" class="total-products">
+                                        <p><span><%= products.length %></span> products found</p>
                                     </div>
                                     <!-- Sorting -->
                                     <div class="product-sorting d-flex">
@@ -248,34 +246,39 @@
 
 
                     </div>
+
                     <!-- Pagination -->
-                    <nav aria-label="navigation">
-                        <ul class="pagination mt-50 mb-70">
-                            <% if (currentPage> 1) { %>
-                                <li class="page-item">
-                                    <a class="page-link" href="/shop?page=<%= currentPage - 1 %>">
-                                        <i class="fa fa-angle-left"></i>
-                                    </a>
-                                </li>
+
+                    <% if (totalPages > 1) { %>
+                        <nav aria-label="navigation">
+                            <ul class="pagination mt-50 mb-70">
+                                <% if (currentPage > 1) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="/shop?page=<%= currentPage - 1 %>">
+                                            <i class="fa fa-angle-left"></i>
+                                        </a>
+                                    </li>
                                 <% } %>
+                    
+                                <% for (let i = 1; i <= totalPages; i++) { %>
+                                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                        <a class="page-link" href="/shop?page=<%= i %>">
+                                            <%= i %>
+                                        </a>
+                                    </li>
+                                <% } %>
+                    
+                                <% if (currentPage < totalPages) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="/shop?page=<%= currentPage + 1 %>">
+                                            <i class="fa fa-angle-right"></i>
+                                        </a>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </nav>
+                    <% } %>                    
 
-                                    <% for (let i=1; i <=totalPages; i++) { %>
-                                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                                            <a class="page-link" href="/shop?page=<%= i %>">
-                                                <%= i %>
-                                            </a>
-                                        </li>
-                                        <% } %>
-
-                                            <% if (currentPage < totalPages) { %>
-                                                <li class="page-item">
-                                                    <a class="page-link" href="/shop?page=<%= currentPage + 1 %>">
-                                                        <i class="fa fa-angle-right"></i>
-                                                    </a>
-                                                </li>
-                                                <% } %>
-                        </ul>
-                    </nav>
 
                 </div>
             </div>
@@ -371,13 +374,24 @@
             .then(data => {
                 const products = data.products;
                 
+                const totalProducts=document.getElementById('totalProducts')
+                totalProducts.innerHTML = `<p><span>${products.length}</span> products found</p>`;
+
+
                 const productList = document.getElementById('productList');
                 productList.innerHTML = '';
 
                 let innerData = '';
-                for (let i = 0; i < products.length; i++) {
+                if (products.length === 0) {
+                    innerData = `
+                        <div class="col-12 text-center">
+                            <h4>No products available</h4>
+                        </div>
+                    `;
+                } else {
+                    for (let i = 0; i < products.length; i++) {
                         const product = products[i];
-                        const bestOffer =  product.pricing?.bestOffer || product.offer || 0;
+                        const bestOffer = product.pricing?.bestOffer || product.offer || 0;
                         const displayPrice = bestOffer > 0 ? product.pricing?.finalPrice : product.regularPrice;
 
                         innerData += `
@@ -413,8 +427,12 @@
                             </div>
                         `;
                     }
+                }
 
-                    productList.innerHTML = innerData;
+                productList.innerHTML = innerData;
+
+
+                console.log(products.length)
 
             })
             .catch(error => {

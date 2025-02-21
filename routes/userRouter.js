@@ -10,6 +10,8 @@ const wishlistController=require('../controller/user/wishlistController')
 const couponController=require('../controller/user/couponController')
 const  razorpayXController= require("../controller/razorpayXController");
 const  walletController= require("../controller/user/walletController");
+require('dotenv').config();
+
 
 
 
@@ -32,12 +34,19 @@ router.get('/shop',userController.loadShopPage)
 
 
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}))
-
-router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/register'}),(req,res)=>{
-  req.session.user=req.session.passport.user
-  res.redirect('/')
-
-})
+router.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/register' }),
+  (req, res) => {
+    console.log("Google Auth Success! User:", req.user);
+    if (req.user) {
+      req.session.user = req.user; 
+      res.redirect('/');
+    } else {
+      req.session.googleautherror="Falied to login with google"
+      res.redirect('/register');
+    }
+  }
+);
 
 
 //Product Management
@@ -100,6 +109,7 @@ router.post('/applyCoupon',couponController.applyCoupon)
 //Payment 
 router.post("/create-order", razorpayXController.createOrder);
 router.post("/verify-payment", razorpayXController.verifyPayment);
+
 
 //wallet
 router.get('/wallet',walletController.loadwallet)

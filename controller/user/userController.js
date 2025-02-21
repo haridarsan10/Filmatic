@@ -66,8 +66,10 @@ const loadLoginpage=async (req,res) => {
 const loadRegisterpage=async (req,res) => {
   try {
     if(!req.session.user){
-      const errorMessage=req.session.signupError
-      req.session.signupError=null;
+      const errorMessage = req.session.signupError || req.session.googleautherror;
+      
+      req.session.signupError = null;  
+      req.session.googleautherror = null;
       return res.render("register",{
         message:errorMessage
       })
