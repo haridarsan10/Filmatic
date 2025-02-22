@@ -122,4 +122,8 @@ router.get('/wallet-history',walletController.loadwalletHistory)
 router.post('/orderReturn',orderController.returnOrder)
 
 
+//Invoice download
+router.get('/generate-invoice/:orderId',orderController.generateInvoicePDF);
+
+
 module.exports= router;

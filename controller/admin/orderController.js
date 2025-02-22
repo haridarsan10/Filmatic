@@ -232,7 +232,7 @@ const getSalesReportPDF = async (req, res) => {
             margin: 50,
             size: 'A4'
         });
-        const filePath = path.join(__dirname, '../publics/sales_report.pdf');
+        const filePath = path.join(__dirname, '../publics/salesReport/sales_report.pdf');
         const stream = fs.createWriteStream(filePath);
         doc.pipe(stream);
 
@@ -356,6 +356,9 @@ const getSalesReportPDF = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
+
+
 
 
   

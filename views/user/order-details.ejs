@@ -329,7 +329,10 @@ body {
 
   <!-- Order Items Section -->
   <section class="pt-10 pb-10">
-    <div class="container">
+    <div class="d-flex justify-content-end" style="margin-right: 200px;">
+      <a href="/generate-invoice/<%= order._id %>" class="btn btn-primary">Download Invoice</a>
+  </div>
+      <div class="container">
       <div class="row">
         <div class="right">
           <div class="card-header">
@@ -448,9 +451,12 @@ body {
         </div>
       </div>
     </div>
+    
   </section>
 
 </main>
+
+
 
 
 <!-- Return Order Modal -->
@@ -475,6 +481,7 @@ body {
     </div>
   </div>
 </div>
+
 
 
 
