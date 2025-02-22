@@ -89,7 +89,6 @@ const createOrder = async (req, res) => {
 
                 const couponApplied = couponCode ? true : false;
 
-                // Save Order in Database
                 const newOrder = new Order({
                     userId: req.session.user,
                     address_id: new mongoose.Types.ObjectId(addressId),
@@ -131,16 +130,13 @@ const createOrder = async (req, res) => {
         };
 
 
+
+
         const retryPayment = async (req, res) => {
             try {
-                console.log("Received Retry Payment Data:", req.body);
+                console.log("Received Retry Payment Request:", req.body);
         
-                const { 
-                    razorpay_order_id, 
-                    razorpay_payment_id, 
-                    razorpay_signature,
-                    orderId
-                } = req.body;
+                const { orderId } = req.body;
         
                 if (!orderId) {
                     return res.status(400).json({ success: false, message: "Missing Order ID" });
@@ -155,54 +151,74 @@ const createOrder = async (req, res) => {
                     return res.status(400).json({ success: false, message: "Order is not eligible for retry." });
                 }
         
-                let paymentStatus = "failed";
-                let status = "failed";
-        
-                if (razorpay_payment_id && razorpay_signature) {
-                    if (!process.env.RAZORPAY_KEY_SECRET) {
-                        throw new Error("RAZORPAY_KEY_SECRET is not defined in .env");
-                    }
-        
-                    const generatedSignature = crypto
-                        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-                        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-                        .digest("hex");
-        
-                    if (generatedSignature !== razorpay_signature) {
-                        console.error("Invalid Payment Signature:", { razorpay_order_id, razorpay_payment_id });
-                        return res.status(400).json({ success: false, message: "Invalid payment signature" });
-                    }
-        
-                    paymentStatus = "success";
-                    status = "pending"; 
-                }
-        
-                order.paymentStatus = paymentStatus;
-                order.status = status;
-                await order.save();
-        
-                if (paymentStatus === "success") {
-                    await Cart.findOneAndUpdate(
-                        { userId: order.userId },
-                        { $set: { items: [], cartTotal: 0 } }
-                    );
-                }
+                const newOrder = await razorpayInstance.orders.create({
+                    amount: order.finalAmount * 100,  
+                    currency: "INR",
+                    receipt: `retry_${orderId}`,
+                });
         
                 return res.status(200).json({
                     success: true,
-                    message: `Retry payment processed with status: ${paymentStatus}`,
-                    orderId: order._id
+                    key_id: process.env.RAZORPAY_KEY_ID,
+                    amount: newOrder.amount,
+                    currency: newOrder.currency,
+                    razorpay_order_id: newOrder.id,  
+                    orderId: order._id,
+                    email: order.userEmail,
                 });
         
             } catch (error) {
-                console.error("Retry Payment Error:", { error: error.message, stack: error.stack });
-                res.status(500).json({
-                    success: false,
-                    message: "Payment verification failed, please try again."
-                });
+                console.error("Retry Payment Error:", error);
+                return res.status(500).json({ success: false, message: "Error processing retry payment." });
             }
         };
         
+
+
+
+        const verifyRetrypayment = async (req, res) => {
+            try {
+                console.log("Verifying Payment:", req.body);
+        
+                const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
+        
+                if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !orderId) {
+                    return res.status(400).json({ success: false, message: "Missing required payment details." });
+                }
+        
+                const generatedSignature = crypto
+                    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                    .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+                    .digest("hex");
+        
+                if (generatedSignature !== razorpay_signature) {
+                    console.error("Invalid Payment Signature:", { razorpay_order_id, razorpay_payment_id });
+                    return res.status(400).json({ success: false, message: "Invalid payment signature" });
+                }
+        
+                const order = await Order.findById(orderId);
+                if (!order) {
+                    return res.status(404).json({ success: false, message: "Order not found." });
+                }
+        
+                order.paymentStatus = "success";
+                order.status = "pending";
+                await order.save();
+        
+                await Cart.findOneAndUpdate(
+                    { userId: order.userId },
+                    { $set: { items: [], cartTotal: 0 } }
+                );
+        
+                return res.status(200).json({ success: true, message: "Payment verified successfully." });
+        
+            } catch (error) {
+                console.error("Payment Verification Error:", error);
+                return res.status(500).json({ success: false, message: "Payment verification failed." });
+            }
+        };
+        
+        
     
 
-module.exports = { verifyPayment, createOrder,retryPayment };
+module.exports = { verifyPayment, createOrder,retryPayment,verifyRetrypayment };

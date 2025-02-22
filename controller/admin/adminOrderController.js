@@ -8,19 +8,19 @@ const Address=require('../../models/addressSchema')
 
 const loadOrders = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Get current page, default to 1
-    const limit = 5; // Orders per page
+    const page = parseInt(req.query.page) || 1; 
+    const limit = 5; 
     const skip = (page - 1) * limit;
 
-    const totalOrders = await Order.countDocuments(); // Get total order count
+    const totalOrders = await Order.countDocuments(); 
     const totalPages = Math.ceil(totalOrders / limit);
 
-    const userOrders = await Order.find()
+    const userOrders = await Order.find({status:{$ne:"failed"}})
       .populate({
         path: 'order_items.productId',
         select: 'productImage',
       })
-      .sort({ createdAt: -1 }) // Latest orders first
+      .sort({ createdAt: -1 }) 
       .skip(skip)
       .limit(limit);
 
@@ -55,8 +55,6 @@ const orderDetails = async (req, res) => {
       .exec();
 
 
-      // console.log(order)
-
       const addressId=order.address_id.toString()
 
       const address = await Address.findOne({
@@ -66,11 +64,10 @@ const orderDetails = async (req, res) => {
 
       const foundAddress = address?.address[0] || {}; 
 
-      // console.log(foundAddress)
 
       const products = order.order_items.map(item => ({
         productImage: item.productId?.productImage || 'default-image.jpg', 
-        productName: item.productName,
+        productName: item.productId.productName,
         price: item.price,
         quantity: item.quantity,
         total: item.price * item.quantity
