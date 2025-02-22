@@ -270,15 +270,25 @@ const login=async (req,res) => {
 }
 
 
-const logout=async(req,res) => {
- try {
-  req.session.user=false;
-    res.redirect('/login')
- } catch (error) {
-  console.log('Logout error')
-  res.redirect('/pageNotFound')
- }
-}
+const logout = async (req, res) => {
+  try {
+    req.logout((err) => {
+      if (err) {
+        console.log('Logout error:', err);
+        return res.redirect('/pageNotFound');
+      }
+
+      req.session.user = false; 
+      req.session.passport = undefined; 
+      res.clearCookie('connect.sid'); 
+
+      res.redirect('/login'); 
+    });
+  } catch (error) {
+    console.log('Logout error:', error);
+    res.redirect('/pageNotFound');
+  }
+};
 
 const pageNotFound =async (req,res) => {
   try {
@@ -288,122 +298,111 @@ const pageNotFound =async (req,res) => {
   }
 }
 
-  const loadShopPage = async (req, res) => {
-    try {
-      const user = req.session.user;
-      const userData = await User.findOne({ _id: user });
+const loadShopPage = async (req, res) => {
+  try {
+    const user = req.session.user;
+    const userData = await User.findOne({ _id: user });
 
-      const categories = await Category.find({ isListed: true });
-      const categoryIds = categories.map(category => category._id.toString());
+    // Fetch only isListed: true categories
+    const categories = await Category.find({ isListed: true });
+    const categoryIds = categories.map(category => category._id.toString());
 
-      let selectedCategories = req.query.categories 
-        ? req.query.categories.split(',') 
-        : categoryIds;
+    let selectedCategories = req.query.categories 
+      ? req.query.categories.split(',').filter(id => categoryIds.includes(id))
+      : categoryIds;
 
-      const page = parseInt(req.query.page) || 1;
-      const limit = 9;
-      const skip = (page - 1) * limit;
+    const page = parseInt(req.query.page) || 1;
+    const limit = 9;
+    const skip = (page - 1) * limit;
 
-      const selectedSort = req.query.sort || 'newArrivals';
-      let sortOption = { createdOn: -1 };
+    const selectedSort = req.query.sort || 'newArrivals';
+    let sortOption = { createdOn: -1 };
 
-      switch (selectedSort) {
-        case "popularity":
-          sortOption = { quantity: -1 };
-          break;
-        case "priceLowToHigh":
-          sortOption = { salePrice: 1 };
-          break;
-        case "priceHighToLow":
-          sortOption = { salePrice: -1 };
-          break;
-        case "aToZ":
-          sortOption = { productName: 1 };
-          break;
-        case "zToA":
-          sortOption = { productName: -1 };
-          break;
-      }
-
-      const filter = {
-        isBlocked: false,
-        category: { $in: selectedCategories },  
-      };
-
-      // if (req.query.minPrice) {
-      //   filter.salePrice = { $gte: parseInt(req.query.minPrice) };
-      // }
-
-      // if (req.query.maxPrice) {
-      //   filter.salePrice = { ...filter.salePrice, $lte: parseInt(req.query.maxPrice) };
-      // }
-
-      if (req.query.search) {
-        const searchRegex = new RegExp(req.query.search, 'i'); 
-        filter.productName = { $regex: searchRegex };
-      }
-
-
-      // Fetch Products
-      const products = await Product.find(filter)
-        .populate('category')
-        .sort(sortOption)
-        .collation({ locale: "en", strength: 2 })
-        .skip(skip)
-        .limit(limit);
-
-
-        let updatedProducts = products.map(product => {
-          const { finalPrice, bestOffer } = calculateFinalPrice(product);
-          return {
-            ...product.toObject(),
-            pricing: {
-              finalPrice,
-              bestOffer
-            }
-          };
-        });  
-
-
-      if (req.query.minPrice) {
-        updatedProducts = updatedProducts.filter(p => p.pricing.finalPrice >= parseInt(req.query.minPrice));
-      }
-
-      if (req.query.maxPrice) {
-        updatedProducts = updatedProducts.filter(p => p.pricing.finalPrice <= parseInt(req.query.maxPrice));
-      }
-
-
-
-      const totalProducts = await Product.countDocuments(filter);
-      const totalPages = Math.ceil(totalProducts / limit);
-
-      const categoriesWithIds = categories.map(category => ({ _id: category._id, name: category.name }));
-
-      if (req.get('X-Requested-With') === 'Fetch') {
-        return res.json({
-          products:updatedProducts,
-          totalProducts,
-          totalPages
-        });
-      }
-
-      res.render('shop', {
-        user: userData,
-        products : updatedProducts,
-        category: categoriesWithIds,
-        totalProducts,
-        currentPage: page,
-        totalPages,
-        selectedSort,
-        selectedCategories 
-      });
-
-    } catch (error) {
-      console.log(error);
-      res.redirect('/pageNotFound');
+    switch (selectedSort) {
+      case "popularity":
+        sortOption = { quantity: -1 };
+        break;
+      case "priceLowToHigh":
+        sortOption = { salePrice: 1 };
+        break;
+      case "priceHighToLow":
+        sortOption = { salePrice: -1 };
+        break;
+      case "aToZ":
+        sortOption = { productName: 1 };
+        break;
+      case "zToA":
+        sortOption = { productName: -1 };
+        break;
     }
-  };
+
+    const filter = {
+      isBlocked: false,
+      category: { $in: selectedCategories }  
+    };
+
+    if (req.query.search) {
+      const searchRegex = new RegExp(req.query.search, 'i'); 
+      filter.productName = { $regex: searchRegex };
+    }
+
+    // Fetch only products that belong to isListed: true categories
+    const products = await Product.find(filter)
+      .populate('category')
+      .sort(sortOption)
+      .collation({ locale: "en", strength: 2 })
+      .skip(skip)
+      .limit(limit);
+
+    let updatedProducts = products.map(product => {
+      const { finalPrice, bestOffer } = calculateFinalPrice(product);
+      return {
+        ...product.toObject(),
+        pricing: {
+          finalPrice,
+          bestOffer
+        }
+      };
+    });
+
+    if (req.query.minPrice) {
+      updatedProducts = updatedProducts.filter(p => p.pricing.finalPrice >= parseInt(req.query.minPrice));
+    }
+
+    if (req.query.maxPrice) {
+      updatedProducts = updatedProducts.filter(p => p.pricing.finalPrice <= parseInt(req.query.maxPrice));
+    }
+
+    const totalProducts = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const categoriesWithIds = categories.map(category => ({ _id: category._id, name: category.name }));
+
+    if (req.get('X-Requested-With') === 'Fetch') {
+      return res.json({
+        products: updatedProducts,
+        totalProducts,
+        totalPages
+      });
+    }
+
+    res.render('shop', {
+      user: userData,
+      products: updatedProducts,
+      category: categoriesWithIds,
+      totalProducts,
+      currentPage: page,
+      totalPages,
+      selectedSort,
+      selectedCategories
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.redirect('/pageNotFound');
+  }
+};
+
 
 
 
