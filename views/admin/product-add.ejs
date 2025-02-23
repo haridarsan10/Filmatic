@@ -243,7 +243,7 @@
                              name="productName" 
                              class="form-control" 
                              id="product_name"
-                             required>
+                             >
                       <div class="invalid-feedback" id="productName-error"></div>
                     </div>
                     
@@ -253,7 +253,7 @@
                                 name="description" 
                                 class="form-control" 
                                 rows="4"
-                                required></textarea>
+                                ></textarea>
                       <div class="invalid-feedback" id="description-error"></div>
                     </div>
                   </div>
@@ -271,7 +271,7 @@
                                  min="0" 
                                  step="0.01"
                                  class="form-control"
-                                 required>
+                                 >
                           <div class="invalid-feedback" id="regularPrice-error"></div>
                         </div>
                       </div>
@@ -293,7 +293,7 @@
                                  type="number" 
                                  min="0" 
                                  class="form-control"
-                                 required>
+                                 >
                           <div class="invalid-feedback" id="quantity-error"></div>
                         </div>
                       </div>
@@ -308,7 +308,7 @@
                       <div class="col-lg-6">
                         <div class="mb-4">
                           <label class="form-label required">Category</label>
-                          <select class="form-select" name="category" required>
+                          <select class="form-select" name="category" >
                             <option value="">Select Category</option>
                             <% category.forEach(cat => { %>
                               <option value="<%= cat.name %>"><%= cat.name %></option>
@@ -377,370 +377,350 @@
 
     <script>
 
-        const VALIDATION_RULES = {
-          productName: {
-            required: true,
-            minLength: 3,
-            errorMessage: 'Please enter a product name (minimum 3 characters).'
-          },
-          description: {
-            required: true,
-            minLength: 10,
-            errorMessage: 'Please enter a product description (minimum 10 characters).'
-          },
-          regularPrice: {
-            required: true,
-            pattern: /^\d+(\.\d{1,2})?$/,
-            min: 0,
-            errorMessage: 'Please enter a valid non-negative price.'
-          },
-          salePrice: {
-            pattern: /^\d+(\.\d{1,2})?$/,
-            min: 0,
-            errorMessage: 'Please enter a valid non-negative sale price.'
-          },
-          quantity: {
-            required: true,
-            pattern: /^\d+$/,
-            min: 0,
-            errorMessage: 'Please enter a valid non-negative quantity.'
-          },
-          color: {
-            required: true,
-            errorMessage: 'Please enter a color.'
-          }
-        };
+          const VALIDATION_RULES = {
+            productName: {
+              required: true,
+              minLength: 3,
+              errorMessage: 'Please enter a product name (minimum 3 characters).'
+            },
+            description: {
+              required: true,
+              minLength: 10,
+              errorMessage: 'Please enter a product description (minimum 10 characters).'
+            },
+            regularPrice: {
+              required: true,
+              pattern: /^\d+(\.\d{1,2})?$/,
+              min: 0,
+              errorMessage: 'Please enter a valid non-negative price.'
+            },
+            salePrice: {
+              pattern: /^\d+(\.\d{1,2})?$/,
+              min: 0,
+              errorMessage: 'Please enter a valid non-negative sale price.'
+            },
+            quantity: {
+              required: true,
+              pattern: /^\d+$/,
+              min: 0,
+              errorMessage: 'Please enter a valid non-negative quantity.'
+            },
+            category: {
+              required: true,
+              errorMessage: 'Please select a category.'
+            },
+            color: {
+              required: true,
+              errorMessage: 'Please enter a color.'
+            }
+          };
 
-        // Main form validation class
-        class ProductFormValidator {
-          constructor(formId) {
-            this.form = document.getElementById(formId);
-            this.imageUploaders = [];
-            this.init();
-          }
+          const CONFIG = {
+            maxImages: 5,
+            maxFileSize: 5 * 1024 * 1024, // 5MB
+            validImageTypes: ['image/jpeg', 'image/png', 'image/jpg'],
+            cropperConfig: {
+              aspectRatio: 1,
+              viewMode: 1,
+              guides: true,
+              background: false,
+              autoCropArea: 1,
+              responsive: true,
+              minContainerWidth: 300,
+              minContainerHeight: 200
+            }
+          };
 
-          init() {
-            // Initialize form event listeners
-            this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-            
-            // Initialize image uploaders
-            for (let i = 1; i <= 3; i++) {
-              this.initializeImageUploader(i);
+          class ImageManager {
+            constructor() {
+              this.cropper = null;
+              this.croppedImages = [];
             }
 
-            // Initialize real-time validation
-            this.initializeRealTimeValidation();
-          }
-
-          initializeRealTimeValidation() {
-            Object.keys(VALIDATION_RULES).forEach(fieldName => {
-              const input = this.form.querySelector(`[name="${fieldName}"]`);
-              if (input) {
-                input.addEventListener('blur', () => this.validateField(fieldName));
-              }
-            });
-          }
-
-          validateField(fieldName) {
-            const input = this.form.querySelector(`[name="${fieldName}"]`);
-            const rule = VALIDATION_RULES[fieldName];
-            const value = input.value.trim();
-            let isValid = true;
-            let errorMessage = '';
-
-            if (rule.required && !value) {
-              isValid = false;
-              errorMessage = rule.errorMessage;
-            } else if (rule.pattern && !rule.pattern.test(value)) {
-              isValid = false;
-              errorMessage = rule.errorMessage;
-            } else if (rule.min !== undefined && parseFloat(value) < rule.min) {
-              isValid = false;
-              errorMessage = rule.errorMessage;
-            } else if (rule.minLength && value.length < rule.minLength) {
-              isValid = false;
-              errorMessage = rule.errorMessage;
+            getCurrentImageCount() {
+              return document.querySelectorAll('.thumbnails-container .thumbnail').length;
             }
 
-            this.showFieldError(fieldName, errorMessage);
-            return isValid;
-          }
-
-          validatePrices() {
-            const regularPrice = parseFloat(this.form.querySelector('[name="regularPrice"]').value);
-            const salePrice = parseFloat(this.form.querySelector('[name="salePrice"]').value);
-
-            if (salePrice && regularPrice <= salePrice) {
-              this.showFieldError('regularPrice', 'Regular price must be greater than sale price.');
-              return false;
-            }
-            return true;
-          }
-
-          showFieldError(fieldName, message) {
-            const errorElement = document.getElementById(`${fieldName}-error`);
-            if (errorElement) {
-              errorElement.textContent = message;
-              errorElement.style.display = message ? 'block' : 'none';
-            }
-          }
-
-          clearAllErrors() {
-            const errorElements = this.form.querySelectorAll('.invalid-feedback');
-            errorElements.forEach(element => {
-              element.textContent = '';
-              element.style.display = 'none';
-            });
-          }
-
-          initializeImageUploader(index) {
-            const inputElement = document.getElementById(`input${index}`);
-            const previewElement = document.getElementById(`imgView${index}`);
-            
-            if (!inputElement || !previewElement) return;
-
-            const uploader = new ImageUploader(inputElement, previewElement, index);
-            this.imageUploaders.push(uploader);
-          }
-
-          validateImages() {
-            let hasValidImage = false;
-            for (const uploader of this.imageUploaders) {
-              if (uploader.hasValidImage()) {
-                hasValidImage = true;
-                break;
-              }
+            hasValidImage() {
+              return this.getCurrentImageCount() > 0;
             }
 
-            if (!hasValidImage) {
-              this.showFieldError('images-error1', 'Please select at least one image.');
-              return false;
-            }
-            return true;
-          }
+            handleImageUpload(event) {
+              const files = event.target.files;
+              if (!files.length) return;
 
-          async handleSubmit(event) {
-            event.preventDefault();
-            this.clearAllErrors();
-
-            // Validate all fields
-            let isValid = true;
-            for (const fieldName of Object.keys(VALIDATION_RULES)) {
-              if (!this.validateField(fieldName)) {
-                isValid = false;
-              }
-            }
-
-            // Validate prices
-            if (!this.validatePrices()) {
-              isValid = false;
-            }
-
-            // Validate images
-            if (!this.validateImages()) {
-              isValid = false;
-            }
-
-            if (isValid) {
-              try {
-                await this.submitForm();
-              } catch (error) {
-                console.error('Form submission failed:', error);
-                // Show error message to user
-              }
-            }
-          }
-      }
-
-
-      document.getElementById('productForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-
-            const formData = new FormData(this);
-
-            try {
-                const response = await fetch('/admin/addProducts', { 
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json(); 
-
-                if (result.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: result.message,
-                        timer:1500
-                      }).then(() => {
-                        window.location.replace('/admin/products'); 
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Info',
-                        text: result.message
-                    });
-                }
-            } catch (error) {
-                console.error("Error submitting form:", error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops!',
-                    text: 'Something went wrong. Please try again later.'
-                });
-            }
-        });
-
-
-        const CONFIG = {
-          maxImages: 5,
-          maxFileSize: 5 * 1024 * 1024, // 5MB
-          validImageTypes: ['image/jpeg', 'image/png', 'image/jpg'],
-          cropperConfig: {
-            aspectRatio: 1,
-            viewMode: 1,
-            guides: true,
-            background: false,
-            autoCropArea: 1,
-            responsive: true,
-            minContainerWidth: 300,
-            minContainerHeight: 200
-          }
-        };
-
-        class ImageManager {
-          constructor() {
-            this.cropper = null;
-            this.croppedImages = [];
-          }
-
-          getCurrentImageCount() {
-            return document.querySelectorAll('.thumbnails-container .thumbnail').length;
-          }
-
-          handleImageUpload(event) {
-            const files = event.target.files;
-            if (!files.length) return;
-
-            if (this.getCurrentImageCount() + files.length > CONFIG.maxImages) {
-              Swal.fire({
-                icon: 'warning',
-                title: 'Max Limit Reached',
-                text: `You can only upload up to ${CONFIG.maxImages} images.`
-              });
-              event.target.value = '';
-              return;
-            }
-
-            this.validateAndProcessImage(files[0]);
-          }
-
-          validateAndProcessImage(file) {
-            if (!CONFIG.validImageTypes.includes(file.type)) {
-              Swal.fire({
-                icon: 'error',
-                title: 'Invalid File Type',
-                text: 'Please upload a valid image file (JPEG, PNG, JPG).'
-              });
-              return;
-            }
-
-            if (file.size > CONFIG.maxFileSize) {
-              Swal.fire({
-                icon: 'error',
-                title: 'File Too Large',
-                text: 'Image size should be less than 5MB.'
-              });
-              return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => this.initializeCropper(e.target.result);
-            reader.readAsDataURL(file);
-          }
-
-          initializeCropper(imageData) {
-            const image = document.getElementById('imgView');
-            image.src = imageData;
-
-            if (this.cropper) {
-              this.cropper.destroy();
-            }
-
-            this.cropper = new Cropper(image, CONFIG.cropperConfig);
-            document.querySelector('.image-cropper').style.display = 'block';
-          }
-
-          saveCroppedImage() {
-            if (!this.cropper) return;
-
-            this.cropper.getCroppedCanvas().toBlob(blob => {
-              const fileName = `cropped-${Date.now()}.jpg`;
-              const file = new File([blob], fileName, { type: 'image/jpeg' });
-
-              if (this.getCurrentImageCount() + 1 > CONFIG.maxImages) {
+              if (this.getCurrentImageCount() + files.length > CONFIG.maxImages) {
                 Swal.fire({
                   icon: 'warning',
                   title: 'Max Limit Reached',
                   text: `You can only upload up to ${CONFIG.maxImages} images.`
                 });
+                event.target.value = '';
                 return;
               }
 
-              this.croppedImages.push(file);
-              this.updateThumbnail(file, blob);
-              this.updateFileInput();
-              this.resetCropper();
-            }, 'image/jpeg');
-          }
-
-          updateThumbnail(file, blob) {
-            const previewContainer = document.querySelector('.thumbnails-container');
-            const imgElement = document.createElement('img');
-            imgElement.src = URL.createObjectURL(blob);
-            imgElement.classList.add('thumbnail');
-            previewContainer.appendChild(imgElement);
-          }
-
-          updateFileInput() {
-            const dataTransfer = new DataTransfer();
-            this.croppedImages.forEach(image => dataTransfer.items.add(image));
-            document.getElementById('inputImage').files = dataTransfer.files;
-          }
-
-          resetCropper() {
-            if (this.cropper) {
-              this.cropper.destroy();
-              this.cropper = null;
+              this.validateAndProcessImage(files[0]);
             }
-            document.querySelector('.image-cropper').style.display = 'none';
+
+            validateAndProcessImage(file) {
+              if (!CONFIG.validImageTypes.includes(file.type)) {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Invalid File Type',
+                  text: 'Please upload a valid image file (JPEG, PNG, JPG).'
+                });
+                return;
+              }
+
+              if (file.size > CONFIG.maxFileSize) {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'File Too Large',
+                  text: 'Image size should be less than 5MB.'
+                });
+                return;
+              }
+
+              const reader = new FileReader();
+              reader.onload = (e) => this.initializeCropper(e.target.result);
+              reader.readAsDataURL(file);
+            }
+
+            initializeCropper(imageData) {
+              const image = document.getElementById('imgView');
+              image.src = imageData;
+
+              if (this.cropper) {
+                this.cropper.destroy();
+              }
+
+              this.cropper = new Cropper(image, CONFIG.cropperConfig);
+              document.querySelector('.image-cropper').style.display = 'block';
+            }
+
+            saveCroppedImage() {
+              if (!this.cropper) return;
+
+              this.cropper.getCroppedCanvas().toBlob(blob => {
+                const fileName = `cropped-${Date.now()}.jpg`;
+                const file = new File([blob], fileName, { type: 'image/jpeg' });
+
+                if (this.getCurrentImageCount() + 1 > CONFIG.maxImages) {
+                  Swal.fire({
+                    icon: 'warning',
+                    title: 'Max Limit Reached',
+                    text: `You can only upload up to ${CONFIG.maxImages} images.`
+                  });
+                  return;
+                }
+
+                this.croppedImages.push(file);
+                this.updateThumbnail(file, blob);
+                this.updateFileInput();
+                this.resetCropper();
+              }, 'image/jpeg');
+            }
+
+            updateThumbnail(file, blob) {
+              const previewContainer = document.querySelector('.thumbnails-container');
+              const imgElement = document.createElement('img');
+              imgElement.src = URL.createObjectURL(blob);
+              imgElement.classList.add('thumbnail');
+              previewContainer.appendChild(imgElement);
+            }
+
+            updateFileInput() {
+              const dataTransfer = new DataTransfer();
+              this.croppedImages.forEach(image => dataTransfer.items.add(image));
+              document.getElementById('inputImage').files = dataTransfer.files;
+            }
+
+            resetCropper() {
+              if (this.cropper) {
+                this.cropper.destroy();
+                this.cropper = null;
+              }
+              document.querySelector('.image-cropper').style.display = 'none';
+            }
+
+            cancelCrop() {
+              this.resetCropper();
+              document.getElementById('inputImage').value = '';
+              document.getElementById('imgView').src = '';
+            }
           }
 
-          cancelCrop() {
-            this.resetCropper();
-            document.getElementById('inputImage').value = '';
-            document.getElementById('imgView').src = '';
+          class ProductFormValidator {
+            constructor(formId) {
+              this.form = document.getElementById(formId);
+              this.imageManager = new ImageManager();
+              this.init();
+            }
+
+            init() {
+              if (!this.form) {
+                console.error('Form not found:', formId);
+                return;
+              }
+
+              // Set up image upload event listeners
+              document.getElementById('inputImage')?.addEventListener('change', 
+                (e) => this.imageManager.handleImageUpload(e)
+              );
+              
+              document.getElementById('saveButton')?.addEventListener('click', 
+                () => this.imageManager.saveCroppedImage()
+              );
+              
+              document.getElementById('cancelButton')?.addEventListener('click', 
+                () => this.imageManager.cancelCrop()
+              );
+
+              this.initializeRealTimeValidation();
+              this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+            }
+
+            initializeRealTimeValidation() {
+              Object.keys(VALIDATION_RULES).forEach(fieldName => {
+                const input = this.form.querySelector(`[name="${fieldName}"]`);
+                if (input) {
+                  input.addEventListener('blur', () => this.validateField(fieldName));
+                }
+              });
+            }
+
+            validateField(fieldName) {
+              const input = this.form.querySelector(`[name="${fieldName}"]`);
+              const rule = VALIDATION_RULES[fieldName];
+              const value = input.value.trim();
+              let isValid = true;
+              let errorMessage = '';
+
+              if (rule.required && !value) {
+                isValid = false;
+                errorMessage = rule.errorMessage;
+              } else if (rule.pattern && !rule.pattern.test(value)) {
+                isValid = false;
+                errorMessage = rule.errorMessage;
+              } else if (rule.min !== undefined && parseFloat(value) < rule.min) {
+                isValid = false;
+                errorMessage = rule.errorMessage;
+              } else if (rule.minLength && value.length < rule.minLength) {
+                isValid = false;
+                errorMessage = rule.errorMessage;
+              }
+
+              this.showFieldError(fieldName, errorMessage);
+              return isValid;
+            }
+
+            validatePrices() {
+              const regularPrice = parseFloat(this.form.querySelector('[name="regularPrice"]').value);
+              const salePrice = parseFloat(this.form.querySelector('[name="salePrice"]').value);
+
+              if (salePrice && regularPrice <= salePrice) {
+                this.showFieldError('regularPrice', 'Regular price must be greater than sale price.');
+                return false;
+              }
+              return true;
+            }
+
+            validateImages() {
+              if (!this.imageManager.hasValidImage()) {
+                this.showFieldError('images', 'Please select at least one image.');
+                return false;
+              }
+              return true;
+            }
+
+            showFieldError(fieldName, message) {
+              const errorElement = document.getElementById(`${fieldName}-error`);
+              if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = message ? 'block' : 'none';
+              }
+            }
+
+            clearAllErrors() {
+              const errorElements = this.form.querySelectorAll('.invalid-feedback');
+              errorElements.forEach(element => {
+                element.textContent = '';
+                element.style.display = 'none';
+              });
+            }
+
+            async handleSubmit(event) {
+              event.preventDefault();
+              this.clearAllErrors();
+
+              // Validate all fields
+              let isValid = true;
+              for (const fieldName of Object.keys(VALIDATION_RULES)) {
+                if (!this.validateField(fieldName)) {
+                  isValid = false;
+                }
+              }
+
+              // Validate prices
+              if (!this.validatePrices()) {
+                isValid = false;
+              }
+
+              // Validate images
+              if (!this.validateImages()) {
+                isValid = false;
+              }
+
+              if (isValid) {
+                try {
+                  await this.submitForm();
+                } catch (error) {
+                  console.error('Form submission failed:', error);
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to submit the form. Please try again.'
+                  });
+                }
+              }
+            }
+
+            async submitForm() {
+              const formData = new FormData(this.form);
+
+              try {
+                const response = await fetch('/admin/addProducts', {
+                  method: 'POST',
+                  body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                  await Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: result.message,
+                    timer: 1500
+                  });
+                  window.location.replace('/admin/products');
+                } else {
+                  await Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: result.message
+                  });
+                }
+              } catch (error) {
+                throw error;
+              }
+            }
           }
-        }
 
-        // Initialize image manager when document is ready
-        document.addEventListener('DOMContentLoaded', () => {
-          const imageManager = new ImageManager();
+          document.addEventListener('DOMContentLoaded', () => {
+            new ProductFormValidator('productForm');
+          });
 
-          // Set up event listeners
-          document.getElementById('inputImage')?.addEventListener('change', 
-            (e) => imageManager.handleImageUpload(e)
-          );
-
-          document.getElementById('saveButton')?.addEventListener('click', 
-            () => imageManager.saveCroppedImage()
-          );
-
-          document.getElementById('cancelButton')?.addEventListener('click', 
-            () => imageManager.cancelCrop()
-          );
-        });
 
     </script>
 
