@@ -108,8 +108,24 @@ const createOrder = async (req, res) => {
                 await newOrder.save();
 
                 if (paymentStatus === "success") {
+                    for (let item of formattedCartItems) {
+                        const product = await Product.findById(item.productId);
+                
+                        if (!product || product.quantity < item.quantity) {
+                            return res.status(400).json({
+                                success: false,
+                                message: `Insufficient stock for ${product ? product.productName : "Unknown Product"}`
+                            });
+                        }
+                
+                        await Product.updateOne(
+                            { _id: item.productId },
+                            { $inc: { quantity: -item.quantity } }
+                        );
+                    }
+                
                     await Cart.findOneAndUpdate(
-                        { userId: req.session.userId },
+                        { userId: req.session.user },
                         { $set: { items: [], cartTotal: 0 } }
                     );
                 }

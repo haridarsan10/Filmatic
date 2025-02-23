@@ -252,33 +252,10 @@
                     <% if (totalPages > 1) { %>
                         <nav aria-label="navigation">
                             <ul class="pagination mt-50 mb-70">
-                                <% if (currentPage > 1) { %>
-                                    <li class="page-item">
-                                        <a class="page-link" href="/shop?page=<%= currentPage - 1 %>">
-                                            <i class="fa fa-angle-left"></i>
-                                        </a>
-                                    </li>
-                                <% } %>
-                    
-                                <% for (let i = 1; i <= totalPages; i++) { %>
-                                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                                        <a class="page-link" href="/shop?page=<%= i %>">
-                                            <%= i %>
-                                        </a>
-                                    </li>
-                                <% } %>
-                    
-                                <% if (currentPage < totalPages) { %>
-                                    <li class="page-item">
-                                        <a class="page-link" href="/shop?page=<%= currentPage + 1 %>">
-                                            <i class="fa fa-angle-right"></i>
-                                        </a>
-                                    </li>
-                                <% } %>
+
                             </ul>
                         </nav>
-                    <% } %>                    
-
+                    <% } %>
 
                 </div>
             </div>
@@ -288,7 +265,7 @@
 
     <script>
 
-        document.addEventListener('DOMContentLoaded',applySortFilter)
+        // document.addEventListener('DOMContentLoaded',applySortFilter)
 
 
         async function addToCart(productId) {
@@ -343,27 +320,26 @@
         }
 
 
-        function applySortFilter() {
+        function applySortFilter(page = 1) {
             const sortValue = document.getElementById('sortSelect').value;
             const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value).join(',');
             const priceRange = document.getElementById('priceFilter').value;
-            const searchQuery=document.getElementById('searchQuery').value;
+            const searchQuery = document.getElementById('searchQuery').value;
 
-
-            let url = `/shop?sort=${sortValue}&categories=${selectedCategories}`;
+            // Build the URL with all parameters including page
+            let url = `/shop?page=${page}&sort=${sortValue}&categories=${selectedCategories}`;
 
             if (priceRange) {
-                const [minPrice, maxPrice] = priceRange.split('-'); 
-
+                const [minPrice, maxPrice] = priceRange.split('-');
                 if (maxPrice) {
                     url += `&minPrice=${minPrice}&maxPrice=${maxPrice}`;
                 } else {
-                    url += `&minPrice=${minPrice}`;  
+                    url += `&minPrice=${minPrice}`;
                 }
             }
 
-            if(searchQuery){
-                url+= `&search=${encodeURIComponent(searchQuery)}`;
+            if (searchQuery) {
+                url += `&search=${encodeURIComponent(searchQuery)}`;
             }
 
             fetch(url, {
@@ -372,16 +348,16 @@
             })
             .then(response => response.json())
             .then(data => {
-                const products = data.products;
+                const { products, totalPages, totalProducts } = data;
                 
-                const totalProducts=document.getElementById('totalProducts')
-                totalProducts.innerHTML = `<p><span>${products.length}</span> products found</p>`;
+                // Update total products count
+                const totalProductsElement = document.getElementById('totalProducts');
+                totalProductsElement.innerHTML = `<p><span>${totalProducts}</span> products found</p>`;
 
-
+                // Update product list
                 const productList = document.getElementById('productList');
-                productList.innerHTML = '';
-
                 let innerData = '';
+                
                 if (products.length === 0) {
                     innerData = `
                         <div class="col-12 text-center">
@@ -389,8 +365,7 @@
                         </div>
                     `;
                 } else {
-                    for (let i = 0; i < products.length; i++) {
-                        const product = products[i];
+                    products.forEach(product => {
                         const bestOffer = product.pricing?.bestOffer || product.offer || 0;
                         const displayPrice = bestOffer > 0 ? product.pricing?.finalPrice : product.regularPrice;
 
@@ -426,26 +401,74 @@
                                 </div>
                             </div>
                         `;
-                    }
+                    });
                 }
-
                 productList.innerHTML = innerData;
 
+                const paginationContainer = document.querySelector('nav[aria-label="navigation"]');  // Changed to select the nav element
+                    if (paginationContainer) {
+                        // Hide pagination if no products or only one page
+                        if (products.length === 0 || totalPages <= 1) {
+                            paginationContainer.style.display = 'none';
+                        } else {
+                            paginationContainer.style.display = 'block';
+                            const paginationList = paginationContainer.querySelector('.pagination');
+                            let paginationHTML = '';
+                            
+                            // Previous button
+                            if (page > 1) {
+                                paginationHTML += `
+                                    <li class="page-item">
+                                        <a class="page-link" href="#" onclick="applySortFilter(${page - 1}); return false;">
+                                            <i class="fa fa-angle-left"></i>
+                                        </a>
+                                    </li>
+                                `;
+                            }
 
-                console.log(products.length)
+                            for (let i = 1; i <= totalPages; i++) {
+                                paginationHTML += `
+                                    <li class="page-item ${Number(page) === i ? 'active' : ''}">
+                                        <a class="page-link" href="#" onclick="applySortFilter(${i}); return false;">
+                                            ${i}
+                                        </a>
+                                    </li>
+                                `;
+                            }
+
+                            // Next button
+                            if (page < totalPages) {
+                                paginationHTML += `
+                                    <li class="page-item">
+                                        <a class="page-link" href="#" onclick="applySortFilter(${page + 1}); return false;">
+                                            <i class="fa fa-angle-right"></i>
+                                        </a>
+                                    </li>
+                                `;
+                            }
+
+                            paginationList.innerHTML = paginationHTML;
+                        }
+                    }
 
             })
             .catch(error => {
                 console.error('Error fetching data:', error);
             });
-        }
+}
 
+            document.addEventListener('DOMContentLoaded', () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const initialPage = parseInt(urlParams.get('page')) || 1;
+                
+                applySortFilter(initialPage);
+            });
 
-        document.querySelectorAll('.category-filter').forEach(checkbox => {
-            checkbox.addEventListener('change', applySortFilter);
-        });
+            document.querySelectorAll('.category-filter').forEach(checkbox => {
+                checkbox.addEventListener('change', () => applySortFilter(1));
+            });
 
-        document.getElementById('sortSelect').addEventListener('change', applySortFilter);
+            document.getElementById('sortSelect').addEventListener('change', () => applySortFilter(1));
 
 
 

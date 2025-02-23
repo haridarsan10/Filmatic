@@ -27,7 +27,7 @@ const loadOrders = async (req, res) => {
     let skip=(page-1)*limit
 
     const totalOrders = await Order.countDocuments({ userId: userId });
-    const totalPages = Math.ceil(totalOrders / limit);  // Calculate total page
+    const totalPages = Math.ceil(totalOrders / limit); 
 
     const userOrders = await Order.find({ userId: userId })
       .populate({
@@ -106,6 +106,11 @@ const orders=async (req,res) => {
             { $inc: { quantity: -item.quantity } }  
         );
     }      
+
+    await Cart.findOneAndUpdate(
+      { userId: userId },
+      { $set: { items: [], cartTotal: 0 } }
+  );
 
     return res.status(200).json({ success: true, message: "Order Placed successfully" });
 

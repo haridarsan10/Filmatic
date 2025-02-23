@@ -53,6 +53,10 @@ const addProducts=async (req,res) => {
         }
       }
 
+       if (images.length < 3) {
+        return res.status(400).json({ success: false, message: "Minimum three images are required!" });
+      }
+
       const categoryId=await Category.findOne({name:products.category})
 
       if(!categoryId){

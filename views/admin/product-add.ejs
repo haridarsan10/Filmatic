@@ -571,14 +571,14 @@
                         icon: 'success',
                         title: 'Success!',
                         text: result.message,
-                        showConfirmButton:false
-                    }).then(() => {
+                        timer:1500
+                      }).then(() => {
                         window.location.replace('/admin/products'); 
                     });
                 } else {
                     Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
+                        icon: 'info',
+                        title: 'Info',
                         text: result.message
                     });
                 }
