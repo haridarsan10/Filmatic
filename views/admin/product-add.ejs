@@ -197,12 +197,27 @@
     }
   }
 
-  .image-cropper img {
+  .image-cropper {
   max-width: 100%;
-  max-height: 100%;
-  object-fit: contain; /* This ensures the image fits within the container */
+  margin-bottom: 20px;
 }
 
+.img-preview {
+  max-width: 100%;
+  max-height: 400px;
+}
+
+.thumbnail {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.thumbnails-container {
+  min-height: 100px;
+} 
   .invalid-feedback{
     color: red;
   }
@@ -217,7 +232,7 @@
           <div class="card mb-4">
             <div class="card-body">
               <h2 class="content-title">Add New Product</h2><br>
-              <form method="POST" action="/admin/addProducts" enctype="multipart/form-data" class="product-form" id="productForm">
+              <form method="POST" enctype="multipart/form-data" class="product-form" id="productForm">
                 <!-- Basic Information Section -->
                 <div class="card mb-4">
                   <div class="card-body">
@@ -313,32 +328,39 @@
                   </div>
                 </div>
               
-                <!-- Image Upload Section -->
-                <div class="card mb-4">
-                  <div class="card-header">
-                    <h3>Product Images</h3>
+               <!-- Image Upload Section -->
+              <div class="card mb-4">
+                <div class="card-header">
+                  <h3>Product Images</h3>
+                </div>
+                <div class="card-body">
+                  <!-- Single image input -->
+                  <div class="mb-4">
+                    <input class="form-control" 
+                          type="file" 
+                          name="images" 
+                          id="inputImage" 
+                          accept="image/png, image/jpeg, image/jpg">
+                    <div class="invalid-feedback" id="images-error"></div>
                   </div>
-                  <div class="card-body">
-                    <div class="row" id="imageUploadContainer">
-                      <% [1, 2, 3].forEach(index => { %>
-                        <div class="col-lg-4 mb-4">
-                          <div class="image-upload-wrapper">
-                            <div class="preview-container mb-2">
-                              <img src="" alt="" id="imgView<%= index %>" class="img-preview">
-                            </div>
-                            <input class="form-control" 
-                                   type="file" 
-                                   name="images" 
-                                   id="input<%= index %>" 
-                                   accept="image/png, image/jpeg, image/jpg"
-                                   onchange="viewImage(event, '<%= index %>')">
-                            <div class="invalid-feedback" id="images-error<%= index %>"></div>
-                          </div>
-                        </div>
-                      <% }); %>
+
+                  <!-- Cropper container -->
+                  <div class="image-cropper" style="display: none;">
+                    <div class="preview-container mb-2">
+                      <img src="" alt="" id="imgView" class="img-preview">
+                    </div>
+                    <div class="button-container mt-2">
+                      <button type="button" class="btn btn-primary" id="saveButton">Save</button>
+                      <button type="button" class="btn btn-secondary" id="cancelButton">Cancel</button>
                     </div>
                   </div>
+
+                  <!-- Thumbnails container -->
+                  <div class="thumbnails-container d-flex flex-wrap gap-3 mt-3">
+                    <!-- Thumbnails will be added here dynamically -->
+                  </div>
                 </div>
+              </div>
               
                 <div class="form-actions">
                   <button type="submit" class="btn btn-primary">
@@ -528,173 +550,197 @@
               }
             }
           }
-
-          async submitForm() {
-    const formData = new FormData(this.form);
-
-    try {
-        const response = await fetch(this.form.action, {
-            method: 'POST',
-            body: formData
-        });
-
-        const result = await response.json(); 
-
-        if (response.ok) { 
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: result.message,
-                showConfirmButton: false,
-                timer:1500
-            }).then(() => {
-                setTimeout(()=>{
-                  window.location.replace('/admin/products') 
-                },1000)
-            });
-        } else {
-            Swal.fire({
-                icon: 'info',
-                title: 'Info',
-                text: result.message || 'Something went wrong!',
-                showConfirmButton: false,
-            });
-        }
-
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Something went wrong! Please try again.'
-                });
-            }
-        }
-      
       }
 
-        // Image handling class
-        class ImageUploader {
-          constructor(inputElement, previewElement, index) {
-            this.input = inputElement;
-            this.preview = previewElement;
-            this.index = index;
+
+      document.getElementById('productForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch('/admin/addProducts', { 
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json(); 
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: result.message,
+                        showConfirmButton:false
+                    }).then(() => {
+                        window.location.replace('/admin/products'); 
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: result.message
+                    });
+                }
+            } catch (error) {
+                console.error("Error submitting form:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops!',
+                    text: 'Something went wrong. Please try again later.'
+                });
+            }
+        });
+
+
+        const CONFIG = {
+          maxImages: 5,
+          maxFileSize: 5 * 1024 * 1024, // 5MB
+          validImageTypes: ['image/jpeg', 'image/png', 'image/jpg'],
+          cropperConfig: {
+            aspectRatio: 1,
+            viewMode: 1,
+            guides: true,
+            background: false,
+            autoCropArea: 1,
+            responsive: true,
+            minContainerWidth: 300,
+            minContainerHeight: 200
+          }
+        };
+
+        class ImageManager {
+          constructor() {
             this.cropper = null;
-            
-            this.init();
+            this.croppedImages = [];
           }
 
-          init() {
-            this.input.addEventListener('change', (e) => this.handleImageSelect(e));
+          getCurrentImageCount() {
+            return document.querySelectorAll('.thumbnails-container .thumbnail').length;
           }
 
-          hasValidImage() {
-            return this.input.files && this.input.files.length > 0;
-          }
+          handleImageUpload(event) {
+            const files = event.target.files;
+            if (!files.length) return;
 
-          async handleImageSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (!this.validateImage(file)) {
-              this.input.value = '';
+            if (this.getCurrentImageCount() + files.length > CONFIG.maxImages) {
+              Swal.fire({
+                icon: 'warning',
+                title: 'Max Limit Reached',
+                text: `You can only upload up to ${CONFIG.maxImages} images.`
+              });
+              event.target.value = '';
               return;
             }
 
-            try {
-              const dataUrl = await this.readFileAsDataURL(file);
-              await this.initializeCropper(dataUrl);
-            } catch (error) {
-              console.error('Error processing image:', error);
-              this.showError('Error processing image. Please try again.');
-            }
+            this.validateAndProcessImage(files[0]);
           }
 
-          validateImage(file) {
-            const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-            const maxSize = 5 * 1024 * 1024; // 5MB
-
-            if (!validTypes.includes(file.type)) {
-              this.showError('Please select a valid image file (JPEG, PNG).');
-              return false;
+          validateAndProcessImage(file) {
+            if (!CONFIG.validImageTypes.includes(file.type)) {
+              Swal.fire({
+                icon: 'error',
+                title: 'Invalid File Type',
+                text: 'Please upload a valid image file (JPEG, PNG, JPG).'
+              });
+              return;
             }
 
-            if (file.size > maxSize) {
-              this.showError('Image size should be less than 5MB.');
-              return false;
+            if (file.size > CONFIG.maxFileSize) {
+              Swal.fire({
+                icon: 'error',
+                title: 'File Too Large',
+                text: 'Image size should be less than 5MB.'
+              });
+              return;
             }
 
-            return true;
+            const reader = new FileReader();
+            reader.onload = (e) => this.initializeCropper(e.target.result);
+            reader.readAsDataURL(file);
           }
 
-          showError(message) {
-            const errorElement = document.getElementById(`images-error${this.index}`);
-            if (errorElement) {
-              errorElement.textContent = message;
-              errorElement.style.display = 'block';
-            }
-          }
+          initializeCropper(imageData) {
+            const image = document.getElementById('imgView');
+            image.src = imageData;
 
-          readFileAsDataURL(file) {
-            return new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = () => resolve(reader.result);
-              reader.onerror = () => reject(new Error('File reading failed'));
-              reader.readAsDataURL(file);
-            });
-          }
-
-          async initializeCropper(dataUrl) {
-            // Destroy existing cropper if any
             if (this.cropper) {
               this.cropper.destroy();
             }
 
-            this.preview.src = dataUrl;
-
-            // Initialize Cropper.js
-            this.cropper = new Cropper(this.preview, {
-              aspectRatio: 1,
-              viewMode: 1,
-              guides: true,
-              background: false,
-              autoCropArea: 1,
-              zoomable: true,
-              crop: (event) => {
-                // Optional: Handle crop event
-              }
-            });
+            this.cropper = new Cropper(image, CONFIG.cropperConfig);
+            document.querySelector('.image-cropper').style.display = 'block';
           }
 
-          async getCroppedImage() {
-            if (!this.cropper) return null;
+          saveCroppedImage() {
+            if (!this.cropper) return;
 
-            const canvas = this.cropper.getCroppedCanvas({
-              width: 800,
-              height: 800,
-              imageSmoothingEnabled: true,
-              imageSmoothingQuality: 'high'
-            });
+            this.cropper.getCroppedCanvas().toBlob(blob => {
+              const fileName = `cropped-${Date.now()}.jpg`;
+              const file = new File([blob], fileName, { type: 'image/jpeg' });
 
-            return new Promise((resolve) => {
-              canvas.toBlob((blob) => {
-                if (!blob) {
-                  resolve(null);
-                  return;
-                }
+              if (this.getCurrentImageCount() + 1 > CONFIG.maxImages) {
+                Swal.fire({
+                  icon: 'warning',
+                  title: 'Max Limit Reached',
+                  text: `You can only upload up to ${CONFIG.maxImages} images.`
+                });
+                return;
+              }
 
-                const fileName = `product-image-${Date.now()}-${this.index}.jpg`;
-                const file = new File([blob], fileName, { type: 'image/jpeg' });
-                resolve(file);
-              }, 'image/jpeg', 0.9);
-            });
+              this.croppedImages.push(file);
+              this.updateThumbnail(file, blob);
+              this.updateFileInput();
+              this.resetCropper();
+            }, 'image/jpeg');
+          }
+
+          updateThumbnail(file, blob) {
+            const previewContainer = document.querySelector('.thumbnails-container');
+            const imgElement = document.createElement('img');
+            imgElement.src = URL.createObjectURL(blob);
+            imgElement.classList.add('thumbnail');
+            previewContainer.appendChild(imgElement);
+          }
+
+          updateFileInput() {
+            const dataTransfer = new DataTransfer();
+            this.croppedImages.forEach(image => dataTransfer.items.add(image));
+            document.getElementById('inputImage').files = dataTransfer.files;
+          }
+
+          resetCropper() {
+            if (this.cropper) {
+              this.cropper.destroy();
+              this.cropper = null;
+            }
+            document.querySelector('.image-cropper').style.display = 'none';
+          }
+
+          cancelCrop() {
+            this.resetCropper();
+            document.getElementById('inputImage').value = '';
+            document.getElementById('imgView').src = '';
           }
         }
 
-        // Initialize the form validator
+        // Initialize image manager when document is ready
         document.addEventListener('DOMContentLoaded', () => {
-          const productForm = new ProductFormValidator('productForm');
-        });
+          const imageManager = new ImageManager();
 
+          // Set up event listeners
+          document.getElementById('inputImage')?.addEventListener('change', 
+            (e) => imageManager.handleImageUpload(e)
+          );
+
+          document.getElementById('saveButton')?.addEventListener('click', 
+            () => imageManager.saveCroppedImage()
+          );
+
+          document.getElementById('cancelButton')?.addEventListener('click', 
+            () => imageManager.cancelCrop()
+          );
+        });
 
     </script>
 

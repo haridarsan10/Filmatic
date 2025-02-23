@@ -92,7 +92,8 @@ const getAllProducts=async (req,res) => {
 
     const productData= await Product.find({
       productName:{$regex:new RegExp(".*"+search+".*",'i')}
-    }).limit(limit*1).skip((page-1)*limit).populate('category').exec()
+    }).sort({createdOn:-1}).limit(limit*1).skip((page-1)*limit).populate('category').exec()
+
     const count =await Product.find({
       productName:{$regex:new RegExp(".*"+search+".*",'i')}
     }).countDocuments()
