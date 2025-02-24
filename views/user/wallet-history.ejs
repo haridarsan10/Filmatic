@@ -145,7 +145,24 @@
     color: #555;
   }
 
-  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .pagination a {
+    padding: 8px 12px;
+    text-decoration: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+  }
+  .pagination a.active {
+    background-color: #0056b3;
+    font-weight: bold;
+  }
+
 </style>
 
 <nav aria-label="breadcrumb">
@@ -226,5 +243,20 @@
     </div>
   </div>
 </section>
+
+      <div class="pagination" style="margin-bottom: 100px;">
+        <% if (currentPage > 1) { %>
+          <a href="?page=<%= currentPage - 1 %>">Previous</a>
+        <% } %>
+
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <a href="?page=<%= i %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+        <% } %>
+
+        <% if (currentPage < totalPages) { %>
+          <a href="?page=<%= currentPage + 1 %>">Next</a>
+        <% } %>
+      </div>
+
 
 <%- include("../../views/partials/user/footer") %>

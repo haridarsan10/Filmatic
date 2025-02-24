@@ -388,10 +388,10 @@ body {
                 </button>
             <% } %>
         <% } else if (order.paymentStatus === "failed") { %>
-          <button class="btn btn-sm btn-primary" onclick="retryPayment('<%= order._id %>')">
-            Retry Payment
-        </button>    
-        <% } else if (order.status !== "cancelled") { %>
+            <button class="btn btn-sm btn-primary" onclick="retryPayment('<%= order._id %>')">
+                Retry Payment
+            </button>    
+        <% } else if (order.status !== "cancelled" && order.status !== "returned") { %>
             <button class="remove-item btn btn-sm btn-danger" onclick="cancelOrder('<%= order.orderId %>')">
                 Cancel Order
             </button>
@@ -688,7 +688,7 @@ async function retryPayment(orderId) {
                                 icon: "success",
                                 confirmButtonText: "OK",
                             }).then(() => {
-                                window.location.reload();
+                                window.location.replace('/orders');
                             });
                         } else {
                             Swal.fire({

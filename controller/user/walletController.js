@@ -29,13 +29,35 @@ const loadwallet = async (req, res) => {
 const loadwalletHistory = async (req, res) => {
   try {
     const userData = req.session.userData;
-    const userId=req.session.user
+    const userId = req.session.user;
+
+    const page = parseInt(req.query.page) || 1; 
+    const limit = 5; 
+    const skip = (page - 1) * limit;
 
     const wallet = await Wallet.findOne({ userId: userId });
 
+    if (!wallet || wallet.transactions.length === 0) {
+      return res.render('wallet-history', {
+        user: userData,
+        transactions: [],
+        currentPage: page,
+        totalPages: 1,
+      });
+    }
+
+    const sortedTransactions = wallet.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    const totalTransactions = sortedTransactions.length;
+    const totalPages = Math.ceil(totalTransactions / limit);
+
+    const transactions = sortedTransactions.slice(skip, skip + limit); 
+
     res.render('wallet-history', {
       user: userData,
-      transactions: wallet ? wallet.transactions : [], 
+      transactions,
+      currentPage: page,
+      totalPages,
     });
 
   } catch (error) {
@@ -43,7 +65,6 @@ const loadwalletHistory = async (req, res) => {
     res.redirect('/pageNotFound');
   }
 };
-
 
 
 module.exports={
