@@ -301,9 +301,8 @@ const pageNotFound =async (req,res) => {
 const loadShopPage = async (req, res) => {
   try {
     const user = req.session.user;
-    const userData = await User.findOne({ _id: user });
+    const userData = user ? await User.findOne({ _id: user }) : null;
 
-    // Fetch only isListed: true categories
     const categories = await Category.find({ isListed: true });
     const categoryIds = categories.map(category => category._id.toString());
 

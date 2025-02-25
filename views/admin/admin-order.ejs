@@ -130,6 +130,11 @@ body {
   color: white;
 }
 
+.order-status.returned {
+  background-color: rgb(65, 94, 117);
+}
+
+
 .order-status.pending {
   background-color: orange;
 }
@@ -202,6 +207,35 @@ body {
   color: white;
 }
 
+.pagination {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.pagination a {
+  display: inline-block;
+  padding: 8px 12px;
+  margin: 0 5px;
+  text-decoration: none;
+  color: #000000;
+  border: 1px solid #000000;
+  border-radius: 5px;
+}
+
+.pagination a.active {
+  background-color: #000000;
+  color: white;
+}
+
+.pagination a:hover {
+  background-color: #000000;
+  color: white;
+}
+
+.pagination a.prev, .pagination a.next {
+  font-weight: bold;
+}
+
 
 </style>
 
@@ -245,6 +279,23 @@ body {
     </div>
   </section>
 </main>
+
+    <div class="pagination" style="margin-bottom: 100px;">
+      <% if (currentPage > 1) { %>
+        <a href="?page=<%= currentPage - 1 %>" class="prev">Previous</a>
+      <% } %>
+
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="?page=<%= i %>" class="page-number <%= i === currentPage ? 'active' : '' %>">
+          <%= i %>
+        </a>
+      <% } %>
+
+      <% if (currentPage < totalPages) { %>
+        <a href="?page=<%= currentPage + 1 %>" class="next">Next</a>
+      <% } %>
+    </div>
+
 
 <script>
 document.querySelectorAll('.order-status-dropdown').forEach(dropdown => {
