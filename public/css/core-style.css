@@ -16,7 +16,7 @@
   padding: 0; }
 
 body {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   background-color: #ffffff;
   margin-top: 85px; }
@@ -33,7 +33,8 @@ h6 {
   color: #000000;
   line-height: 1.3;
   font-weight: 700;
-  font-family: "Ubuntu", sans-serif; }
+  font-family: 'Inter', sans-serif;
+   }
 
 p {
   color: #787878;
@@ -41,23 +42,21 @@ p {
   line-height: 2;
   font-weight: 400; }
 
-a {
-  -webkit-transition: all 500ms ease 0s;
-  transition: all 500ms ease 0s;
-  text-decoration: none;
-  outline: 0 solid transparent;
-  color: #fbf5f5;
-  font-weight: 600;
-  font-size: 12px; }
-  a:hover, a:focus {
-    -webkit-transition: all 500ms ease 0s;
-    transition: all 500ms ease 0s;
+  a {
+    color: black;
     text-decoration: none;
-    outline: 0 solid transparent;
-    color: #000000;
-    font-weight: 600;
-    font-size: 12px; }
-
+    font-weight: normal;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+  
+  a:hover, a:focus {
+    text-decoration: none;
+    color: black;
+  }
+  
 ul,
 ol {
   margin: 0; }
@@ -226,19 +225,24 @@ img {
   display: inline-block;
   min-width: 170px;
   height: 50px;
-  color: #ffffff;
+  color: #fff;
+  background-color: #000;
   border: none;
-  border-radius: 0;
   padding: 0 40px;
-  text-transform: uppercase;
   font-size: 12px;
-  line-height: 50px;
-  background-color: #000000;
+  font-weight: 600;
   letter-spacing: 1.5px;
-  font-weight: 600; }
-  .essence-btn:hover, .essence-btn:focus {
-    color: #ffffff;
-    background-color: #1b1b1b; }
+  line-height: 50px;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.25s;
+}
+
+/* .essence-btn:hover, .essence-btn:focus {
+  background-color: #000000;
+} 
+     */
+
 
 /* :: 4.0 Header Area CSS */
 .header_area {
@@ -384,9 +388,9 @@ img {
     .header_area .favourite-area a span,
     .header_area .user-login-info a span,
     .header_area .cart-area a span {
-      font-family: "Ubuntu", sans-serif;
+      font-family: 'Inter', sans-serif;
       font-size: 18px;
-      color: #0315ff;
+      color: #000000;
       font-weight: 700;
       position: absolute;
       top: -10px; }
@@ -460,7 +464,7 @@ img {
     .right-side-cart-area .cart-button a img {
       max-width: 20px; }
     .right-side-cart-area .cart-button a span {
-      font-family: "Ubuntu", sans-serif;
+      font-family: 'Inter', sans-serif;
       font-size: 18px;
       color: #0315ff;
       font-weight: 700;
@@ -555,7 +559,7 @@ img {
               margin-bottom: 5px;
               line-height: 1; }
             .right-side-cart-area .cart-content .cart-list .single-cart-item .product-image .cart-item-desc .price {
-              font-family: "Ubuntu", sans-serif;
+              font-family: 'Inter', sans-serif;
               font-size: 16px;
               font-weight: 700;
               margin-bottom: 0;
@@ -623,7 +627,8 @@ img {
             margin-bottom: 15px; } }
         .right-side-cart-area .cart-content .cart-amount-summary .summary-table li span:last-child {
           font-weight: 700;
-          font-family: "Ubuntu", sans-serif; }
+          font-family: 'Inter', sans-serif;
+        }
       @media only screen and (max-width: 767px) {
         .right-side-cart-area .cart-content .cart-amount-summary .essence-btn {
           min-width: 140px;
@@ -680,26 +685,24 @@ img {
     content: "";
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.6);
     position: absolute;
     top: 0;
     left: 0;
     z-index: -10; }
-  .single_catagory_area .catagory-content a {
+  .single_catagory_area {
     display: block;
     font-size: 30px;
     font-weight: 700;
     color: #000000;
-    letter-spacing: 1px;
-    text-transform: uppercase; }
-    @media only screen and (min-width: 768px) and (max-width: 991px) {
+       }
+    /* @media only screen and (min-width: 768px) and (max-width: 991px) {
       .single_catagory_area .catagory-content a {
         font-size: 20px; } }
     @media only screen and (max-width: 767px) {
       .single_catagory_area .catagory-content a {
         font-size: 18px; } }
   .single_catagory_area:hover .catagory-content a {
-    color: #000000; }
+    color: #000000; } */
 
 /* :: 7.0 CTA Area CSS */
 .cta-area {
@@ -763,7 +766,7 @@ img {
       height: 25px;
       background-color: #000000;
       color: #ffffff;
-      font-family: "Ubuntu", sans-serif;
+      font-family: 'Inter', sans-serif;
       font-weight: 700;
       font-size: 12px;
       padding: 0 10px;
@@ -812,12 +815,12 @@ img {
     .single-product-wrapper .product-description p {
       margin-bottom: 0;
       font-size: 14px;
-      font-family: "Ubuntu", sans-serif;
+      font-family: 'Inter', sans-serif;
       font-weight: 700;
       color: #000000; }
       .single-product-wrapper .product-description p span {
         font-size: 14px;
-        font-family: "Ubuntu", sans-serif;
+        font-family: 'Inter', sans-serif;
         font-weight: 700;
         color: #aaaaaa;
         margin-right: 10px;
@@ -1003,7 +1006,7 @@ img {
           font-size: 20px; } }
     .single_product_details_area .single_product_desc .product-price {
       margin-bottom: 0;
-      font-family: "Ubuntu", sans-serif;
+      font-family: 'Inter', sans-serif;
       font-size: 24px;
       color: #dc0345;
       font-weight: 700; }
@@ -1012,7 +1015,7 @@ img {
           font-size: 20px; } }
       .single_product_details_area .single_product_desc .product-price span {
         display: inline-block;
-        font-family: "Ubuntu", sans-serif;
+        font-family: 'Inter', sans-serif;
         font-size: 24px;
         color: #787878;
         font-weight: 700;
@@ -1066,7 +1069,7 @@ img {
       color: rgba(255, 255, 255, 0.6);
       display: block;
       font-weight: 400;
-      font-family: "Ubuntu", sans-serif;
+      font-family: 'Inter', sans-serif;
       padding: 0 10px;
       text-transform: capitalize; }
       .footer_area .single_widget_area .footer_menu ul li a:hover, .footer_area .single_widget_area .footer_menu ul li a:focus {
@@ -1150,7 +1153,7 @@ img {
     font-size: 30px;
     text-transform: uppercase;
     font-weight: 700;
-    font-family: "Ubuntu", sans-serif;
+    font-family: 'Inter', sans-serif;
     letter-spacing: 1px;
     margin-bottom: 0; }
   .breadcumb_area.breadcumb-style-two {
@@ -1166,7 +1169,7 @@ img {
       font-size: 72px;
       text-transform: uppercase;
       font-weight: 700;
-      font-family: "Ubuntu", sans-serif;
+      font-family: 'Inter', sans-serif;
       letter-spacing: 1px;
       margin-bottom: 0;
       color: #0315ff; }
@@ -1640,7 +1643,7 @@ img {
           -webkit-transform: scale(1.2);
           transform: scale(1.2); }
 
-/* :: 16.0 Regular Page Area CSS */
+/* :: 16.0 Regular Page Area CSS */x
 .regular-page-content-wrapper {
   position: relative;
   z-index: 1; }

@@ -1,95 +1,47 @@
 <%- include("../../views/partials/user/header") %>
 
-    <!-- ##### Right Side Cart Area ##### -->
-    <div class="cart-bg-overlay"></div>
+<style>
+    .shop-button {
+    background-color: black;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
 
-    <div class="right-side-cart-area">
+/* Show button on hover */
+.single_catagory_area:hover .shop-button {
+    color: white;
+    opacity: 1;
+    transform: scale(1);
+    background-color: rgb(35, 35, 35);
 
-        <!-- Cart Button -->
-        <div class="cart-button">
-            <a href="#" id="rightSideCart"><img src="img/core-img/bag.svg" alt=""> <span>3</span></a>
-        </div>
+}
 
-        <div class="cart-content d-flex">
+.shop-button:hover {
+    color: white;
+    transform: scale(1.1);
+    background-color: rgb(35, 35, 35);
 
-            <!-- Cart List Area -->
-            <div class="cart-list">
-                <!-- Single Cart Item -->
-                <div class="single-cart-item">
-                    <a href="#" class="product-image">
-                        <img src="img/product-img/product-1.jpg" class="cart-thumb" alt="">
-                        <!-- Cart Item Desc -->
-                        <div class="cart-item-desc">
-                          <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
-                            <span class="badge">Mango</span>
-                            <h6>Button Through Strap Mini Dress</h6>
-                            <p class="size">Size: S</p>
-                            <p class="color">Color: Red</p>
-                            <p class="price">$45.00</p>
-                        </div>
-                    </a>
-                </div>
+}
 
-                <!-- Single Cart Item -->
-                <div class="single-cart-item">
-                    <a href="#" class="product-image">
-                        <img src="img/product-img/product-2.jpg" class="cart-thumb" alt="">
-                        <!-- Cart Item Desc -->
-                        <div class="cart-item-desc">
-                          <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
-                            <span class="badge">Mango</span>
-                            <h6>Button Through Strap Mini Dress</h6>
-                            <p class="size">Size: S</p>
-                            <p class="color">Color: Red</p>
-                            <p class="price">$45.00</p>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Single Cart Item -->
-                <div class="single-cart-item">
-                    <a href="#" class="product-image">
-                        <img src="img/product-img/product-3.jpg" class="cart-thumb" alt="">
-                        <!-- Cart Item Desc -->
-                        <div class="cart-item-desc">
-                          <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
-                            <span class="badge">Mango</span>
-                            <h6>Button Through Strap Mini Dress</h6>
-                            <p class="size">Size: S</p>
-                            <p class="color">Color: Red</p>
-                            <p class="price">$45.00</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Cart Summary -->
-            <div class="cart-amount-summary">
-
-                <h2>Summary</h2>
-                <ul class="summary-table">
-                    <li><span>subtotal:</span> <span>$274.00</span></li>
-                    <li><span>delivery:</span> <span>Free</span></li>
-                    <li><span>discount:</span> <span>-15%</span></li>
-                    <li><span>total:</span> <span>$232.00</span></li>
-                </ul>
-                <div class="checkout-btn mt-100">
-                    <a href="checkout.html" class="btn essence-btn">check out</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- ##### Right Side Cart End ##### -->
+</style>
 
     <!-- ##### Welcome Area Start ##### -->
-    <section class="welcome_area bg-img background-overlay" style="background-image: url(img/bg-img/bg-1.jpg);">
+    <section class="welcome_area bg-img background-overlay" style="background-image: url(img/bg-img/home-2.jpg);">
         <div class="container h-100">
             <div class="row h-100 align-items-center">
                 <div class="col-12">
                     <div class="hero-content">
                         <h6>Filmatic</h6>
                         <h2>New Collection</h2>
-                        <a href="#" class="btn essence-btn">view collection</a>
+                        <a href="/shop" class="btn essence-btn">view collection</a>
                     </div>
                 </div>
             </div>
@@ -103,26 +55,78 @@
             <div class="row justify-content-center">
                 <!-- Single Catagory -->
                 <div class="col-12 col-sm-6 col-md-4">
-                    <div class="single_catagory_area d-flex align-items-center justify-content-center bg-img" style="background-image: url(img/bg-img/bg-2.jpg);">
-                        <div class="catagory-content">
-                            <a href="#">Clothing</a>
+                    <div class="single_catagory_area d-flex flex-column flex-md-row align-items-center justify-content-between p-4"
+                        style="border-radius: 20px; background-color: rgb(246, 246, 246); position: relative; overflow: hidden;">
+                    
+                        <!-- Left Side: Text Content -->
+                        <div class="catagory-content text-center text-md-left" style="flex: 1; position: relative;">
+                            <h2 style="font-size: 24px; margin-bottom: 10px;">Clothing</h2>
+                            <ul style="list-style: none; font-weight: normal; padding: 0; margin-bottom: 15px; font-size: 12px; line-height: 1.6;">
+                                <li>Explore your favourite movie T-shirts</li>
+                            </ul>
+                            <a href="/shop" class="shop-button">
+                                Shop now
+                            </a>
                         </div>
+                
+                        <!-- Right Side: Image -->
+                        <div class="image-container mt-3 mt-md-0 text-center" style="flex: 1;">
+                            <img src="img/bg-img/Breakingbad1.png" alt="For men" 
+                                style="width: 100%; max-width: 150px; object-fit: contain; margin-top: 40px;">
+                        </div>
+                
                     </div>
                 </div>
+                
+                                
+                
                 <!-- Single Catagory -->
                 <div class="col-12 col-sm-6 col-md-4">
-                    <div class="single_catagory_area d-flex align-items-center justify-content-center bg-img" style="background-image: url(img/bg-img/batman2.jpg);">
-                        <div class="catagory-content">
-                            <a href="#">Posters</a>
+                    <div class="single_catagory_area d-flex flex-column flex-md-row align-items-center justify-content-between p-4"
+                        style="border-radius: 20px; background-color: rgb(246, 246, 246); position: relative; overflow: hidden;">
+                    
+                        <!-- Left Side: Text Content -->
+                        <div class="catagory-content text-center text-md-left" style="flex: 1; position: relative;">
+                            <h2 style="font-size: 24px; margin-bottom: 10px;">Posters</h2>
+                            <ul style="list-style: none; font-weight: normal; padding: 0; margin-bottom: 15px; font-size: 12px; line-height: 1.6;">
+                                <li>Transform Your Space with Cinematic Art!</li>
+                            </ul>
+                            <a href="/shop" class="shop-button">
+                                Shop now
+                            </a>
                         </div>
+                
+                        <!-- Right Side: Image -->
+                        <div class="image-container mt-3 mt-md-0 text-center" style="flex: 1;">
+                            <img src="img/bg-img/123.jpg" alt="For men" 
+                                style="width: 100%; max-width: 150px; transform: scale(0.9);object-fit: contain;">
+                        </div>
+                
                     </div>
                 </div>
+
                 <!-- Single Catagory -->
                 <div class="col-12 col-sm-6 col-md-4">
-                    <div class="single_catagory_area d-flex align-items-center justify-content-center bg-img" style="background-image: url(img/bg-img/cap.jpg);">
-                        <div class="catagory-content">
-                            <a href="#">Accessories</a>
+                    <div class="single_catagory_area d-flex flex-column flex-md-row align-items-center justify-content-between p-4"
+                        style="border-radius: 20px; background-color: rgb(246, 246, 246); position: relative; overflow: hidden;">
+                    
+                        <!-- Left Side: Text Content -->
+                        <div class="catagory-content text-center text-md-left" style="flex: 1; position: relative;">
+                            <h2 style="font-size: 24px; margin-bottom: 10px;">Accessories</h2>
+                            <ul style="list-style: none; font-weight: normal; padding: 0; margin-bottom: 15px; font-size: 12px; line-height: 1.6;">
+                                <li>Iconic Films, Everyday Essentials!</li>
+                            </ul>
+                            <a href="/shop"  class="shop-button">
+                                Shop now
+                            </a>
                         </div>
+                
+                        <!-- Right Side: Image -->
+                        <div class="image-container mt-3 mt-md-0 text-center" style="flex: 1;">
+                            <img src="img/bg-img/cap1.png" alt="For men" 
+                                style="width: 100%; max-width: 150px; object-fit: contain;">
+                        </div>
+                
                     </div>
                 </div>
             </div>
@@ -135,12 +139,20 @@
         <div class="container">
             <div class="row">
                 <div class="col-12">
-                    <div class="cta-content bg-img background-overlay" style="background-image: url(img/bg-img/bg-5.jpg);">
-                        <div class="h-100 d-flex align-items-center justify-content-end">
-                            <div class="cta--text">
-                                <h6>-60%</h6>
-                                <h2>Global Sale</h2>
-                                <a href="#" class="btn essence-btn">Buy Now</a>
+                    <div class="cta-content d-flex" style="background-color:rgb(246, 246, 246) ;">
+                        <!-- Left Div: Image -->
+                        <div class="cta-image" style="flex: 1; transform: scale(1); background-image: url(img/bg-img/godfather.png); background-size: cover; background-position: center;"></div>
+                        <!-- Right Div: Product Details -->
+                        <div class="cta-text d-flex align-items-center justify-content-center" style="flex: 1;  color: white; padding: 20px;">
+                            <div style="width: 80%; display: flex; flex-direction: column; align-items: center;">
+                                <!-- Upper Section: Product Image -->
+                                <div style="width: 100%; height: 150px; background-image: url(img/bg-img/product.png); background-size: contain; background-repeat: no-repeat; background-position: center;"></div>
+                                <!-- Lower Section: Shop Button -->
+                                <div style="margin-top: 10px;">
+                                    <h6>-60%</h6>
+                                    <h2>Global Sale</h2>
+                                    <a href="#" class="btn essence-btn">Buy Now</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -148,6 +160,7 @@
             </div>
         </div>
     </div>
+    
     <!-- ##### CTA Area End ##### -->
 
    <!-- ##### New Arrivals Area Start ##### -->
