@@ -54,7 +54,7 @@ p {
   
   a:hover, a:focus {
     text-decoration: none;
-    color: black;
+    color: white;
   }
   
 ul,
@@ -222,20 +222,15 @@ img {
 
 /* Essence Button */
 .essence-btn {
-  display: inline-block;
-  min-width: 170px;
-  height: 50px;
-  color: #fff;
-  background-color: #000;
+  background-color: black;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 8px 18px;
   border: none;
-  padding: 0 40px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  line-height: 50px;
+  border-radius: 8px;
   cursor: pointer;
-  text-align: center;
-  transition: background-color 0.25s;
+  
 }
 
 /* .essence-btn:hover, .essence-btn:focus {

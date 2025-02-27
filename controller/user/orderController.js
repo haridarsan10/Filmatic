@@ -60,7 +60,8 @@ const orders=async (req,res) => {
   try {
     const {addressId,paymentMethod,totalPrice,cartItems,couponCode,discountAmount}=req.body
     const userId=req.session.user
-    console.log(req.body)
+    // console.log(req.body)
+    console.log(cartItems)
 
     const discount = req.body.discount || 0;  
     const finalAmount = req.body.finalAmount || totalPrice;  
