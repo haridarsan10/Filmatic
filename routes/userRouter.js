@@ -101,6 +101,7 @@ router.post('/orders',userAuth,orderController.orders)
 router.get('/orders',userAuth,orderController.loadOrders)
 router.get('/order-details',userAuth,orderController.loadOrderDetails)
 router.post('/cancel-order',orderController.cancelOrder)
+router.post('/cancelProduct',orderController.cancelProduct)
 
 //Wishlist
 router.get('/wishlist',userAuth,wishlistController.loadWishlist)
@@ -115,6 +116,7 @@ router.post("/create-order", razorpayXController.createOrder);
 router.post("/verify-payment", razorpayXController.verifyPayment);
 router.post('/retry-payment',razorpayXController.retryPayment)
 router.post('/verify-retrypayment',razorpayXController.verifyRetrypayment)
+router.post('/check-stock',orderController.checkStock);
 
 
 

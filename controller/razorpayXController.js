@@ -63,10 +63,9 @@ const createOrder = async (req, res) => {
                 }
 
                 let paymentStatus = "failed"; 
-                let status="failed"
+                let status = "failed";
 
                 if (razorpay_payment_id && razorpay_signature) {
-
                     const generatedSignature = crypto
                         .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
                         .update(`${razorpay_order_id}|${razorpay_payment_id}`)
@@ -77,12 +76,40 @@ const createOrder = async (req, res) => {
                     }
 
                     paymentStatus = "success"; 
-                    status="pending"
+                    status = "pending";
+
+                    const formattedCartItems = [];
+                    
+                    for (let item of cartItems) {
+                        const product = await Product.findById(item.productId);
+                        
+                        if (!product) {
+                            return res.status(400).json({
+                                success: false,
+                                message: `Product not found: ${item.productName || "Unknown Product"}`
+                            });
+                        }
+                        
+                        if (product.quantity < 1) {
+                            return res.status(400).json({
+                                success: false,
+                                message: `${product.productName} is out of stock`
+                            });
+                        }
+                        
+                        if (product.quantity < item.quantity) {
+                            return res.status(400).json({
+                                success: false,
+                                message: `Insufficient stock for ${product.productName}. Available: ${product.quantity}, Requested: ${item.quantity}`
+                            });
+                        }
+                    }
                 }
+                
 
                 const formattedCartItems = cartItems.map(item => ({
                     productId: new mongoose.Types.ObjectId(item.productId),
-                    productName: item.productName || "Unknown Product",
+                    productName: item.productName,
                     quantity: item.quantity,
                     price: item.price
                 }));
@@ -108,22 +135,14 @@ const createOrder = async (req, res) => {
                 await newOrder.save();
 
                 if (paymentStatus === "success") {
+                    // Update product quantities
                     for (let item of formattedCartItems) {
-                        const product = await Product.findById(item.productId);
-                
-                        if (!product || product.quantity < item.quantity) {
-                            return res.status(400).json({
-                                success: false,
-                                message: `Insufficient stock for ${product ? product.productName : "Unknown Product"}`
-                            });
-                        }
-                
                         await Product.updateOne(
                             { _id: item.productId },
                             { $inc: { quantity: -item.quantity } }
                         );
                     }
-                
+                    
                     await Cart.findOneAndUpdate(
                         { userId: req.session.user },
                         { $set: { items: [], cartTotal: 0 } }
@@ -144,6 +163,7 @@ const createOrder = async (req, res) => {
                 });
             }
         };
+
 
 
 

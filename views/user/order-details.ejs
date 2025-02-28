@@ -314,6 +314,71 @@ body {
   }
 }
 
+/* Cart Item Status - Centered & Styled */
+.cart-item-status {
+    display: flex;
+  margin-top: 20px;
+    align-items: left;
+    justify-content: center;
+    min-width: 120px;
+    height: 35px;
+    color: #333;
+    font-weight: bold;
+    border-radius: 5px;
+    text-transform: capitalize;
+}
+
+/* Optional - Add color coding based on status */
+.cart-item-status.pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+.cart-item-status.delivered {
+    background-color: #d4edda;
+    color: #155724;
+}
+.cart-item-status.cancelled {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+.cart-item-status.returned {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+/* Cancel Product Button */
+.cancel-product-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+.cancel-product-btn:hover {
+    background-color: #c82333;
+}
+
+/* Return Product Button */
+.return-product-btn {
+    background-color: #ffc107;
+    color: black;
+    border: none;
+    padding: 6px 12px;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+.return-product-btn:hover {
+    background-color: #e0a800;
+}
+
+
 </style>
 
 <main class="main">
@@ -354,6 +419,20 @@ body {
                           <p class="cart-item-quantity">Quantity: <%= products[i].quantity %></p>
                           <p class="cart-item-price"><strong>Price:</strong> ₹<%= products[i].total %></p>
                       </div>
+
+                      <p class="cart-item-status"> <%= products[i].itemStatus %></p>
+
+                      <% if (products[i].itemStatus === "ordered") { %>
+                        <button class="btn btn-danger btn-sm cancel-product-btn" 
+                                onclick="cancelProduct('<%= order.orderId %>', '<%= products[i].productId %>')">
+                            Cancel Product
+                        </button>
+                    <% } else if (products[i].itemStatus === "delivered") { %>
+                        <button class="btn btn-warning btn-sm return-product-btn" 
+                                onclick="openReturnProductModal('<%= order.orderId %>', '<%= products[i].productId %>')">
+                            Return Product
+                        </button>
+                    <% } %>
                   </div>
               <% } %>
           <% } else { %>
@@ -395,11 +474,7 @@ body {
             <button class="remove-item btn btn-sm btn-danger" onclick="cancelOrder('<%= order.orderId %>')">
                 Cancel Order
             </button>
-        <% } %>
-
-      
-
-          
+        <% } %>      
         </div>
       </div>
     </div>
@@ -482,6 +557,32 @@ body {
   </div>
 </div>
 
+<!-- Return Product Modal -->
+<div class="modal fade" id="returnProductModal" tabindex="-1" aria-labelledby="returnProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="returnProductModalLabel">Return Product</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="returnProductForm">
+          <div class="mb-3">
+            <label for="productReturnReason" class="form-label">Reason for Returning Product</label>
+            <p id="productReturnReasonError" style="color: red; font-size: 14px;"></p>
+            <textarea class="form-control" id="productReturnReason" rows="3" placeholder="Enter your reason"></textarea>
+          </div>
+          <!-- These hidden inputs will carry order and product information -->
+          <input type="hidden" id="returnProductOrderId">
+          <input type="hidden" id="returnProductId">
+          <button type="submit" class="btn btn-danger w-100">Submit Product Return Request</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 
 
@@ -490,6 +591,66 @@ body {
 
 
 <script>
+
+//SINGLE PRODUCT CANCEL
+
+async function cancelProduct(orderId, productId) {
+    try {
+      console.log(orderId,'hello',productId)
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "Do you really want to cancel this product from your order?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, cancel it",
+            cancelButtonText: "No"
+        });
+
+        if (result.isConfirmed) {
+            const response = await fetch(`/cancelProduct`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ orderId, productId })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Product Cancelled',
+                    text: data.message || 'Product has been successfully cancelled.'
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cancellation Failed',
+                    text: data.message || 'Unable to cancel the product. Please try again.'
+                });
+            }
+        }
+
+    } catch (error) {
+        console.error('Error cancelling product:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops!',
+            text: 'Something went wrong. Please try again later.'
+        });
+    }
+}
+
+
+
+
+
+//WHOLE ORDER CANCEL and RETURN
 
   async function cancelOrder(orderId){
 
@@ -556,8 +717,6 @@ body {
             text: error.message || 'Something went wrong. Please try again.'
         });
     }
-    
-
   }
 
 
@@ -745,4 +904,4 @@ async function retryPayment(orderId) {
 
 </script>
 
-<%- include("../../views/partials/user/footer") %>function
+<%- include("../../views/partials/user/footer") %>

@@ -29,7 +29,6 @@ const mongoose=require('mongoose')
       });
       
 
-
       const addressData = await Address.findOne({ userId: userId });
 
       if (!userData) {

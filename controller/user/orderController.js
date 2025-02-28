@@ -13,7 +13,7 @@ require("dotenv").config();
 const PDFDocument = require('pdfkit');
 const fs = require('fs'); 
 const path = require('path'); 
-
+const {calculateRefundAmount} = require('../../helpers/priceHelper');
 
 
 
@@ -158,13 +158,16 @@ const orders = async (req, res) => {
         const foundAddress = address?.address[0] || {}; 
 
         const products = order.order_items.map(item => ({
+          productId:item.productId?._id,
           productImage: item.productId?.productImage || 'default-image.jpg', 
           productName: item.productId.productName,
           price: item.price,
           quantity: item.quantity,
-          total: item.price * item.quantity
+          total: item.price * item.quantity,
+          itemStatus:item.itemStatus
         }));
 
+        console.log(products)
 
       res.render('order-details',{ user:userData,products:products,order:order,address:foundAddress})
 
@@ -240,25 +243,85 @@ const orders = async (req, res) => {
       res.status(500).json({ success: false, message: "Some error occurred." });
     }
   };
-  
 
-const returnOrder=async (req,res) => {
-  try {
-    const { orderId, reason } = req.body;
 
-    const order = await Order.findOne({orderId:orderId});
-    if (!order) return res.status(404).json({ message: "Order not found" });
+  const cancelProduct = async (req, res) => {
+    try {
+        const { orderId, productId } = req.body;
 
-    order.returnRequest = true;
-    order.returnStatus = "pending";
-    order.returnReason = reason;
-    await order.save();
+        const order = await Order.findOne({ orderId });
 
-    res.status(200).json({ message: "Return request submitted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-}
+        if (!order) {
+            return res.json({ success: false, message: 'Order not found' });
+        }
+
+        const product = order.order_items.find(item => item.productId.toString() === productId);
+        console.log(product)
+
+        if (!product) {
+            return res.json({ success: false, message: 'Product not found in order' });
+        }
+
+        if (product.itemStatus === 'cancelled') {
+            return res.json({ success: false, message: 'Product is already cancelled' });
+        }
+
+        product.itemStatus = 'cancelled';
+
+        if (order.payment_method === 'razorpay') {
+            const refundAmount = calculateRefundAmount(order, productId);
+
+            let wallet = await Wallet.findOne({ userId: req.session.user });
+
+            if (!wallet) {
+                wallet = new Wallet({ userId: req.session.user, balance: 0, transactions: [] });
+            }
+
+            wallet.balance += refundAmount;
+
+            wallet.transactions.push({
+                amount: refundAmount,
+                type: "credit",
+                description: `Refund for cancelled product (${product.productName}) from order ${orderId}`
+            });
+
+            await wallet.save();
+        }
+
+        const allCancelled = order.order_items.every(item => item.itemStatus === 'cancelled');
+        if (allCancelled) {
+            order.status = 'cancelled';
+        }
+
+        await order.save();
+
+        return res.json({ success: true, message: 'Product cancelled and refund processed (if applicable)' });
+
+    } catch (error) {
+        console.error('Error cancelling product:', error);
+        return res.status(500).json({ success: false, message: 'Something went wrong' });
+    }
+};
+
+
+
+    const returnOrder=async (req,res) => {
+      try {
+        const { orderId, reason } = req.body;
+
+        const order = await Order.findOne({orderId:orderId});
+        if (!order) return res.status(404).json({ message: "Order not found" });
+
+        order.returnRequest = true;
+        order.returnStatus = "pending";
+        order.returnReason = reason;
+        await order.save();
+
+        res.status(200).json({ message: "Return request submitted successfully" });
+      } catch (error) {
+        res.status(500).json({ message: "Internal Server Error" });
+      }
+    }
 
 
     const generateInvoicePDF = async (req, res) => {
@@ -386,11 +449,69 @@ const returnOrder=async (req,res) => {
 
 
 
+    const checkStock = async (req, res) => {
+      try {
+          const { cartItems } = req.body;
+          
+          if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
+              return res.status(400).json({ 
+                  success: false, 
+                  message: "Invalid cart items data" 
+              });
+          }
+          
+          const outOfStockItems = [];
+          
+          for (const item of cartItems) {
+              const product = await Product.findById(item.productId);
+              
+              // Check if product exists and has enough quantity
+              if (!product) {
+                  outOfStockItems.push("Unknown product");
+                  continue;
+              }
+              
+              if (product.quantity < 1) {
+                  outOfStockItems.push(product.productName + " (Out of stock)");
+                  continue;
+              }
+              
+              if (product.quantity < item.quantity) {
+                  outOfStockItems.push(`${product.productName} (Only ${product.quantity} available)`);
+              }
+          }
+          
+          if (outOfStockItems.length > 0) {
+              return res.status(200).json({
+                  success: false,
+                  message: "The following items have stock issues: " + outOfStockItems.join(", ")
+              });
+          }
+          
+          return res.status(200).json({
+              success: true,
+              message: "All products are in stock"
+          });
+          
+      } catch (error) {
+          console.error("Check Stock Error:", error);
+          return res.status(500).json({ 
+              success: false, 
+              message: "Error checking product stock" 
+          });
+      }
+  };
+
+
+
+
 module.exports={
   orders,
   loadOrders,
   loadOrderDetails,
   cancelOrder,
   returnOrder,
-  generateInvoicePDF
+  generateInvoicePDF,
+  checkStock,
+  cancelProduct
 }

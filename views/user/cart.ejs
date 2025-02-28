@@ -174,7 +174,7 @@
                                             <% } %>
                                     
                                             <div class="cart-item-details flex-grow-1" style="align-items: first baseline;">
-                                                <div class="cart-item-quantity d-flex justify-content-center align-items-center">
+                                                <div class="cart-item-quantity d-flex justify-content-center align-items-center">   
                                                     <% if (!cartData.items[i].outOfStock) { %>
                                                         <button class="btn btn-sm btn-outline-dark" onclick="updateQuantity(<%= i %>, -1)">-</button>
                                                         <input type="text" id="quantity-<%= i %>" value="<%= cartData.items[i].quantity %>" readonly class="text-center">
