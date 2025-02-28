@@ -26,20 +26,23 @@ const loadWishlist = async (req, res) => {
 
     const updatedWishlist = {
       ...wishlistData.toObject(),
-      items: wishlistData.items.map(item => {
-        const { finalPrice, bestOffer } = calculateFinalPrice(item.productId);
-        return {
-          ...item.toObject(),
-          productId: {
-            ...item.productId.toObject(),
-            pricing: {
-              finalPrice,
-              bestOffer
+      items: wishlistData.items
+        .filter(item => item.productId)  
+        .map(item => {
+          const { finalPrice, bestOffer } = calculateFinalPrice(item.productId);
+          return {
+            ...item.toObject(),
+            productId: {
+              ...item.productId.toObject(),
+              pricing: {
+                finalPrice,
+                bestOffer
+              }
             }
-          }
-        };
-      })
+          };
+        })
     };
+    
 
     res.render('wishlist', { user: userData, wishlist: updatedWishlist });
 

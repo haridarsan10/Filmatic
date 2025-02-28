@@ -56,70 +56,88 @@ const loadOrders = async (req, res) => {
 };
 
 
-const orders=async (req,res) => {
+const orders = async (req, res) => {
   try {
-    const {addressId,paymentMethod,totalPrice,cartItems,couponCode,discountAmount}=req.body
-    const userId=req.session.user
-    // console.log(req.body)
-    console.log(cartItems)
+    const { addressId, paymentMethod, totalPrice, cartItems, couponCode, discountAmount } = req.body;
+    const userId = req.session.user;
 
-    const discount = req.body.discount || 0;  
-    const finalAmount = req.body.finalAmount || totalPrice;  
-    
-    const couponApplied = couponCode ? true : false;
+    const addressData = await Address.findOne({ userId });
+    const selectedAddress = addressData?.address.find(a => a._id.toString() === addressId);
 
+    if (!selectedAddress) {
+      return res.status(400).json({ success: false, message: "Invalid address." });
+    }
+
+    const productIds = cartItems.map(item => item.productId._id);
+    const products = await Product.find({ _id: { $in: productIds } });
+
+    if (products.length !== cartItems.length) {
+      return res.status(400).json({ success: false, message: "Some products are no longer available." });
+    }
+
+    for (const item of cartItems) {
+      const product = products.find(p => p._id.toString() === item.productId._id);
+
+      if (product.quantity < item.quantity) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Insufficient stock for ${product.productName}` 
+        });
+      }
+    }
 
     if (couponCode && couponCode !== 'null') {
       const coupon = await Coupon.findOne({ code: couponCode });
 
+      if (!coupon || coupon.usageLimit <= 0) {
+        return res.status(400).json({ success: false, message: "Invalid or expired coupon." });
+      }
+
       coupon.usageLimit -= 1;
-      await coupon.save();  
+      await coupon.save();
     }
 
+    const newOrder = new Order({
+      userId,
+      address_id: addressId,
+      payment_method: paymentMethod,
+      order_items: cartItems.map(item => ({
+        productId: item.productId._id,
+        productName: item.productId.productName,
+        price: item.price,
+        quantity: item.quantity,
+        totalPrice: Math.round(item.totalPrice),
+      })),
+      total: Math.round(totalPrice),
+      status: "pending",
+      discount: Math.round(discountAmount),
+      finalAmount: Math.round(totalPrice - discountAmount),
+      couponApplied: !!couponCode,
+      couponCode,
+    });
 
-      const newOrder=new Order({
-        userId:userId, 
-        address_id: addressId,
-        payment_method: paymentMethod,
-        order_items: cartItems.map(item => ({
-          productId: item.productId._id,  
-          productName: item.productId.productName, 
-          price: item.price, 
-          quantity: item.quantity, 
-          totalPrice: Math.round(item.totalPrice),      
+    await newOrder.save();
 
-        })),
-        total: Math.round(totalPrice),
-        status:"pending",
-        discount: Math.round(discountAmount),
-        finalAmount: Math.round(totalPrice-discountAmount), 
-        couponApplied: couponApplied,
-        couponCode:couponCode
-      })
-
-      console.log(newOrder)
-
-      await newOrder.save()
-
-      for (let item of cartItems) { 
-        await Product.findByIdAndUpdate(
-            item.productId._id, 
-            { $inc: { quantity: -item.quantity } }  
-        );
-    }      
+    for (let item of cartItems) {
+      await Product.findByIdAndUpdate(
+        item.productId._id,
+        { $inc: { quantity: -item.quantity } }
+      );
+    }
 
     await Cart.findOneAndUpdate(
-      { userId: userId },
+      { userId },
       { $set: { items: [], cartTotal: 0 } }
-  );
+    );
 
-    return res.status(200).json({ success: true, message: "Order Placed successfully" });
+    return res.status(200).json({ success: true, message: "Order placed successfully" });
 
   } catch (error) {
-    res.redirect('/pageNotFound')
-    console.log(error)
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Internal server error." });
   }
-}
+};
+
 
   const loadOrderDetails = async (req, res) => {
     try {

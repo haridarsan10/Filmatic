@@ -7,49 +7,49 @@ const Coupon=require('../../models/couponSchema')
 const mongoose=require('mongoose')
 
 
-const checkOut = async (req, res) => {
-  try {
-    const userId = req.session.user;
-    const userData = req.session.userData;
+  const checkOut = async (req, res) => {
+    try {
+      const userId = req.session.user;
+      const userData = req.session.userData;
 
-    const cartData = await Cart.findOne({ userId: userId }).populate({
-      path: "items.productId",
-      model: "Product", 
-    });
+      const cartData = await Cart.findOne({ userId: userId }).populate({
+        path: "items.productId",
+        model: "Product", 
+      });
 
-    const cartItems=cartData.items
+      const cartItems=cartData.items
 
-    const cartTotal=cartData.cartTotal
-    const currentDate = new Date();
+      const cartTotal=cartData.cartTotal
+      const currentDate = new Date();
 
-    const couponData = await Coupon.find({
-      minPurchase: { $lte: cartTotal },
-      validTo: { $gte: currentDate }, 
-      usageLimit:{$gte:1}
-    });
-    
+      const couponData = await Coupon.find({
+        minPurchase: { $lte: cartTotal },
+        validTo: { $gte: currentDate }, 
+        usageLimit:{$gte:1}
+      });
+      
 
 
-    const addressData = await Address.findOne({ userId: userId });
+      const addressData = await Address.findOne({ userId: userId });
 
-    if (!userData) {
-      return res.render("checkout", { cart: [], address: [] });
+      if (!userData) {
+        return res.render("checkout", { cart: [], address: [] });
+      }
+
+      res.render("checkout", {
+        user: userData,
+        cart: cartData ? cartData.items : [], 
+        address: addressData ? addressData.address : [],
+        cartTotal,
+        cartItems,
+        couponData
+      });
+
+    } catch (error) {
+      console.error(error);
+      res.redirect("/pageNotFound");
     }
-
-    res.render("checkout", {
-      user: userData,
-      cart: cartData ? cartData.items : [], 
-      address: addressData ? addressData.address : [],
-      cartTotal,
-      cartItems,
-      couponData
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.redirect("/pageNotFound");
-  }
-};
+  };
 
 
 

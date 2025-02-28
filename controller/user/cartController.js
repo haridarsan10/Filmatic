@@ -8,19 +8,32 @@ const { calculateFinalPrice } = require('../../helpers/priceHelper');
 
 
 
-const loadCart=async (req,res) => {
+const loadCart = async (req, res) => {
   try {
-    const userId=req.session.user
-    const userData=req.session.userData
-    const cartData = await Cart.findOne({ userId: userId }).populate("items.productId");
-    res.render('cart',{user:userData,cartData:cartData})
+      const userId = req.session.user;
+      const userData = req.session.userData;
 
+      const cartData = await Cart.findOne({ userId: userId }).populate("items.productId");
+
+      if (!cartData) {
+          return res.render('cart', { user: userData, cartData: { items: [] } });
+      }
+
+      cartData.items = cartData.items.map(item => {
+          const product = item.productId;
+
+          item.outOfStock = product.quantity <= 0;  
+          return item;
+      });
+
+      res.render('cart', { user: userData, cartData: cartData });
 
   } catch (error) {
-   console.log(error)
-   res.redirect('/pageNotFound') 
+      console.log("Error loading cart:", error);
+      res.redirect('/pageNotFound');
   }
 }
+
 
 const addToCart = async (req, res) => {
   try {

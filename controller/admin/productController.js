@@ -242,7 +242,7 @@ const editProduct = async (req, res) => {
           category: data.category,
           regularPrice: parseFloat(data.regularPrice) || product.regularPrice,
           salePrice: parseFloat(data.salePrice) || product.salePrice,
-          quantity: parseInt(data.quantity) || product.quantity,
+          quantity: (data.quantity !== undefined && data.quantity !== '') ? parseInt(data.quantity) : product.quantity,
           color: data.color?.trim() || product.color,
           status: data.status || product.status
       };

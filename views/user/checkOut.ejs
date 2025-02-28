@@ -991,7 +991,12 @@
                 });
                 window.location.href = '/orders';
             } else {
-                throw new Error(data.message);
+                await Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: data.message,
+                    showConfirmButton: true,
+                });
             }
             return;
         }
