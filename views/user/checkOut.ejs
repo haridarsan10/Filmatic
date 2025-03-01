@@ -405,31 +405,27 @@
                         </div>
                     </div>
 
-                   <div class="order-details-confirmation" style="margin-bottom: 10px;">
+                    <div class="order-details-confirmation" style="margin-bottom: 10px;">
                         <% if (couponData && couponData.length > 0) { %>
                             <ul class="order-details-form mb-4">
                                 <li><span><strong>Available Coupons</strong></span></li>
-                                <% couponData.forEach(coupon => { 
-                                    let expiryDate = new Date(coupon.validTo);
-                                    let isExpired = expiryDate < new Date(); // Check if expired
-                                %>
-                                    <% if (!isExpired) { %>  <!-- Only show non-expired coupons -->
-                                        <li class="coupon-card border p-3 rounded mb-3">
-                                            <div class="coupon-content">
-                                                <p class="coupon-code"><strong>Code:</strong> <%= coupon.code %></p>
-                                                <p class="coupon-discount"><strong>Discount:</strong> <%= coupon.discount %> <%= coupon.discountType %></p>
-                                                <p class="coupon-min-purchase"><strong>Min Purchase:</strong> ₹<%= coupon.minPurchase %></p>
-                                                <p class="coupon-expiry"><strong>Expires on:</strong> <%= expiryDate.toLocaleDateString('en-GB') %></p>
-                                                <button class="btn btn-primary btn-block copy-btn mt-2" data-code="<%= coupon.code %>">Copy Code</button>
-                                            </div>
-                                        </li>
-                                    <% } %>
+                                <% couponData.forEach(coupon => { %>
+                                    <li class="coupon-card border p-3 rounded mb-3">
+                                        <div class="coupon-content">
+                                            <p class="coupon-code"><strong>Code:</strong> <%= coupon.code %></p>
+                                            <p class="coupon-discount"><strong>Discount:</strong> <%= coupon.discount %> <%= coupon.discountType %></p>
+                                            <p class="coupon-min-purchase"><strong>Min Purchase:</strong> ₹<%= coupon.minPurchase %></p>
+                                            <p class="coupon-expiry"><strong>Expires on:</strong> <%= new Date(coupon.validTo).toLocaleDateString('en-GB') %></p>
+                                            <button class="btn btn-primary btn-block copy-btn mt-2" data-code="<%= coupon.code %>">Copy Code</button>
+                                        </div>
+                                    </li>
                                 <% }); %>
                             </ul>
                         <% } else { %>
                             <p class="text-muted">No coupons available.</p>
                         <% } %>
                     </div>
+                    
                     
                     <div class="order-details-confirmation" style="margin-bottom: 10px;">
 

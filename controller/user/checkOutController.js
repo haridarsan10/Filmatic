@@ -24,8 +24,8 @@ const mongoose=require('mongoose')
 
       const couponData = await Coupon.find({
         minPurchase: { $lte: cartTotal },
-        validTo: { $gte: currentDate }, 
-        usageLimit:{$gte:1}
+        usageLimit:{$gte:1},
+        isActive:true
       });
       
 

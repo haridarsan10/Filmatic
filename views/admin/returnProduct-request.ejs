@@ -1,0 +1,246 @@
+<%- include("../partials/admin/admin-header") %>
+
+<style>
+    .container {
+        margin-top: 100px;
+        margin-left: 300px;
+        max-width: 1200px;
+        background-color: #fff;
+        padding: 20px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+    h2 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333;
+        text-align: center;
+        font-weight: 600;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+    table thead {
+        background-color: #007bff;
+        color: white;
+    }
+    table th, table td {
+        padding: 12px 15px;
+        text-align: center;
+        border: 1px solid #ddd;
+    }
+    table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+    img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    button {
+        padding: 7px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        margin: 3px;
+    }
+    button:hover {
+        opacity: 0.85;
+    }
+    button:first-of-type {
+        background-color: #28a745;
+        color: white;
+    }
+    button:last-of-type {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+
+<div class="container">
+    <h2>Product Return Requests</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>User</th>
+                <th>Product</th>
+                <th>Reason</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% productReturnRequests.forEach(item => { %>
+                <tr>
+                    <td><%= item.orderId %></td>
+                    <td><%= item.user.name %> (<%= item.user.email %>)</td>
+                    <td>
+                        <br><%= item.productName %>
+                    </td>
+                    <td><%= item.returnReason %></td>
+                    <td>₹<%= item.price %></td>
+                    <td><%= item.quantity %></td>
+                    <td>
+                        <button onclick="approveProductReturn('<%= item.orderId %>', '<%= item.productId %>')">Approve</button>
+                        <button onclick="openRejectModal('<%= item.orderId %>', '<%= item.productId %>')">Reject</button>             
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</div>
+
+
+<div id="rejectModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+  <div style="background:white; padding:20px; border-radius:8px; width:400px; max-width:90%; position:relative;">
+      <h3>Reject Product Return</h3>
+      <textarea id="rejectReason" placeholder="Enter reason for rejection" style="width:100%; height:100px; margin:10px 0;"></textarea>
+      <p id="errorText" style="color:red; display:none;">Rejection reason must be at least 5 characters.</p>
+      <div style="display:flex; justify-content:space-between;">
+          <button onclick="submitProductRejection()" style="background:#dc3545; color:white; border:none; padding:8px 15px; cursor:pointer;">Submit</button>
+          <button onclick="closeRejectModal()" style="background:#6c757d; color:white; border:none; padding:8px 15px; cursor:pointer;">Cancel</button>
+      </div>
+  </div>
+</div>
+
+
+<script>
+
+function openRejectModal(orderId, productId) {
+      const modal = document.getElementById("rejectModal");
+      modal.style.display = "flex";
+      modal.dataset.orderId = orderId;
+      modal.dataset.productId = productId;
+  }
+
+  function closeRejectModal() {
+      const modal = document.getElementById("rejectModal");
+      modal.style.display = "none";
+      document.getElementById("rejectReason").value = "";
+      document.getElementById("errorText").style.display = "none";
+  }
+
+  document.getElementById("rejectReason").addEventListener("input", function() {
+      document.getElementById("errorText").style.display = "none";
+  });
+
+
+  async function submitProductRejection() {
+      const modal = document.getElementById("rejectModal");
+      const orderId = modal.dataset.orderId;
+      const productId = modal.dataset.productId;
+      const rejectReason = document.getElementById("rejectReason").value.trim();
+
+      if (!orderId || !productId) {
+          Swal.fire({ icon: "error", title: "Error", text: "Order ID or Product ID is missing!" });
+          return;
+      }
+
+      if (rejectReason.length < 5) {
+          document.getElementById("errorText").style.display = "block";
+          return;
+      }
+
+      try {
+          const response = await fetch("/admin/reject-productReturn", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ orderId, productId, rejectReason }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+              Swal.fire({
+                  icon: "success",
+                  title: "Rejected!",
+                  text: "The product return request has been rejected.",
+                  showConfirmButton: false,
+                  timer: 2000
+              }).then(() => {
+                  closeRejectModal();
+                  location.reload();
+              });
+          } else {
+              Swal.fire({
+                  icon: "error",
+                  title: "Failed",
+                  text: result.message || "An error occurred while rejecting the request.",
+              });
+          }
+      } catch (error) {
+          console.error("Error rejecting product return:", error);
+          Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Something went wrong. Please try again later.",
+          });
+      }
+  }
+
+
+  async function approveProductReturn(orderId, productId) {
+      const confirmation = await Swal.fire({
+          title: "Approve Product Return?",
+          text: "This will refund the product amount to the user's wallet.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, Approve"
+      });
+
+      if (!confirmation.isConfirmed) {
+          return;
+      }
+
+      try {
+          const response = await fetch(`/admin/approve-productReturn`, {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ orderId, productId }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+              Swal.fire({
+                  icon: "success",
+                  title: "Approved!",
+                  text: "Product return approved and amount refunded.",
+                  showConfirmButton: false,
+                  timer: 1500
+              }).then(() => {
+                  location.reload();
+              });
+          } else {
+              Swal.fire({
+                  icon: "error",
+                  title: "Approval Failed",
+                  text: result.message || "Something went wrong.",
+              });
+          }
+      } catch (error) {
+          console.error("Error approving product return:", error);
+          Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Something went wrong. Please try again.",
+          });
+      }
+  }
+</script>
+
+
+<%- include("../partials/admin/admin-footer") %>

@@ -167,7 +167,6 @@ const orders = async (req, res) => {
           itemStatus:item.itemStatus
         }));
 
-        console.log(products)
 
       res.render('order-details',{ user:userData,products:products,order:order,address:foundAddress})
 
@@ -248,6 +247,7 @@ const orders = async (req, res) => {
   const cancelProduct = async (req, res) => {
     try {
         const { orderId, productId } = req.body;
+        console.log(orderId)
 
         const order = await Order.findOne({ orderId });
 
@@ -296,6 +296,7 @@ const orders = async (req, res) => {
         await order.save();
 
         return res.json({ success: true, message: 'Product cancelled and refund processed (if applicable)' });
+
 
     } catch (error) {
         console.error('Error cancelling product:', error);
@@ -381,7 +382,7 @@ const orders = async (req, res) => {
         // Order Summary
         doc.fontSize(12).font('Helvetica-Bold').text('Order Summary').moveDown(0.5);
 
-        const tableHeaders = ['Product', 'Price', 'Quantity', 'Total'];
+        const tableHeaders = ['Product', 'Price', 'Quantity','ProductStatus', 'Total'];
         const columnWidths = [200, 80, 80, 80];
         let xPosition = 50;
         let yPosition = doc.y;
@@ -415,16 +416,39 @@ const orders = async (req, res) => {
           doc.text(`${item.quantity}`, xPosition, yPosition, { width: columnWidths[2], align: 'center' });
           xPosition += columnWidths[2];
 
+          doc.text(`${item.itemStatus}`, xPosition, yPosition, { width: columnWidths[2], align: 'center' });
+          xPosition += columnWidths[2];
+
+
           doc.text(`₹${item.price * item.quantity}`, xPosition, yPosition, { width: columnWidths[3], align: 'center' });
           yPosition += 20;
         });
 
-        // Total Amount
-        doc.moveDown(1);
-        doc.fontSize(12).font('Helvetica-Bold').text(`Total Amount: ₹${order.total}`, { align: 'right' });
-        doc.fontSize(12).font('Helvetica').text(`Discount Amount: ₹${order.discount}`, { align: 'right' });
-        doc.moveDown(1);
-        doc.fontSize(12).font('Helvetica-Bold').text(`Final Amount: ₹${order.finalAmount}`, { align: 'right' });
+        const startX = 350; 
+        const amountX = 500;  
+        let currentY = doc.y + 20;  
+        
+        doc.fontSize(12).font('Helvetica-Bold');
+        
+        // Total Amount - Same Line
+        doc.text('Total Amount', startX, currentY);
+        doc.text(`₹${order.total}`, amountX, currentY);
+        
+        // Discount Amount - Same Line
+        currentY += 20;  // Move down for the next row
+        doc.font('Helvetica');
+        doc.text('Discount Amount', startX, currentY);
+        doc.text(`₹${order.discount}`, amountX, currentY);
+        
+        // Final Amount - Same Line
+        currentY += 20;
+        doc.font('Helvetica-Bold');
+        doc.text('Final Amount', startX, currentY);
+        doc.text(`₹${order.finalAmount}`, amountX, currentY);
+        
+        doc.moveDown(1);  // Space after table if needed
+        
+       
 
         // Footer
         doc.fontSize(8).text('© 2024 Filmatic. All rights reserved.', 50, 780, { align: 'center' });
@@ -465,7 +489,6 @@ const orders = async (req, res) => {
           for (const item of cartItems) {
               const product = await Product.findById(item.productId);
               
-              // Check if product exists and has enough quantity
               if (!product) {
                   outOfStockItems.push("Unknown product");
                   continue;
@@ -502,8 +525,46 @@ const orders = async (req, res) => {
       }
   };
 
-
-
+  const returnProduct = async (req, res) => {
+    try {
+      const { orderId, productId, reason } = req.body;
+  
+      if (!orderId || !productId || !reason) {
+        return res.status(400).json({ success: false, message: "Required fields are missing." });
+      }
+  
+      const order = await Order.findOne({ orderId });
+      if (!order) {
+        return res.status(404).json({ success: false, message: "Order not found." });
+      }
+  
+      const productItem = order.order_items.find(item => item.productId.toString() === productId);
+  
+      if (!productItem) {
+        return res.status(404).json({ success: false, message: "Product not found in this order." });
+      }
+  
+      if (productItem.itemStatus === 'returned') {
+        return res.status(400).json({ success: false, message: "This product has already been returned." });
+      }
+  
+      productItem.itemStatus = 'returnRequested';
+      productItem.returnReason = reason;
+  
+      await order.save();
+  
+      return res.status(200).json({
+        success: true,
+        message: "Product return request submitted successfully."
+      });
+  
+    } catch (error) {
+      console.error("Error in returnProduct:", error);
+      return res.status(500).json({ success: false, message: "Internal server error." });
+    }
+  };
+  
+  
 
 module.exports={
   orders,
@@ -513,5 +574,6 @@ module.exports={
   returnOrder,
   generateInvoicePDF,
   checkStock,
-  cancelProduct
+  cancelProduct,
+  returnProduct
 }

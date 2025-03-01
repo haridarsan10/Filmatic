@@ -46,9 +46,36 @@ function calculateRefundAmount(order, productId) {
 }
 
 
+const calculateOverallOrderStatus = async (order) => {
+  const itemStatuses = order.order_items.map(item => item.itemStatus);
+
+  if (itemStatuses.every(status => status === "cancelled")) {
+      return "cancelled";
+  }
+
+  if (itemStatuses.every(status => status === "returned")) {
+      return "returned";
+  }
+
+  if (itemStatuses.includes("returnRequested")) {
+      return "delivered";  
+  }
+
+  if (itemStatuses.includes("delivered") && !itemStatuses.includes("returnRequested")) {
+      return "delivered";
+  }
+
+  if (itemStatuses.includes("ordered")) {
+      return "pending";  
+  }
+
+  return order.status;  
+};
+
+
 
 module.exports={
   calculateFinalPrice,
-  calculateRefundAmount
-
+  calculateRefundAmount,
+  calculateOverallOrderStatus
 }

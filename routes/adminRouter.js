@@ -77,8 +77,12 @@ router.post('/removeCatOffer',offerController.removeCatOffer)
 
 //Return requests
 router.get('/ordersRequests',orderController.loadReturn)
+router.get('/productRequests',orderController.loadProductReturn)
 router.post('/reject-return',orderController.rejectReturn)
 router.post('/approve-return',orderController.approveReturn)
+
+router.post('/reject-productReturn',orderController.rejectProductReturn)
+router.post('/approve-productReturn',orderController.approveProductReturn)
 
 //Sales report
 router.get('/sales-report',adminAuth,orderController.getSalesReport)

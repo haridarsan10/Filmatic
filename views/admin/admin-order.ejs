@@ -264,7 +264,6 @@ body {
                   <option value="pending" <%= orders[i].status === 'pending' ? 'selected' : '' %>>Pending</option>
                   <option value="shipped" <%= orders[i].status === 'shipped' ? 'selected' : '' %>>Shipped</option>
                   <option value="delivered" <%= orders[i].status === 'delivered' ? 'selected' : '' %>>Delivered</option>
-                  <option value="cancelled" <%= orders[i].status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
                 </select>
                 <a class="view-order" href="/admin/order-details?id=<%= orders[i].orderId %>">View</a>
               </div>

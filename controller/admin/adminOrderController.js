@@ -116,24 +116,44 @@ const adminCancelOrder=async (req,res) => {
 
 const updateOrderStatus = async (req, res) => {
   try {
-    const { orderId, newStatus } = req.body;
-    console.log("Received Order ID:", orderId, "New Status:", newStatus);
+      const { orderId, newStatus } = req.body;
+      console.log("Received Order ID:", orderId, "New Status:", newStatus);
 
-    const order = await Order.findOne({ orderId });
+      const allowedStatuses = ['pending', 'shipped', 'delivered'];
+      if (!allowedStatuses.includes(newStatus)) {
+          return res.status(400).json({ success: false, message: "Invalid status for admin action." });
+      }
 
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found." });
-    }
+      const order = await Order.findOne({ orderId });
+      if (!order) {
+          return res.status(404).json({ success: false, message: "Order not found." });
+      }
 
-    await Order.updateOne({ orderId }, { $set: { status: newStatus } });
+      if (order.status === 'cancelled' || order.status === 'returned') {
+          return res.status(400).json({ success: false, message: `Cannot update status of a ${order.status} order.` });
+      }
 
-    res.status(200).json({ success: true, message: "Order status updated successfully." });
+      order.status = newStatus;
 
+      if (newStatus === 'delivered') {
+          order.order_items.forEach(item => {
+              if (item.itemStatus !== 'cancelled') {
+                  item.itemStatus = 'delivered';
+              }
+          });
+      }
+
+      await order.save();
+
+      res.json({ success: true, message: "Order status updated successfully." });
   } catch (error) {
-    console.error("Error updating order status:", error);
-    res.status(500).json({ success: false, message: "Internal server error." });
+      console.error("Error updating order status:", error);
+      res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
+
+
+
 
 module.exports={
   loadOrders,

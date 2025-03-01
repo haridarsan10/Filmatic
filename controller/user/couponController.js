@@ -19,11 +19,6 @@ const applyCoupon=async (req,res) => {
       return res.status(400).json({ success: false, message: 'Coupon  not found!' });
     }
 
-    const currentDate = new Date();
-    if (!couponData.isActive || currentDate < couponData.validFrom || currentDate > couponData.validTo) {
-      return res.status(400).json({ success: false, message: 'Coupon is not active or expired!' });
-    }
-
     if (couponData.usageLimit <= 0) {
       return res.status(400).json({ success: false, message: "Coupon usage limit reached" });
     }

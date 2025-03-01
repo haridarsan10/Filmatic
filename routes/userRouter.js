@@ -127,6 +127,9 @@ router.get('/wallet-history',walletController.loadwalletHistory)
 //Order return 
 router.post('/orderReturn',orderController.returnOrder)
 
+//product return 
+router.post('/productReturn',orderController.returnProduct)
+
 
 //Invoice download
 router.get('/generate-invoice/:orderId',orderController.generateInvoicePDF);

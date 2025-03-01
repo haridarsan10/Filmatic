@@ -7,6 +7,7 @@ const User=require('../../models/userSchema')
 const Coupon=require('../../models/couponSchema')
 const Order=require('../../models/orderSchema')
 const Wallet = require("../../models/walletSchema");
+const {calculateRefundAmount,calculateOverallOrderStatus}=require('../../helpers/priceHelper')
 
 const loadReturn = async (req, res) => {
   try {
@@ -18,6 +19,43 @@ const loadReturn = async (req, res) => {
 
   } catch (error) {
     console.log(error);
+    res.redirect('/admin/pageError');
+  }
+};
+
+
+const loadProductReturn = async (req, res) => {
+  try {
+
+    const returnOrders = await Order.find({
+      'order_items.itemStatus': 'returnRequested'
+    })
+      .populate('userId', 'name email')
+      .populate('order_items.productId', 'image name'); 
+
+    const productReturnRequests = [];
+
+    returnOrders.forEach(order => {
+      order.order_items.forEach(item => {
+        if (item.itemStatus === 'returnRequested') {
+          productReturnRequests.push({
+            orderId: order.orderId,
+            user: order.userId,
+            productId: item.productId._id,
+            productName: item.productName, 
+            productImage: item.productId.image,
+            returnReason: item.returnReason,
+            price: item.price,
+            quantity: item.quantity
+          });
+        }
+      });
+    });
+
+    res.render('returnProduct-request', { productReturnRequests });
+
+  } catch (error) {
+    console.error('Error loading product return requests:', error);
     res.redirect('/admin/pageError');
   }
 };
@@ -359,7 +397,103 @@ const getSalesReportPDF = async (req, res) => {
 
 
 
+const rejectProductReturn = async (req, res) => {
+    try {
+        const { orderId, productId, rejectReason } = req.body;
 
+        if (!orderId || !productId || !rejectReason) {
+            return res.status(400).json({ success: false, message: "Required fields not found." });
+        }
+
+        const order = await Order.findOne({ orderId });
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found." });
+        }
+
+        const productItem = order.order_items.find(item => item.productId.toString() === productId);
+
+        if (!productItem) {
+            return res.status(404).json({ success: false, message: "Product not found in order." });
+        }
+
+        productItem.itemStatus = "returnRejected";
+
+        await order.save();
+
+        return res.status(200).json({ success: true, message: "Return request rejected successfully." });
+
+    } catch (error) {
+        console.error("Error rejecting return:", error);
+        return res.status(500).json({ success: false, message: "Internal server error." });
+    }
+};
+
+
+const approveProductReturn = async (req, res) => {
+    try {
+        const { orderId, productId } = req.body;
+
+        if (!orderId || !productId) {
+            return res.status(400).json({ success: false, message: "Required fields not found." });
+        }
+
+        const order = await Order.findOne({ orderId });
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found." });
+        }
+
+        const productItem = order.order_items.find(item => item.productId.toString() === productId);
+
+        if (!productItem) {
+            return res.status(404).json({ success: false, message: "Product not found in order." });
+        }
+
+        if (productItem.itemStatus !== "returnRequested") {
+            return res.status(400).json({ success: false, message: "Return request not found for this product." });
+        }
+
+        const refundAmount = await calculateRefundAmount(order, productId);
+
+        let wallet = await Wallet.findOne({ userId: order.userId });
+
+        if (!wallet) {
+            wallet = new Wallet({
+                userId: order.userId,
+                balance: 0,
+                transactions: []
+            });
+        }
+
+        wallet.balance += refundAmount;
+        wallet.transactions.push({
+            amount: refundAmount,
+            type: "credit",
+            description: `Refund for returned product ${productId}`,
+            date: new Date()
+        });
+
+        await wallet.save();
+
+        productItem.itemStatus = "returned";
+
+        const overallOrderStatus = await calculateOverallOrderStatus(order);
+
+        order.status = overallOrderStatus;
+
+        await order.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Product return approved and refund processed.",
+        });
+
+    } catch (error) {
+        console.error("Error approving product return:", error);
+        return res.status(500).json({ success: false, message: "Internal server error." });
+    }
+};
 
   
-module.exports = { loadReturn,rejectReturn,approveReturn,getSalesReport,getSalesReportPDF };
+module.exports = { loadReturn,loadProductReturn,rejectReturn,approveReturn,rejectProductReturn,approveProductReturn,getSalesReport,getSalesReportPDF };
