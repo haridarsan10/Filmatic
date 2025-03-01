@@ -253,18 +253,18 @@ body {
                 <img class="order-image" src="/uploads/resized-images/<%= orders[i].image %>" alt="Product Image">
                 <div class="order-details">
                   <p class="order-id"><strong>Order ID:</strong> <%= orders[i].orderId %></p>
-                  <p id="status-<%= orders[i].orderId %>" class="order-status <%= orders[i].status.toLowerCase() %>">
-                    <%= orders[i].status %>
+                  <!-- <p id="status-<%= orders[i].orderId %>" class="order-status <%= orders[i].status.toLowerCase() %>">
+                    <%= orders[i].status %> -->
                   </p>                                  
                   <p class="cart-item-price"><strong>Total:</strong> ₹<span id="unit-price"><%= orders[i].total %></span></p>
                 </div>
-                <select class="order-status-dropdown" data-order-id="<%= orders[i].orderId %>" 
+                <!-- <select class="order-status-dropdown" data-order-id="<%= orders[i].orderId %>" 
                   style="margin-right: 10px"
                   <%= orders[i].status === 'cancelled' || orders[i].adminUpdated ? 'disabled' : '' %> >
                   <option value="pending" <%= orders[i].status === 'pending' ? 'selected' : '' %>>Pending</option>
                   <option value="shipped" <%= orders[i].status === 'shipped' ? 'selected' : '' %>>Shipped</option>
                   <option value="delivered" <%= orders[i].status === 'delivered' ? 'selected' : '' %>>Delivered</option>
-                </select>
+                </select> -->
                 <a class="view-order" href="/admin/order-details?id=<%= orders[i].orderId %>">View</a>
               </div>
             <% } %>
@@ -296,7 +296,7 @@ body {
     </div>
 
 
-<script>
+<!-- <script>
 document.querySelectorAll('.order-status-dropdown').forEach(dropdown => {
   dropdown.addEventListener('focus', function () {
     this.setAttribute('data-previous-status', this.value);
@@ -366,6 +366,6 @@ document.querySelectorAll('.order-status-dropdown').forEach(dropdown => {
     });
   });
 });
-</script>
+</script> -->
 
 <%- include("../partials/admin/admin-footer") %>

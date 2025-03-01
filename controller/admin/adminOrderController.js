@@ -70,10 +70,13 @@ const orderDetails = async (req, res) => {
         productName: item.productId.productName,
         price: item.price,
         quantity: item.quantity,
-        total: item.price * item.quantity
+        total: item.price * item.quantity,
+        itemStatus:item.itemStatus,
+        productId:item.productId._id
       }));
 
-      
+      console.log(products)
+            
 
 
       res.render('admin-order-details',{products:products,order:order,address:foundAddress})
@@ -116,12 +119,21 @@ const adminCancelOrder=async (req,res) => {
 
 const updateOrderStatus = async (req, res) => {
   try {
-      const { orderId, newStatus } = req.body;
-      console.log("Received Order ID:", orderId, "New Status:", newStatus);
+      const { orderId, productId, newStatus } = req.body;
 
-      const allowedStatuses = ['pending', 'shipped', 'delivered'];
+      console.log("Received Order ID:", orderId, "Product ID:", productId, "New Status:", newStatus);
+
+      const allowedStatuses = [
+          'ordered', 
+          'cancelled', 
+          'returned', 
+          'delivered', 
+          'returnRequested', 
+          'returnRejected'
+      ];
+
       if (!allowedStatuses.includes(newStatus)) {
-          return res.status(400).json({ success: false, message: "Invalid status for admin action." });
+          return res.status(400).json({ success: false, message: "Invalid item status." });
       }
 
       const order = await Order.findOne({ orderId });
@@ -129,28 +141,28 @@ const updateOrderStatus = async (req, res) => {
           return res.status(404).json({ success: false, message: "Order not found." });
       }
 
-      if (order.status === 'cancelled' || order.status === 'returned') {
-          return res.status(400).json({ success: false, message: `Cannot update status of a ${order.status} order.` });
+      const product = order.order_items.find(item => item.productId.toString() === productId);
+
+      if (!product) {
+          return res.status(404).json({ success: false, message: "Product not found in this order." });
       }
 
-      order.status = newStatus;
-
-      if (newStatus === 'delivered') {
-          order.order_items.forEach(item => {
-              if (item.itemStatus !== 'cancelled') {
-                  item.itemStatus = 'delivered';
-              }
-          });
+      if (product.itemStatus === 'cancelled' || product.itemStatus === 'returned') {
+          return res.status(400).json({ success: false, message: `Cannot update status of a ${product.itemStatus} item.` });
       }
+
+      product.itemStatus = newStatus;
 
       await order.save();
 
-      res.json({ success: true, message: "Order status updated successfully." });
+      res.json({ success: true, message: "Product item status updated successfully." });
+
   } catch (error) {
-      console.error("Error updating order status:", error);
+      console.error("Error updating product item status:", error);
       res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
+
 
 
 

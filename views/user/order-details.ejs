@@ -396,7 +396,7 @@ body {
   <section class="pt-10 pb-10">
     <div class="d-flex justify-content-end" style="margin-right: 200px;">
       <a href="/generate-invoice/<%= order._id %>" class="btn btn-primary">Download Invoice</a>
-  </div>
+   </div>
       <div class="container">
       <div class="row">
         <div class="right">
@@ -420,7 +420,20 @@ body {
                           <p class="cart-item-price"><strong>Price:</strong> ₹<%= products[i].total %></p>
                       </div>
 
-                      <p class="cart-item-status"> <%= products[i].itemStatus %></p>
+                      <% 
+                      function formatStatus(status) {
+                          switch(status) {
+                              case "ordered": return "Ordered";
+                              case "cancelled": return "Cancelled";
+                              case "returned": return "Returned";
+                              case "delivered": return "Delivered";
+                              case "returnRequested": return "Return Requested";
+                              case "returnRejected": return "Return Rejected";
+                              default: return status; 
+                          }
+                      }
+                  %>
+                  <p class="cart-item-status"><%= formatStatus(products[i].itemStatus) %></p>
 
                       <% if (products[i].itemStatus === "ordered") { %>
                         <button class="btn btn-danger btn-sm cancel-product-btn" 
@@ -458,23 +471,11 @@ body {
 
 
 
-          <% if (order.status === "delivered") { %>
-            <% if (order.returnReason) { %>
-                <p class="text-warning">Return request already submitted</p>
-            <% } else { %>
-                <button class="btn btn-sm btn-warning" onclick="openReturnModal('<%= order.orderId %>')">
-                    Return Order
-                </button>
-            <% } %>
-        <% } else if (order.paymentStatus === "failed") { %>
+          <% if (order.paymentStatus === "failed") { %>
             <button class="btn btn-sm btn-primary" onclick="retryPayment('<%= order._id %>')">
                 Retry Payment
-            </button>    
-        <% } else if (order.status !== "cancelled" && order.status !== "returned") { %>
-            <button class="remove-item btn btn-sm btn-danger" onclick="cancelOrder('<%= order.orderId %>')">
-                Cancel Order
             </button>
-        <% } %>      
+        <% } %>
         </div>
       </div>
     </div>

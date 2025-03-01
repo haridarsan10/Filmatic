@@ -299,7 +299,6 @@
                 <th scope="col"><b>Product name</b></th>
                 <th scope="col"><b>Category</b></th>
                 <th scope="col"><b>Sale Price</b></th>
-                <!-- <th scope="col"><b>Offer</b></th> -->
                 <th scope="col"><b>Quantity</b></th>
                 <th scope="col"><b>Color</b></th>
                 <th scope="col"><b>Status</b></th>
@@ -317,18 +316,7 @@
                 <td><%=data[i].quantity %></td>
                 <td><%=data[i].color %></td>
                 <td><%=data[i].status %></td>
-                <!-- <td>
-                
-                    <button class="btn btn-info" onclick="" style="width: 100px;">
-                        <a href="#" class="text-white">Add Offer</a>
-                    </button>
-        
-                    <button class="btn btn-info" onclick="" style="width: 100px;">
-                        <a href="#" class="text-white">Remove</a>
-                    </button>
-                
-                </td> -->
-                <!-- <td></td> -->
+           
                 <td>
                     <% if(data[i].isBlocked===false) { %>
                     <button class="btn btn-danger" style="width: 80px;">

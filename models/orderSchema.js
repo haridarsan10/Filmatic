@@ -44,7 +44,7 @@
          },
          itemStatus: {
             type: String,
-            enum: ["ordered", "cancelled", "returned", "delivered","returnRequested","returnRejected"],
+            enum: ["ordered","pending","shipped", "cancelled", "returned", "delivered","returnRequested","returnRejected"],
             default: "ordered"
         },
         returnReason: {  
