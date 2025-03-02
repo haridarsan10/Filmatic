@@ -247,7 +247,6 @@ const orders = async (req, res) => {
   const cancelProduct = async (req, res) => {
     try {
         const { orderId, productId } = req.body;
-        console.log(orderId)
 
         const order = await Order.findOne({ orderId });
 
@@ -256,7 +255,6 @@ const orders = async (req, res) => {
         }
 
         const product = order.order_items.find(item => item.productId.toString() === productId);
-        console.log(product)
 
         if (!product) {
             return res.json({ success: false, message: 'Product not found in order' });
@@ -267,6 +265,16 @@ const orders = async (req, res) => {
         }
 
         product.itemStatus = 'cancelled';
+
+        const productData=await Product.findOne({_id:productId})
+
+        if(productData){
+          productData.quantity+=product.quantity
+          await productData.save();
+        }
+        else{
+          return res.json({ success: false, message: 'Product is not found in the inventory' });
+        }
 
         if (order.payment_method === 'razorpay') {
             const refundAmount = calculateRefundAmount(order, productId);
@@ -294,6 +302,7 @@ const orders = async (req, res) => {
         }
 
         await order.save();
+
 
         return res.json({ success: true, message: 'Product cancelled and refund processed (if applicable)' });
 

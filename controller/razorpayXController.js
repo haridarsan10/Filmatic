@@ -43,126 +43,102 @@ const createOrder = async (req, res) => {
     }
 };
 
-        const verifyPayment = async (req, res) => {
-            try {
-                console.log("Received Payment Data:", req.body);
+const verifyPayment = async (req, res) => {
+    try {
+        console.log("Received Payment Data:", req.body);
 
-                const { 
-                    razorpay_order_id, 
-                    razorpay_payment_id, 
-                    razorpay_signature,
-                    addressId,
-                    totalPrice,
-                    cartItems,
-                    couponCode,
-                    discountAmount
-                } = req.body;
+        const { 
+            razorpay_order_id, 
+            razorpay_payment_id, 
+            razorpay_signature,
+            addressId,
+            totalPrice,
+            cartItems,
+            couponCode,
+            discountAmount
+        } = req.body;
 
-                if (!razorpay_order_id) {
-                    return res.status(400).json({ success: false, message: "Missing Razorpay order ID" });
-                }
+        if (!razorpay_order_id) {
+            return res.status(400).json({ success: false, message: "Missing Razorpay order ID" });
+        }
 
-                let paymentStatus = "failed"; 
-                let status = "failed";
+        let paymentStatus = "failed"; 
+        let status = "failed";
+        let itemStatus = "failed"; // default to failed
 
-                if (razorpay_payment_id && razorpay_signature) {
-                    const generatedSignature = crypto
-                        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-                        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-                        .digest("hex");
+        if (razorpay_payment_id && razorpay_signature) {
+            const generatedSignature = crypto
+                .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+                .digest("hex");
 
-                    if (generatedSignature !== razorpay_signature) {
-                        return res.status(400).json({ success: false, message: "Invalid payment signature" });
-                    }
-
-                    paymentStatus = "success"; 
-                    status = "pending";
-
-                    const formattedCartItems = [];
-                    
-                    for (let item of cartItems) {
-                        const product = await Product.findById(item.productId);
-                        
-                        if (!product) {
-                            return res.status(400).json({
-                                success: false,
-                                message: `Product not found: ${item.productName || "Unknown Product"}`
-                            });
-                        }
-                        
-                        if (product.quantity < 1) {
-                            return res.status(400).json({
-                                success: false,
-                                message: `${product.productName} is out of stock`
-                            });
-                        }
-                        
-                        if (product.quantity < item.quantity) {
-                            return res.status(400).json({
-                                success: false,
-                                message: `Insufficient stock for ${product.productName}. Available: ${product.quantity}, Requested: ${item.quantity}`
-                            });
-                        }
-                    }
-                }
-                
-
-                const formattedCartItems = cartItems.map(item => ({
-                    productId: new mongoose.Types.ObjectId(item.productId),
-                    productName: item.productName,
-                    quantity: item.quantity,
-                    price: item.price
-                }));
-
-                const couponApplied = couponCode ? true : false;
-
-                const newOrder = new Order({
-                    userId: req.session.user,
-                    address_id: new mongoose.Types.ObjectId(addressId),
-                    payment_method: "razorpay",
-                    order_items: formattedCartItems,
-                    total: totalPrice,
-                    finalAmount: totalPrice - discountAmount,
-                    couponApplied,
-                    couponCode,
-                    discount: discountAmount,
-                    paymentStatus,
-                    status,
-                    razorpayOrderId: razorpay_order_id,
-                    razorpayPaymentId: razorpay_payment_id || null 
-                });
-
-                await newOrder.save();
-
-                if (paymentStatus === "success") {
-                    // Update product quantities
-                    for (let item of formattedCartItems) {
-                        await Product.updateOne(
-                            { _id: item.productId },
-                            { $inc: { quantity: -item.quantity } }
-                        );
-                    }
-                    
-                    await Cart.findOneAndUpdate(
-                        { userId: req.session.user },
-                        { $set: { items: [], cartTotal: 0 } }
-                    );
-                }
-
-                return res.status(200).json({
-                    success: true,
-                    message: `Order placed with payment status: ${paymentStatus}`,
-                    orderId: newOrder._id
-                });
-
-            } catch (error) {
-                console.error("Payment Verification Error:", error);
-                res.status(500).json({
-                    success: false,
-                    message: error.message || "Payment verification failed"
-                });
+            if (generatedSignature !== razorpay_signature) {
+                return res.status(400).json({ success: false, message: "Invalid payment signature" });
             }
-        };
+
+            paymentStatus = "success"; 
+            status = "pending";
+            itemStatus = "ordered"; // set to ordered on successful payment
+        }
+
+        const formattedCartItems = cartItems.map(item => ({
+            productId: new mongoose.Types.ObjectId(item.productId),
+            productName: item.productName,
+            quantity: item.quantity,
+            price: item.price,
+            itemStatus: itemStatus  // assign dynamically based on payment outcome
+        }));
+
+        const couponApplied = couponCode ? true : false;
+
+        const newOrder = new Order({
+            userId: req.session.user,
+            address_id: new mongoose.Types.ObjectId(addressId),
+            payment_method: "razorpay",
+            order_items: formattedCartItems,
+            total: totalPrice,
+            finalAmount: totalPrice - discountAmount,
+            couponApplied,
+            couponCode,
+            discount: discountAmount,
+            paymentStatus,
+            status,
+            razorpayOrderId: razorpay_order_id,
+            razorpayPaymentId: razorpay_payment_id || null 
+        });
+
+        await newOrder.save();
+
+        if (paymentStatus === "success") {
+            // Update product quantities
+            for (let item of formattedCartItems) {
+                await Product.updateOne(
+                    { _id: item.productId },
+                    { $inc: { quantity: -item.quantity } }
+                );
+            }
+            
+            await Cart.findOneAndUpdate(
+                { userId: req.session.user },
+                { $set: { items: [], cartTotal: 0 } }
+            );
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: `Order placed with payment status: ${paymentStatus}`,
+            orderId: newOrder._id
+        });
+
+    } catch (error) {
+        console.error("Payment Verification Error:", error);
+        res.status(500).json({
+            success: false,
+            message: error.message || "Payment verification failed"
+        });
+    }
+};
+
 
 
 
@@ -239,6 +215,10 @@ const createOrder = async (req, res) => {
         
                 order.paymentStatus = "success";
                 order.status = "pending";
+        
+                // Set all items to 'ordered' since retry succeeded
+                order.order_items.forEach(item => item.itemStatus = "ordered");
+        
                 await order.save();
         
                 await Cart.findOneAndUpdate(
@@ -253,6 +233,7 @@ const createOrder = async (req, res) => {
                 return res.status(500).json({ success: false, message: "Payment verification failed." });
             }
         };
+        
         
         
     
