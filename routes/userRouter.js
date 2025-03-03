@@ -98,6 +98,7 @@ router.get('/checkOut',userAuth,checkOutController.checkOut)
 
 //Orders
 router.post('/orders',userAuth,orderController.orders)
+router.post('/wallet-payment',userAuth,orderController.walletOrder)
 router.get('/orders',userAuth,orderController.loadOrders)
 router.get('/order-details',userAuth,orderController.loadOrderDetails)
 router.post('/cancel-order',orderController.cancelOrder)

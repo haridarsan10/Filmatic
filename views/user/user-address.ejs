@@ -158,22 +158,26 @@
                 <h5 class="mb-0">My Addresses</h5>
               </div>
               <div class="card-body">
-                <% for(let i=0;i<address.length;i++) { %>
-                <div class="address-item">
-                  <p><strong><%= address[i].addressType %></strong></p>
-                  <p><%= address[i].name %></p>
-                  <p><%= address[i].city %></p>
-                  <p><%= address[i].landMark %></p>
-                  <p><%= address[i].state %></p>
-                  <p><%= address[i].pincode %></p>
-                  <p><%= address[i].phone %></p>
-                  <p><%= address[i].altphone %></p>
-                  <a href="/editAddress?id=<%= address[i]._id %>" class="btn btn-sm btn-edit btn-primary">Edit</a>
-                  <button id="deleteAddress" onclick="deletefunction('<%= address[i]._id %>')" class="btn btn-sm btn-delete btn-danger">Delete</button>
-                </div>
+                <% if (address && address.length > 0) { %>
+                    <% for(let i=0; i<address.length; i++) { %>
+                        <div class="address-item">
+                            <p><strong><%= address[i].addressType %></strong></p>
+                            <p><%= address[i].name %></p>
+                            <p><%= address[i].city %></p>
+                            <p><%= address[i].landMark %></p>
+                            <p><%= address[i].state %></p>
+                            <p><%= address[i].pincode %></p>
+                            <p><%= address[i].phone %></p>
+                            <p><%= address[i].altphone %></p>
+                            <a href="/editAddress?id=<%= address[i]._id %>" class="btn btn-sm btn-edit btn-primary">Edit</a>
+                            <button id="deleteAddress" onclick="deletefunction('<%= address[i]._id %>')" class="btn btn-sm btn-delete btn-danger">Delete</button>
+                        </div>
+                    <% } %>
+                <% } else { %>
+                    <p>No addresses found.</p>
                 <% } %>
                 <a href="/add-address" class="btn btn-sm btn-success mt-3">Add New Address</a>
-              </div>
+            </div>            
             </div>
           </div>
         </div>

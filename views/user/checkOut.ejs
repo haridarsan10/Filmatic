@@ -464,7 +464,17 @@
                                     </h6>
                                 </div>
                             </div>
-                        
+                            
+                            <div class="card">
+                                <div class="card-header" role="tab" id="headingTwo">
+                                    <h6 class="mb-0 payment-option">
+                                        <label id="payment_method_wallet">
+                                            <input type="radio" name="payment_method" value="wallet">
+                                            Wallet
+                                        </label>
+                                    </h6>
+                                </div>
+                            </div>
         
                         </div>
 
@@ -598,7 +608,12 @@
             document.getElementById("payment_method_cod").style.display = "none";
         }
 
-        
+        const walletData = <%- JSON.stringify(walletData) %>; 
+        if (!walletData || walletData.balance === undefined) {
+            document.getElementById("payment_method_wallet").style.display = "none";
+        }
+
+                
             var modal = document.getElementById("myModal");
             var closeBtn = document.getElementsByClassName("close")[0];
 
@@ -1023,6 +1038,49 @@
                             return;
                         }
 
+
+                        //Handle wallet payment
+
+                        if(paymentMethod==="wallet"){
+                            const response=await fetch('/wallet-payment',{
+                                method:'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ 
+                                    addressId: shippingAddress, 
+                                    paymentMethod, 
+                                    totalPrice, 
+                                    cartItems, 
+                                    discountAmount,
+                                    couponCode 
+                                })
+                            })
+
+                            const data=await response.json();
+
+                            if(data.success){
+                                await Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: data.message,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                                window.location.href = '/orders';
+                            }
+                            else{
+                                await Swal.fire({
+                                    icon: 'info',
+                                    title: 'Info',
+                                    text: data.message,
+                                    showConfirmButton: true,
+                                });
+                            }
+                            return;
+                        }
+
+
                         // 3. Handle Razorpay Payment
                         const orderResponse = await fetch("/create-order", {
                             method: "POST",
@@ -1122,8 +1180,7 @@
                             },
                             modal: {  
                                 ondismiss: async function() {
-                                    // Only show the failure message and redirect if the payment was actually cancelled
-                                    // and not if payment was successful (in which case handler function would have set paymentCancelled to false)
+
                                     if (paymentCancelled) {
 
                                         const mappedCartItems = cartItems.map(item => ({

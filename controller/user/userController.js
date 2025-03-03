@@ -1,6 +1,8 @@
 const User=require('../../models/userSchema')
 const Product=require('../../models/productSchema')
 const Category=require('../../models/categorySchema')
+const Wallet=require('../../models/walletSchema')
+const Otp=require('../../models/otpSchema')
 const nodemailer=require('nodemailer')
 const env=require('dotenv').config()
 const bcrypt=require('bcrypt')
@@ -129,35 +131,53 @@ async function sendVerificationEmail(email,otp){
   }
 }
 
-const signup=async (req,res) => {
+
+const signup = async (req, res) => {
   try {
-    const {name,email,phone,password}=req.body
+    const { name, email, phone, password, referral } = req.body
 
-    const findUser= await User.findOne({email})
-
-    if(findUser){
-      req.session.signupError="Email already exists"
-     return res.redirect('/register')
+    const findUser = await User.findOne({ email })
+    if (findUser) {
+      req.session.signupError = "Email already exists"
+      return res.redirect('/register')
     }
 
-    const otp=generateOtp();
+    if (referral) {
+      const referringUser = await User.findOne({ referralCode: referral })
+      if (!referringUser) {
+        req.session.signupError = "Invalid referral code"
+        return res.redirect('/register')
+      }
+    }
 
-    const emailSend=await sendVerificationEmail(email,otp)
-    if(!emailSend){
+    const otp = generateOtp()
+
+    await Otp.deleteMany({ email })
+
+    const otpDoc = new Otp({
+      email,
+      otp,
+      createdAt: new Date(), 
+    })
+    await otpDoc.save()
+
+    const emailSend = await sendVerificationEmail(email, otp)
+    if (!emailSend) {
       return res.json("Email-error")
     }
 
-    req.session.userOtp=otp
-    req.session.userData={name,phone,email,password}
+    req.session.userData = { name, phone, email, password, referredBy: referral || null }
 
-    res.render('verify-otp')
-    console.log('OTP send',otp)
+    res.render('verify-otp') 
+    console.log('OTP sent', otp)
 
   } catch (error) {
-    console.error('Sign Up error')
+    console.error('Sign Up error', error)
     res.redirect('/pageNotFound')
-  }  
-} 
+  }
+}
+
+
 
 const securePassword=async (password) => {
   try {
@@ -169,69 +189,152 @@ const securePassword=async (password) => {
   }
 }
 
-const verifyOtp=async(req,res) => {
+function generateReferralCode() {
+  return Math.random().toString(36).substring(2, 10).toUpperCase()
+}
+
+
+const verifyOtp = async (req, res) => {
   try {
-    const {otp}=req.body
+      const { otp } = req.body;
+      const user = req.session?.userData;
 
-    if(otp===req.session.userOtp){
-      const user=req.session.userData
-      const passwordHash=await  securePassword(user.password)
+      if (!user) {
+          return res.status(400).json({
+              success: false,
+              message: "Session expired. Please restart the signup process."
+          });
+      }
 
-      const saveUserData=new User({
-        name:user.name,
-        email:user.email,
-        phone:user.phone,
-        password:passwordHash,
-      })
+      const storedOtp = await Otp.findOne({ email: user.email });
+
+      if (!storedOtp) {
+          return res.status(400).json({
+              success: false,
+              message: "OTP expired or not found. Please request a new OTP."
+          });
+      }
+
+      if (storedOtp.otp.toString() !== otp.toString()) {  
+          return res.status(400).json({
+              success: false,
+              message: "Invalid OTP, please try again."
+          });
+      }
+
+      const passwordHash = await securePassword(user.password);
+      const referralCode = generateReferralCode();
+
+      const saveUserData = new User({
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          password: passwordHash,
+          referralCode: referralCode,
+          referredBy: user.referredBy || null,
+      });
 
       await saveUserData.save();
-      req.session.user=saveUserData._id
-      // res.redirect('/')
-      return res.json({
-        success: true,
-        message: "OTP verified successfully!",
-        redirectUrl: "/",
+
+      if (user.referredBy) {
+          const referrer = await User.findOne({ referralCode: user.referredBy });
+
+          if (referrer) {
+              let referrerWallet = await Wallet.findOne({ userId: referrer._id });
+
+              if (!referrerWallet) {
+                  referrerWallet = new Wallet({
+                      userId: referrer._id,
+                      balance: 0,
+                      transactions: [],
+                  });
+              }
+
+              const referralBonus = 1000;
+              referrerWallet.balance += referralBonus;
+
+              referrerWallet.transactions.push({
+                  amount: referralBonus,
+                  type: "credit",
+                  description: `Referral bonus for inviting ${user.email}`,
+              });
+
+              await referrerWallet.save();
+          }
+      }
+
+      let newUserWallet = await Wallet.findOne({ userId: saveUserData._id });
+
+      if (!newUserWallet) {
+        newUserWallet = new Wallet({
+            userId: saveUserData._id,
+            balance: 0,
+            transactions: [],
+        });
+    }
+
+    const signupBonus = 500;
+    newUserWallet.balance += signupBonus;
+
+    newUserWallet.transactions.push({
+        amount: signupBonus,
+        type: "credit",
+        description: "Signup bonus credited to wallet",
     });
-    }
-    else{
-      return res.status(400).json({
-        success:false,
-        message:"Invalid OTP,please try again"})
-    }
+
+    await newUserWallet.save();
+
+      await Otp.deleteOne({ email: user.email });
+
+      req.session.user = saveUserData._id;
+      req.session.userData = null;
+
+      return res.json({
+          success: true,
+          message: "OTP verified successfully!",
+          redirectUrl: "/"
+      });
 
   } catch (error) {
-    console.log('Error verifying otp',error)
-    return res.status(500).json({success:false,message:"An error occured"})
+      console.log('Error verifying OTP', error);
+      return res.status(500).json({
+          success: false,
+          message: "An error occurred during OTP verification."
+      });
   }
 }
 
 
-const resendOtp=async (req,res) => {
+const resendOtp = async (req, res) => {
   try {
-    const {email}=req.session.userData;
+    const email = req.session?.userData?.email;
 
-    if(!email){
-     return res.status(500).send('Email not found')
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Session expired. Please restart the signup process.' });
     }
 
-    const otp=generateOtp()
-    req.session.userOtp=otp;
+    const otp = generateOtp();
 
-    const emailSend=await sendVerificationEmail(email,otp)
+    await Otp.deleteMany({ email });
 
-    if(emailSend){
-      console.log(`Otp resend: ${otp}`)
-     return res.status(200).json({success:true,message:"Otp Resend Successfully"})
-    }
-    else{
-     return res.status(500).json({success:false,message:"Failed to resend Otp.Please try again"})
+    const otpDoc = new Otp({ email, otp });
+    await otpDoc.save();
+
+    const emailSend = await sendVerificationEmail(email, otp);
+
+    if (emailSend) {
+      console.log(`OTP resent: ${otp}`);
+      return res.status(200).json({ success: true, message: "OTP Resent Successfully" });
+    } else {
+      return res.status(500).json({ success: false, message: "Failed to resend OTP. Please try again" });
     }
 
   } catch (error) {
-    console.error("Error resending otp")
-   return res.status(500).json({success:false,message:"Internal server error.Please try again"})
+    console.error("Error resending OTP", error);
+    return res.status(500).json({ success: false, message: "Internal server error. Please try again" });
   }
-}
+};
+
 
 const login=async (req,res) => {
   try {
@@ -345,7 +448,6 @@ const loadShopPage = async (req, res) => {
       filter.productName = { $regex: searchRegex };
     }
 
-    // Fetch only products that belong to isListed: true categories
     const products = await Product.find(filter)
       .populate('category')
       .sort(sortOption)

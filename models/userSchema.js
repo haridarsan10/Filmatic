@@ -31,9 +31,19 @@ const userSchema=new mongoose.Schema({
     type:Boolean,
     default:false
   },
+  referralCode: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  referredBy: {          
+    type: String,
+    required: false,
+    default: null      
+  },
   googleId: {
     type: String,
-    required: false, // For users signing in with Google
+    required: false, 
     unique: true,
     sparse: true
   },

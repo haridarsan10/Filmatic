@@ -4,6 +4,8 @@ const Product=require('../../models/productSchema')
 const Category=require('../../models/categorySchema')
 const Cart=require('../../models/cartSchema')
 const Coupon=require('../../models/couponSchema')
+const Wallet=require('../../models/walletSchema')
+
 const mongoose=require('mongoose')
 
 
@@ -27,7 +29,9 @@ const mongoose=require('mongoose')
         usageLimit:{$gte:1},
         isActive:true
       });
-      
+
+      const walletData=await Wallet.findOne(({userId:userId}))
+        
 
       const addressData = await Address.findOne({ userId: userId });
 
@@ -41,7 +45,8 @@ const mongoose=require('mongoose')
         address: addressData ? addressData.address : [],
         cartTotal,
         cartItems,
-        couponData
+        couponData,
+        walletData
       });
 
     } catch (error) {

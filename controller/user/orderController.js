@@ -138,6 +138,104 @@ const orders = async (req, res) => {
   }
 };
 
+const walletOrder = async (req, res) => {
+  try {
+      const { addressId, paymentMethod, totalPrice, cartItems, couponCode, discountAmount } = req.body;
+      const userId = req.session.user;
+
+      const addressData = await Address.findOne({ userId });
+      const selectedAddress = addressData?.address.find(a => a._id.toString() === addressId);
+
+      if (!selectedAddress) {
+          return res.status(400).json({ success: false, message: "Invalid address." });
+      }
+
+      const productIds = cartItems.map(item => item.productId._id);
+      const products = await Product.find({ _id: { $in: productIds } });
+
+      if (products.length !== cartItems.length) {
+          return res.status(400).json({ success: false, message: "Some products are no longer available." });
+      }
+
+      for (const item of cartItems) {
+          const product = products.find(p => p._id.toString() === item.productId._id);
+          if (product.quantity < item.quantity) {
+              return res.status(400).json({
+                  success: false,
+                  message: `Insufficient stock for ${product.productName}`
+              });
+          }
+      }
+
+      const walletData = await Wallet.findOne({ userId });
+      if (!walletData) {
+          return res.status(404).json({ success: false, message: "Failed to fetch wallet data" });
+      }
+
+      const payableAmount = Math.round(totalPrice - discountAmount);
+      if (walletData.balance < payableAmount) {
+          return res.status(400).json({ success: false, message: "Insufficient wallet balance to place the order." });
+      }
+
+      walletData.balance -= payableAmount;
+      walletData.transactions.push({
+        amount:payableAmount,
+        type:"debit",
+        description: `Order placed using wallet - Order Total: ${payableAmount}`,
+      })
+      
+      await walletData.save();
+
+      const newOrder = new Order({
+          userId,
+          address_id: addressId,
+          payment_method: paymentMethod,
+          order_items: cartItems.map(item => ({
+              productId: item.productId._id,
+              productName: item.productId.productName,
+              price: item.price,
+              quantity: item.quantity,
+              totalPrice: Math.round(item.totalPrice),
+          })),
+          total: Math.round(totalPrice),
+          status: "pending", 
+          discount: Math.round(discountAmount),
+          finalAmount: payableAmount,
+          couponApplied: !!couponCode,
+          couponCode,
+      });
+
+      await newOrder.save();
+
+      if (couponCode && couponCode !== 'null') {
+          await Coupon.findOneAndUpdate(
+              { code: couponCode },
+              { $inc: { usageLimit: -1 } }
+          );
+      }
+
+      await Promise.all(
+          cartItems.map(item =>
+              Product.findByIdAndUpdate(item.productId._id, { $inc: { quantity: -item.quantity } })
+          )
+      );
+
+      await Cart.findOneAndUpdate(
+          { userId },
+          { $set: { items: [], cartTotal: 0 } }
+      );
+
+
+
+      return res.status(200).json({ success: true, message: "Order placed successfully" });
+
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+
 
   const loadOrderDetails = async (req, res) => {
     try {
@@ -584,5 +682,6 @@ module.exports={
   generateInvoicePDF,
   checkStock,
   cancelProduct,
-  returnProduct
+  returnProduct,
+  walletOrder
 }
