@@ -135,5 +135,9 @@ router.post('/productReturn',orderController.returnProduct)
 //Invoice download
 router.get('/generate-invoice/:orderId',orderController.generateInvoicePDF);
 
+//Referral offer
+router.get('/referral', userController.showReferralPage);
+
+
 
 module.exports= router;

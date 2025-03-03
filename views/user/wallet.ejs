@@ -24,9 +24,8 @@
   }
 
   .dashboard-menu .nav-link:hover, .dashboard-menu .nav-link.active {
-    background-color: #007bff;
+    background-color: #000000;
     color: #ffffff;
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
   }
 
   .card {
@@ -89,7 +88,27 @@
     color: #555;
   }
 
-  
+  a.btn-wallet {
+    background-color: #4caf50; /* Green, gives a 'financial' feel */
+    border-color: #4caf50;
+    color: white;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    text-decoration: none;
+}
+
+a.btn-primary:hover {
+    background-color: #45a049;
+    border-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
 </style>
 
 <nav aria-label="breadcrumb">
@@ -120,7 +139,7 @@
                 <a class="nav-link active" href="/wallet">Wallet</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/referal">Referrals</a>
+                <a class="nav-link" href="/referral">Referrals</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="/logout">Logout</a>
@@ -134,7 +153,7 @@
             <div class="card-body" style="margin-top: 20px;">
               <h4 class="mb-3">Available Balance: ₹<%= balance.toFixed(2) %></h4>
               <p class="mb-3">Use your wallet balance for easy payments.</p>
-              <a href="/wallet-history" class="btn btn-primary mt-3">View Transaction History</a>
+              <a href="/wallet-history" class="btn btn-wallet mt-3">View Transaction History</a>
             </div>
           </div>          
         </div>

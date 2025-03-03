@@ -1,0 +1,200 @@
+<%- include("../../views/partials/user/header") %>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+<style>
+  .dashboard-container {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .dashboard-menu {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    width: 35%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    height: 350px;
+  }
+
+  .dashboard-menu .nav-link {
+    font-weight: bold;
+    color: #2c3e50;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .dashboard-menu .nav-link:hover, .dashboard-menu .nav-link.active {
+    background-color: #000000;
+    color: #ffffff;
+  }
+
+  .card {
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    width: 75%;
+    padding: 20px;
+  }
+
+  .card-header {
+    background-color: #ffffff;
+    color: rgb(205, 205, 205);
+    border-radius: 12px 12px 0 0;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .card-body {
+    padding: 20px;
+  }
+
+  .breadcrumb {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    padding-left: 50px;
+  }
+
+  .breadcrumb li {
+    display: flex;
+    align-items: center;
+  }
+
+  .breadcrumb a {
+    text-decoration: none;
+    color: #000000;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  .breadcrumb a:hover {
+    color: #000000;
+  }
+
+  .breadcrumb span {
+    margin: 0 8px;
+    color: #555;
+  }
+</style>
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="/userProfile">User Profile</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Referrals</li>
+  </ol>
+</nav>
+
+<section class="pt-10 pb-10" style="margin-top: 50px; margin-bottom: 50px;">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 m-auto">
+        <div class="dashboard-container">
+          <!-- Sidebar Menu -->
+          <div class="dashboard-menu">
+            <ul class="nav flex-column" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link" href="/userProfile">Dashboard</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/address">My Address</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/orders">Orders</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/wallet">Wallet</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="/referral">Referrals</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/logout">Logout</a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Main Content Card -->
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">Referral Program</h5>
+            </div>
+            <div class="card-body">
+              
+              <!-- Referral Code Section -->
+              <div class="mb-4">
+                <h6>Your Referral Code</h6>
+                <input type="text" value="<%= user.referralCode %>" readonly class="form-control">
+                <button class="btn btn-primary mt-2" onclick="copyReferralCode()">Copy Code</button>
+              </div>
+
+              <!-- Referred Users Section -->
+              <div>
+                <h6>Your Referrals</h6>
+                <% if (referredUsers.length > 0) { %>
+                  <ul class="list-group">
+                    <% referredUsers.forEach(friend => { %>
+                      <li class="list-group-item">
+                        <strong><%= friend.name %></strong> - <%= friend.email %>
+                      </li>
+                    <% }) %>
+                  </ul>
+                <% } else { %>
+                  <p>You haven't invited anyone yet. Share your code and earn ₹1000 per referral!</p>
+                <% } %>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+function copyReferralCode() {
+    navigator.clipboard.writeText('<%= user.referralCode %>').then(() => {
+        showToast('Referral Code Copied!', 'success');
+    }).catch(() => {
+        showToast('Failed to copy referral code', 'error');
+    });
+}
+
+function showToast(message, type) {
+    let backgroundColor, icon;
+
+    if (type === 'success') {
+        backgroundColor = "#4CAF50"; // green
+        icon = "✅";
+    } else {
+        backgroundColor = "#F44336"; // red
+        icon = "⚠️";
+    }
+
+    Toastify({
+        text: `${icon} ${message}`,
+        duration: 2000,
+        gravity: "top",
+        position: "center",
+        style: {
+            background: backgroundColor,
+            color: "#fff",
+            padding: "12px 20px",
+            borderRadius: "10px",
+            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
+            fontSize: "16px",
+            letterSpacing: "0.5px",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px"
+        }
+    }).showToast();
+}
+
+</script>
+
+<%- include("../../views/partials/user/footer") %>

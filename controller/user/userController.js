@@ -504,6 +504,36 @@ const loadShopPage = async (req, res) => {
   }
 };
 
+    const showReferralPage = async (req, res) => {
+      try {
+          const userId = req.session?.user;
+  
+          if (!userId) {
+              return res.redirect('/login');
+          }
+  
+          const user = await User.findById(userId);
+          if (!user) {
+              return res.redirect('/login');
+          }
+  
+          const wallet = await Wallet.findOne({ userId }) || { balance: 0, transactions: [] };
+  
+          // Find all users who were referred by this user (used his referral code during signup)
+          const referredUsers = await User.find({ referredBy: user.referralCode });
+  
+          res.render('referral', { 
+              user, 
+              wallet, 
+              referredUsers 
+          });
+      } catch (error) {
+          console.error('Error loading referral page:', error);
+          res.redirect('/');
+      }
+  };
+  
+
 
 
 
@@ -518,5 +548,6 @@ module.exports={
   resendOtp,
   logout,
   pageNotFound,
-  loadShopPage
+  loadShopPage,
+  showReferralPage
 }
