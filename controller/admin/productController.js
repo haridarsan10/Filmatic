@@ -171,7 +171,7 @@ const unblockProducts=async (req,res) => {
 
 const getEditProduct=async (req,res) => {
   try {
-    const id=req.query.id
+    const id = req.params.id.trim();
     const product= await Product.findOne({_id:id})
     const category=await Category.find({})
 

@@ -48,9 +48,9 @@ router.post('/editCategory/:id',adminAuth,categoryController.editCategory)
 router.get('/addProducts',adminAuth,productController.geProductsAddPage)
 router.post('/addProducts', adminAuth, uploads.array('images', 3),productController.addProducts);
 router.get('/products',adminAuth,productController.getAllProducts)
-router.get('/blockProducts',adminAuth,productController.blockProducts)
-router.get('/unblockProducts',adminAuth,productController.unblockProducts)
-router.get('/editProduct',adminAuth,productController.getEditProduct)
+router.post('/blockProducts',adminAuth,productController.blockProducts)
+router.post('/unblockProducts',adminAuth,productController.unblockProducts)
+router.get('/editProduct/:id',adminAuth,productController.getEditProduct)
 router.post('/editProduct', adminAuth, uploads.array('images', 3), productController.editProduct);
 router.post('/deleteImage',adminAuth,productController.deleteSingleImage)
 

@@ -277,6 +277,9 @@
 
     </style>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 </head>
 <div class="content-header">
     <div>
@@ -300,8 +303,6 @@
                 <th scope="col"><b>Category</b></th>
                 <th scope="col"><b>Sale Price</b></th>
                 <th scope="col"><b>Quantity</b></th>
-                <th scope="col"><b>Color</b></th>
-                <th scope="col"><b>Status</b></th>
                 <th scope="col"><b>Action</b></th>
                 <th scope="col"><b>Edit</b></th>
                 <th scope="col"><b>Offer</b></th>
@@ -314,23 +315,23 @@
                 <td><%=data[i]?.category?.name %></td>
                 <td><%=data[i].salePrice %></td>
                 <td><%=data[i].quantity %></td>
-                <td><%=data[i].color %></td>
-                <td><%=data[i].status %></td>
+
            
                 <td>
-                    <% if(data[i].isBlocked===false) { %>
-                    <button class="btn btn-danger" style="width: 80px;">
-                        <a href="/admin/blockProducts?id=<%=data[i]._id %>" class="text-white" style="text-decoration: none;">Block</a>
-                    </button>
-                    <% }else{ %>
-                    <button class="btn btn-success" style="width: 80px;">
-                        <a href="/admin/unblockProducts?id=<%=data[i]._id %>" class="text-white" style="text-decoration: none;">Unblock</a>
-                    </button>
+                    <% if (data[i].isBlocked === false) { %>
+                        <button class="btn btn-danger" style="width: 80px;" onclick="confirmBlock('<%= data[i]._id %>')">
+                            Block
+                        </button>
+                    <% } else { %>
+                        <button class="btn btn-success" style="width: 80px;" onclick="confirmUnblock('<%= data[i]._id %>')">
+                            Unblock
+                        </button>
                     <% } %>
+                    
                 </td>
                 <td>
                     <button class="btn btn-info" style="width: 80px;">
-                        <a href="/admin/editProduct?id=<%= data[i]._id %>" class="text-white" style="text-decoration: none;">Edit</a>
+                        <a href="/admin/editProduct/<%= data[i]._id %>" class="text-white" style="text-decoration: none;">Edit</a>
                     </button>
                 </td>
                 <td>
@@ -390,6 +391,60 @@
  </div>
  
  <script>
+
+async function confirmBlock(productId) {
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "Do you really want to block this product?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Block it!",
+            cancelButtonText: "No, Cancel"
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/admin/blockProducts?id=${productId}`, {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    Swal.fire("Blocked!", "The product has been blocked.", "success").then(() => location.reload());
+                } else {
+                    Swal.fire("Failed!", "Failed to block product.", "error");
+                }
+            } catch (error) {
+                Swal.fire("Error!", "An error occurred while blocking the product.", "error");
+            }
+        }
+    }
+
+    async function confirmUnblock(productId) {
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "Do you really want to unblock this product?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Unblock it!",
+            cancelButtonText: "No, Cancel"
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/admin/unblockProducts?id=${productId}`, {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    Swal.fire("Unblocked!", "The product has been unblocked.", "success").then(() => location.reload());
+                } else {
+                    Swal.fire("Failed!", "Failed to unblock product.", "error");
+                }
+            } catch (error) {
+                Swal.fire("Error!", "An error occurred while unblocking the product.", "error");
+            }
+        }
+    }
+
+
 
         let selectedProductId = null;
 
