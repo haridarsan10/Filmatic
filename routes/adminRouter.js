@@ -46,7 +46,7 @@ router.get('/category',adminAuth,categoryController.categoryInfo)
 router.post('/addcategory',adminAuth,categoryController.addCategory)
 router.get('/listCategory',adminAuth,categoryController.getListCategory)
 router.get('/unlistCategory',adminAuth,categoryController.getUnListCategory)
-router.get('/editCategory',adminAuth,categoryController.getEditCategory)
+router.get('/editCategory/:id',adminAuth,categoryController.getEditCategory)
 router.post('/editCategory/:id',adminAuth,categoryController.editCategory)
 
 //Product Management

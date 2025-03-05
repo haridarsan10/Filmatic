@@ -55,10 +55,11 @@ const customerBlocked=async (req,res) => {
     let id=req.query.id
     await User.updateOne({_id:id},{$set:{isBlocked:true}})
     req.session.user=false
-    res.redirect('/admin/users')
+
+  return res.json({ success: true, message: 'Customer blocked successfully.' });
   } catch (error) {
     console.log(error)
-    res.redirect('/pageError')
+   return res.status(500).json({ success: false, message: 'Failed to block customer.' });
   }
 }
 
@@ -66,10 +67,10 @@ const uncustomerBlocked=async (req,res) => {
   try {
     let id=req.query.id  
     await User.updateOne({_id:id},{$set:{isBlocked:false}})
-    res.redirect('/admin/users')
+   return res.json({ success: true, message: 'Customer unblocked successfully.' });
   } catch (error) {
    console.log(error)
-   res.redirect('/pageError')
+    return res.status(500).json({ success: false, message: 'Failed to unblock customer.' });
   }
 }
 

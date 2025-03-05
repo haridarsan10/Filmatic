@@ -55,31 +55,31 @@ const addCategory=async (req,res) => {
   }
 }
 
-const getListCategory=async (req,res) => {
+const getListCategory = async (req, res) => {
   try {
-    const id=req.query.id
-    await category.updateOne({_id:id},{$set:{isListed:false}})
-    res.redirect('/admin/category')
+    const id = req.query.id;
+    await category.updateOne({ _id: id }, { $set: { isListed: false } });
+    res.json({ success: true, message: "Category unlisted successfully" });
   } catch (error) {
-    console.log(error)
-    res.redirect('/admin/pageError')
+    console.log(error);
+    res.status(500).json({ success: false, message: "Failed to unlist category" });
   }
-}
+};
 
-const getUnListCategory=async (req,res) => {
+const getUnListCategory = async (req, res) => {
   try {
-    const id=req.query.id
-    await category.updateOne({_id:id},{$set:{isListed:true}})
-    res.redirect('/admin/category')
+    const id = req.query.id;
+    await category.updateOne({ _id: id }, { $set: { isListed: true } });
+    res.json({ success: true, message: "Category listed successfully" });
   } catch (error) {
-    console.log(error)
-    res.redirect('/admin/pageError')
+    console.log(error);
+    res.status(500).json({ success: false, message: "Failed to list category" });
   }
-}
+};
 
 const getEditCategory=async(req,res)=>{
   try {
-    const id=req.query.id
+    const id=req.params.id
     const categoryData=await category.findOne({_id:id})
     res.render('edit-category',{category:categoryData})
 
@@ -89,32 +89,61 @@ const getEditCategory=async(req,res)=>{
   }
 }
 
-const editCategory=async(req,res)=>{
+const editCategory = async (req, res) => {
   try {
-    const id=req.params.id
-    const {categoryName,description}=req.body;
-    const existingCategory=await category.findOne({name:categoryName})
+    const id = req.params.id;
+    const { categoryName, description } = req.body;
 
-    if(existingCategory && existingCategory._id.toString() !== req.params.id){
-      return res.status(400).json({error:"Category exists, please choose another name"})
+    // Validate input
+    if (!categoryName || categoryName.trim().length < 2 || categoryName.trim().length > 50) {
+      return res.status(400).json({ 
+        error: "Category name must be between 2-50 characters" 
+      });
     }
 
-    const updateCategory=await category.findByIdAndUpdate(id,{
-      name:categoryName,
-      description:description,
-    },{new:true})
-
-    if(updateCategory){
-      res.redirect('/admin/category')
-    }else{
-      res.status(404).json({error:"Category not found"})
+    if (!description || description.trim().length < 10 || description.trim().length > 500) {
+      return res.status(400).json({ 
+        error: "Description must be between 10-500 characters" 
+      });
     }
+
+    // Check for existing category
+    const existingCategory = await category.findOne({ 
+      name: categoryName.trim(), 
+      _id: { $ne: id } 
+    });
+
+    if (existingCategory) {
+      return res.status(400).json({ 
+        error: "Category already exists, please choose another name" 
+      });
+    }
+
+    // Update category
+    const updateCategory = await category.findByIdAndUpdate(
+      id, 
+      {
+        name: categoryName.trim(),
+        description: description.trim(),
+      }, 
+      { new: true, runValidators: true }
+    );
+
+    if (!updateCategory) {
+      return res.status(404).json({ error: "Category not found" });
+    }
+
+    // Successful update
+    res.status(200).json({ 
+      message: "Category updated successfully",
+      category: updateCategory 
+    });
 
   } catch (error) {
-    console.log(error)
-    res.status(500).json({error:'Internal server error'})
+    console.error('Edit Category Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 module.exports={
   categoryInfo,

@@ -344,17 +344,19 @@
                     </td>
                     <td class="text-start">
                       <% if(category.isListed){ %>
-                      <button class="btn btn-danger" style="width: 70px">
-                        <a href="/admin/listCategory?id=<%= category._id %>" class="text-white">Unlist</a>
-                      </button>
-                      <% }else{ %>
-                      <button class="btn btn-success" style="width: 70px">
-                        <a href="/admin/unlistCategory?id=<%= category._id %>" class="text-white">List</a>
-                      </button>
+                        <button class="btn btn-danger" style="width: 70px" 
+                                onclick="confirmAction('<%= category._id %>', 'unlist')">
+                          Unlist
+                        </button>
+                      <% } else { %>
+                        <button class="btn btn-success" style="width: 70px" 
+                                onclick="confirmAction('<%= category._id %>', 'list')">
+                          List
+                        </button>
                       <% } %>
                     </td>
                     <td class="text-start">
-                      <a href="/admin/editCategory?id=<%=category._id %>" class="btn btn-info text-white">Edit</a>
+                      <a href="/admin/editCategory/<%=category._id %>" class="btn btn-info text-white">Edit</a>
                     </td>
 
                     <td>
@@ -675,6 +677,53 @@ document.getElementById("product_name").addEventListener("input", () => {
 document.getElementById("descriptionId").addEventListener("input", () => {
   document.getElementById("description-error").textContent = "";
 });
+
+
+function confirmAction(categoryId, action) {
+    Swal.fire({
+        title: `Are you sure?`,
+        text: `Do you want to ${action} this category?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: `Yes, ${action}`,
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = action === 'list' 
+                ? `/admin/unlistCategory?id=${categoryId}` 
+                : `/admin/listCategory?id=${categoryId}`;
+
+            fetch(url, { method: 'GET' })
+                .then(response => {
+                    if (response.ok) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: `Category has been ${action}ed successfully!`,
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Failed to update category status'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong!'
+                    });
+                });
+        }
+    });
+}
 
 
   </script>
