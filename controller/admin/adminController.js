@@ -144,6 +144,8 @@ const getDashboardData = async (req, res) => {
       },
       { $sort: { _id: 1 } }
   ]);
+
+  console.log(customerGrowth)
   
 
 
