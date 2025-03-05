@@ -126,6 +126,27 @@ const getDashboardData = async (req, res) => {
     console.log('Total Customers:', totalCustomers);
 
 
+    const customerGrowth = await User.aggregate([
+      { 
+          $match: { 
+              createdAt: { 
+                  $gte: startDate, 
+                  $lte: endDate 
+              },
+              isAdmin: false
+          }
+      },
+      { 
+          $group: { 
+              _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+              count: { $sum: 1 } 
+          }
+      },
+      { $sort: { _id: 1 } }
+  ]);
+  
+
+
       // Total Orders
       const totalOrders = await Order.countDocuments({
           invoiceDate: { 
@@ -233,6 +254,7 @@ const getDashboardData = async (req, res) => {
         totalCustomers,
         totalOrders,
           salesByDate,
+          customerGrowth,
           topCategories,
           topProducts,
           recentOrders

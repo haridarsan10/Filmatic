@@ -209,13 +209,13 @@ Admin <span>></span> <span id="currentPage">Dashboard</span>
 
             // Customers Chart
             chartInstances.customersChart = createChartSafely('customersChart', 'bar', {
-                labels: data.salesByDate.map(item => item._id),
-                datasets: [{
-                    label: 'Daily New Customers',
-                    data: new Array(data.salesByDate.length).fill(0), // Placeholder
-                    backgroundColor: 'green'
-                }]
-            });
+            labels: data.customerGrowth.map(item => item._id),
+            datasets: [{
+                label: 'Daily New Customers',
+                data: data.customerGrowth.map(item => item.count),
+                backgroundColor: 'green'
+            }]
+        });
 
             // Categories Chart
             chartInstances.categoriesChart = createChartSafely('categoriesChart', 'pie', {
