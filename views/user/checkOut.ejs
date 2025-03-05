@@ -1211,13 +1211,14 @@
                                     
                                         await Swal.fire({
                                             icon: 'error',
-                                            title: 'Payment Cancelled',
-                                            text: 'Your payment process was cancelled.',
+                                            title: 'Payment failed',
+                                            text: 'Your payment process was failed.',
                                             showConfirmButton: false,
                                             timer: 2000
                                         });
-
-                                        window.location.reload();
+                                        setTimeout(()=>{
+                                            window.location.replace('/orders')
+                                        })
                                     }
                                 }
                             }

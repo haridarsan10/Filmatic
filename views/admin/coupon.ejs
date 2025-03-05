@@ -632,6 +632,7 @@ couponForm.onsubmit = function(event) {
                 setTimeout(() => {
                     closeModal(); 
                     couponForm.reset(); // Reset form fields after success
+                    window.location.reload()
                 }, 1500);
             } else {
                 Swal.fire({
