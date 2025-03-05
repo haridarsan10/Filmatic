@@ -1,97 +1,310 @@
 <%- include("../partials/admin/admin-header") %>
-    <main class="main-content">
-        <div class="breadcrumbs">
-            Admin <span>></span> <span id="currentPage">Dashboard</span>
-        </div>
 
-        <div class="dashboard-grid">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Total Sales</h3>
-                </div>
-                <div class="chart-container">
-                    <canvas id="salesChart"></canvas>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Customers</h3>  
-                </div>
-                <div class="chart-container">
-                    <canvas id="customersChart"></canvas>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Total Orders</h3>
-                </div>
-                <div class="chart-container">
-                    <canvas id="ordersChart"></canvas>
-                </div>
-            </div>
-        </div>
+<style>
+.error-message {
+    background-color: #ffdddd;
+    color: red;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    width: 100%;
+}
+</style>
 
-        <div class="card recent-orders">
+<main class="main-content">
+<div class="breadcrumbs">
+Admin <span>></span> <span id="currentPage">Dashboard</span>
+</div>
+  <div class="dashboard-filter">
+        <select id="timePeriodFilter">
+            <option value="weekly">Last 7 Days</option>
+            <option value="monthly" selected>Last 30 Days</option>
+            <option value="yearly">Last 12 Months</option>
+        </select>
+    </div>
+
+    <div class="dashboard-summary">
+        <div class="summary-card">
+            <h4>Total Revenue</h4>
+            <h2 id="totalRevenue">₹0</h2>
+            <small id="revenueChange" class="text-green">+0%</small>
+        </div>
+        <div class="summary-card">
+            <h4>Total Customers</h4>
+            <h2 id="totalCustomers">0</h2>
+            <small id="customerChange" class="text-green">+0%</small>
+        </div>
+        <div class="summary-card">
+            <h4>Total Orders</h4>
+            <h2 id="totalOrders">0</h2>
+            <small id="orderChange" class="text-green">+0%</small>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Recent Orders</h3>
-            </div>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Date</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Breaking Bad T-shirt</td>
-                        <td>Jan 20, 2025</td>
-                        <td>₹999</td>
-                        <td><span class="status completed">Completed</span></td>
-                    </tr>
-                    <tr>
-                        <td>Marvel cup</td>
-                        <td>Jan 19, 2025</td>
-                        <td>₹599</td>
-                        <td><span class="status pending">Pending</span></td>
-                    </tr>
-                    <tr>
-                        <td>Batman Poster</td>
-                        <td>Jan 19, 2025</td>
-                        <td>₹299</td>
-                        <td><span class="status completed">Completed</span></td>
-                    </tr>
-                    <tr>
-                        <td>Sponge Bob T-shirt</td>
-                        <td>Jan 18, 2025</td>
-                        <td>₹899</td>
-                        <td><span class="status completed">Completed</span></td>
-                    </tr>
-                    <tr>
-                        <td>Pulp Fiction Poster</td>
-                        <td>Jan 18, 2025</td>
-                        <td>₹199</td>
-                        <td><span class="status pending">Pending</span></td>
-                    </tr>
-                    <tr>
-                        <td>John wick T-shirt</td>
-                        <td>Jan 17, 2025</td>
-                        <td>₹999</td>
-                        <td><span class="status completed">Completed</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="card best-selling">
-            <div class="card-header">
-                <h3 class="card-title">Best Selling This Month</h3>
+                <h3 class="card-title">Sales Overview</h3>
             </div>
             <div class="chart-container">
-                <canvas id="bestSellingChart"></canvas>
+                <canvas id="salesChart"></canvas>
             </div>
         </div>
-    </main>
-    <%- include("../partials/admin/admin-footer") %>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Customer Growth</h3>  
+            </div>
+            <div class="chart-container">
+                <canvas id="customersChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Top Selling Categories</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="categoriesChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Top Selling Products</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="topProductsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="card recent-orders">
+        <div class="card-header">
+            <h3 class="card-title">Recent Orders</h3>
+        </div>
+        <table class="table" id="recentOrdersTable">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic content will be populated here -->
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/js/admin-dashboard.js"></script>
+
+<script>
+   document.addEventListener('DOMContentLoaded', () => {
+    const timePeriodFilter = document.getElementById('timePeriodFilter');
+    
+    // Centralized chart management
+    const chartInstances = {
+        salesChart: null,
+        customersChart: null,
+        categoriesChart: null,
+        topProductsChart: null
+    };
+
+    // Safe chart destruction
+    function safelyDestroyChart(chartKey) {
+        try {
+            const existingChart = Chart.getChart(chartKey);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+        } catch (error) {
+            console.warn(`Error destroying chart ${chartKey}:`, error);
+        }
+    }
+
+    // Robust chart creation
+    function createChartSafely(chartId, chartType, chartData, chartOptions = {}) {
+        try {
+            // Ensure canvas exists
+            const canvas = document.getElementById(chartId);
+            if (!canvas) {
+                console.error(`Canvas with id ${chartId} not found`);
+                return null;
+            }
+
+            // Destroy existing chart if it exists
+            safelyDestroyChart(chartId);
+
+            // Create new chart
+            return new Chart(canvas, {
+                type: chartType,
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    ...chartOptions
+                }
+            });
+        } catch (error) {
+            console.error(`Error creating chart ${chartId}:`, error);
+            return null;
+        }
+    }
+
+    function fetchDashboardData(period = 'monthly') {
+        // Attempt to destroy all existing charts before fetching new data
+        Object.keys(chartInstances).forEach(key => {
+            try {
+                safelyDestroyChart(key);
+            } catch (error) {
+                console.warn(`Error during pre-fetch chart destruction:`, error);
+            }
+        });
+
+        fetch(`/admin/dashboard-data?period=${period}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                updateSummaryCards(data);
+                initializeCharts(data);
+            })
+            .catch(error => {
+                console.error('Error fetching dashboard data:', error);
+                displayErrorMessage('Failed to load dashboard data');
+            });
+    }
+
+    function initializeCharts(data) {
+        // Safely create each chart
+        try {
+            // Sales Chart
+            chartInstances.salesChart = createChartSafely('salesChart', 'line', {
+                labels: data.salesByDate.map(item => item._id),
+                datasets: [{
+                    label: 'Daily Sales',
+                    data: data.salesByDate.map(item => item.total),
+                    borderColor: 'blue',
+                    backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                    tension: 0.1
+                }]
+            }, {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Revenue (₹)'
+                        }
+                    }
+                }
+            });
+
+            // Customers Chart
+            chartInstances.customersChart = createChartSafely('customersChart', 'bar', {
+                labels: data.salesByDate.map(item => item._id),
+                datasets: [{
+                    label: 'Daily New Customers',
+                    data: new Array(data.salesByDate.length).fill(0), // Placeholder
+                    backgroundColor: 'green'
+                }]
+            });
+
+            // Categories Chart
+            chartInstances.categoriesChart = createChartSafely('categoriesChart', 'pie', {
+                labels: data.topCategories.map(cat => cat._id),
+                datasets: [{
+                    data: data.topCategories.map(cat => cat.totalSales),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 206, 86, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(153, 102, 255, 0.8)'
+                    ]
+                }]
+            });
+
+            // Top Products Chart
+            chartInstances.topProductsChart = createChartSafely('topProductsChart', 'bar', {
+                labels: data.topProducts.map(prod => prod._id),
+                datasets: [{
+                    label: 'Units Sold',
+                    data: data.topProducts.map(prod => prod.totalQuantity),
+                    backgroundColor: 'purple'
+                }]
+            }, {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Units'
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error in chart initialization:', error);
+            displayErrorMessage('Failed to create dashboard charts');
+        }
+
+        // Update Recent Orders
+        updateRecentOrders(data.recentOrders);
+    }
+
+    function updateSummaryCards(data) {
+        document.getElementById('totalRevenue').textContent = `₹${(data.totalRevenue || 0).toLocaleString()}`;
+        document.getElementById('totalCustomers').textContent = data.totalCustomers || 0;
+        document.getElementById('totalOrders').textContent = data.totalOrders || 0;
+    }
+
+    function updateRecentOrders(orders) {
+        const tableBody = document.querySelector('#recentOrdersTable tbody');
+        tableBody.innerHTML = '';
+
+        orders.forEach(order => {
+            order.order_items.forEach(item => {
+                const row = `
+                    <tr>
+                        <td>${item.productName}</td>
+                        <td>${new Date(order.invoiceDate).toLocaleDateString()}</td>
+                        <td>₹${item.price.toLocaleString()}</td>
+                        <td><span class="status ${order.status.toLowerCase()}">${order.status}</span></td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+        });
+    }
+
+    function displayErrorMessage(message) {
+        let errorEl = document.getElementById('dashboard-error');
+        if (!errorEl) {
+            errorEl = document.createElement('div');
+            errorEl.id = 'dashboard-error';
+            errorEl.className = 'error-message';
+            document.querySelector('.main-content').prepend(errorEl);
+        }
+        errorEl.textContent = message;
+    }
+
+    // Initial load
+    fetchDashboardData();
+
+    // Filter event listener
+    timePeriodFilter.addEventListener('change', (e) => {
+        fetchDashboardData(e.target.value);
+    });
+});
+</script>
+
+
+<%- include("../partials/admin/admin-footer") %>

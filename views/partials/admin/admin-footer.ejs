@@ -1,3 +1,5 @@
+<!-- Ensure these are loaded in this order -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -5,108 +7,206 @@
 
 
 <script src="/js/admin/dashboard.js"></script>
-<script src="/js/admin/customers.js"></script>
+
+
 <script>
-  // Sales Chart
-new Chart(document.getElementById('salesChart'), {
-   type: 'line',
-   data: {
-       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-       datasets: [{
-           label: 'Sales ($)',
-           data: [12000, 19000, 15000, 25000, 22000, 30000],
-           borderColor: '#3b82f6',
-           tension: 0.4
-       }]
-   },
-   options: {
-       responsive: true,
-       maintainAspectRatio: false
-   }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Chart Initialization Function
+        function initializeCharts() {
+            // Safely destroy existing charts
+            function destroyExistingChart(chartId) {
+                const existingChart = Chart.getChart(chartId);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+            }
+    
+            // Sales Chart
+            destroyExistingChart('salesChart');
+            new Chart(document.getElementById('salesChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Sales (₹)',
+                        data: [12000, 19000, 15000, 25000, 22000, 30000],
+                        borderColor: '#3b82f6',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+    
+            // Customers Chart
+           document.addEventListener('DOMContentLoaded', function() {
+    // Function to safely initialize or reinitialize the customers chart
+    function initializeCustomersChart() {
+        // Get the canvas element
+        const customersChartCanvas = document.getElementById('customersChart');
+        
+        // Check if canvas exists
+        if (!customersChartCanvas) {
+            console.error('Customers chart canvas not found');
+            return;
+        }
+
+        // Destroy existing chart if it exists
+        const existingChart = Chart.getChart(customersChartCanvas);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+
+        // Create new chart with safe error handling
+        try {
+            new Chart(customersChartCanvas, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'New Customers',
+                        data: [50, 65, 75, 85, 95, 100],
+                        backgroundColor: '#3b82f6',
+                        borderColor: '#3b82f6',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Customers'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error initializing customers chart:', error);
+            
+            // Optional: Use SweetAlert for user-friendly error message
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Chart Initialization Error',
+                    text: 'Unable to load customers chart. Please refresh the page.'
+                });
+            }
+        }
+    }
+
+    // Ensure Chart.js is loaded before initializing
+    if (typeof Chart !== 'undefined') {
+        initializeCustomersChart();
+    } else {
+        console.error('Chart.js is not loaded');
+    }
 });
 
-// Customers Chart
-new Chart(document.getElementById('customersChart'), {
-   type: 'bar',
-   data: {
-       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-       datasets: [{
-           label: 'New Customers',
-           data: [50, 65, 75, 85, 95, 100],
-           backgroundColor: '#3b82f6'
-       }]
-   },
-   options: {
-       responsive: true,
-       maintainAspectRatio: false
-   }
-});
-
-// Orders Chart
-new Chart(document.getElementById('ordersChart'), {
-   type: 'line',
-   data: {
-       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-       datasets: [{
-           label: 'Orders',
-           data: [150, 200, 175, 250, 220, 300],
-           borderColor: '#3b82f6',
-           tension: 0.4
-       }]
-   },
-   options: {
-       responsive: true,
-       maintainAspectRatio: false
-   }
-});
-
-// Best Selling Chart (Doughnut)
-new Chart(document.getElementById('bestSellingChart'), {
-   type: 'doughnut',
-   data: {
-       labels: ['T-shirts', 'Posters'],
-       datasets: [{
-           data: [60, 40],
-           backgroundColor: ['#3b82f6', '#ec4899']
-       }]
-   },
-   options: {
-       responsive: true,
-       maintainAspectRatio: false,
-       plugins: {
-           legend: {
-               position: 'right'
-           }
-       }
-   }
-});
-
-// Handle sidebar navigation and breadcrumbs
-document.addEventListener('DOMContentLoaded', function() {
-   // Get all nav items
-   const navItems = document.querySelectorAll('.nav-item');
-   const breadcrumbPage = document.getElementById('currentPage');
-   
-   // Set initial active state
-   navItems[0].classList.add('active');
-
-   // Add click event to each nav item
-   navItems.forEach(item => {
-       item.addEventListener('click', function(e) {
-        //    e.preventDefault();
-           
-           // Remove active class from all items
-           navItems.forEach(nav => nav.classList.remove('active'));
-           
-           // Add active class to clicked item
-           this.classList.add('active');
-           
-           // Update breadcrumbs
-           const pageName = this.getAttribute('data-page');
-           breadcrumbPage.textContent = pageName;
-       });
-   });
-});
-</script>
+    
+            // Orders Chart
+            destroyExistingChart('ordersChart');
+            new Chart(document.getElementById('ordersChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Orders',
+                        data: [150, 200, 175, 250, 220, 300],
+                        borderColor: '#3b82f6',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+    
+            // Best Selling Chart (Doughnut)
+            destroyExistingChart('bestSellingChart');
+            new Chart(document.getElementById('bestSellingChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['T-shirts', 'Posters'],
+                    datasets: [{
+                        data: [60, 40],
+                        backgroundColor: ['#3b82f6', '#ec4899']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+    
+        // Navigation and Breadcrumbs Handling
+        function initializeNavigation() {
+            // Get all nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            const breadcrumbPage = document.getElementById('currentPage');
+            
+            // Set initial active state
+            if (navItems.length > 0) {
+                navItems[0].classList.add('active');
+            }
+    
+            // Add click event to each nav item
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove active class from all items
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    
+                    // Update breadcrumbs
+                    const pageName = this.getAttribute('data-page');
+                    if (breadcrumbPage && pageName) {
+                        breadcrumbPage.textContent = pageName;
+                    }
+                });
+            });
+        }
+    
+        // Error Handling Wrapper
+        function safeInitialize(initFunction) {
+            try {
+                initFunction();
+            } catch (error) {
+                console.error('Initialization error:', error);
+                // Optionally show user-friendly error message
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Initialization Error',
+                    text: 'There was a problem setting up the page. Please refresh.'
+                });
+            }
+        }
+    
+        // Initialize everything
+        safeInitialize(initializeCharts);
+        safeInitialize(initializeNavigation);
+    });
+    </script>
+    
 </body>
 </html>

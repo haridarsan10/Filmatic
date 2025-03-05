@@ -28,7 +28,12 @@ const uploads = multer({ storage: storage });
 router.get('/pageError',adminAuth,adminController.pageError)
 router.get('/login',adminController.loadLoginpage)
 router.post('/login',adminController.login)
+
+//dashboard
 router.get('/',adminAuth,adminController.loadDashboard)
+router.get('/dashboard-data', adminController.getDashboardData);
+
+
 router.get('/logout',adminController.logout)
 
 //Customer Management
