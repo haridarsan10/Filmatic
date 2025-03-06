@@ -519,7 +519,6 @@ const loadShopPage = async (req, res) => {
   
           const wallet = await Wallet.findOne({ userId }) || { balance: 0, transactions: [] };
   
-          // Find all users who were referred by this user (used his referral code during signup)
           const referredUsers = await User.find({ referredBy: user.referralCode });
   
           res.render('referral', { 

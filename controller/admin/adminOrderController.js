@@ -116,7 +116,6 @@ const adminCancelOrder=async (req,res) => {
     res.status(500).json({success:false,message:"Some error occured"})
   } 
 }
-
 const updateOrderStatus = async (req, res) => {
   try {
       const { orderId, productId, newStatus } = req.body;
@@ -153,6 +152,12 @@ const updateOrderStatus = async (req, res) => {
 
       product.itemStatus = newStatus;
 
+      if (newStatus === 'returnRequested' && req.body.returnReason) {
+          product.returnReason = req.body.returnReason;
+      }
+
+      await updateOverallOrderStatus(order);
+
       await order.save();
 
       res.json({ success: true, message: "Product item status updated successfully." });
@@ -161,6 +166,39 @@ const updateOrderStatus = async (req, res) => {
       console.error("Error updating product item status:", error);
       res.status(500).json({ success: false, message: "Internal server error." });
   }
+};
+
+const updateOverallOrderStatus = (order) => {
+    const itemStatuses = order.order_items.map(item => item.itemStatus);
+    
+    if (itemStatuses.every(status => status === 'delivered')) {
+        order.status = 'delivered';
+    } else if (itemStatuses.every(status => status === 'cancelled')) {
+        order.status = 'cancelled';
+    } else if (itemStatuses.every(status => status === 'returned')) {
+        order.status = 'returned';
+        
+        order.returnStatus = 'completed';
+    } else if (itemStatuses.some(status => status === 'returnRequested')) {
+        order.returnStatus = 'pending';
+    }
+    
+    const hasDelivered = itemStatuses.some(status => status === 'delivered');
+    const allOthersCancelledOrReturned = itemStatuses.every(status => 
+        status === 'delivered' || status === 'cancelled' || status === 'returned'
+    );
+    
+    if (hasDelivered && allOthersCancelledOrReturned) {
+        order.status = 'delivered'; 
+    }
+    
+    if (itemStatuses.some(status => status === 'returned')) {
+        if (order.refundStatus === 'not processed') {
+            order.refundStatus = 'processing';
+        }
+    }
+    
+    return order;
 };
 
 
