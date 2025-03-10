@@ -185,10 +185,19 @@
     <div class="container">
         <h2>Sales Report</h2>
         <div class="top-buttons">
-            <a id="downloadPDF" href="#" 
-            style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; font-weight: bold; text-align: center;">
-            Download PDF
-         </a>
+            <div class="dropdown">
+                <button id="downloadReportBtn" 
+                style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; font-weight: bold; text-align: center;">
+                    Download Sales Report ▼
+                </button>
+                <div class="dropdown-content" 
+                style="display: none; position: absolute; background-color: white; border: 1px solid #ddd; box-shadow: 0px 8px 16px rgba(0,0,0,0.2); z-index: 1000; min-width: 150px;">
+                    <a id="downloadPDF" href="#" 
+                    style="display: block; padding: 10px; text-decoration: none; color: black;">Download as PDF</a>
+                    <a id="downloadExcel" href="#" 
+                    style="display: block; padding: 10px; text-decoration: none; color: black;">Download as Excel</a>
+                </div>
+            </div>
         </div>
 
 
@@ -223,10 +232,6 @@
                 <h4>Overall Order Amount</h4>
                 <p>₹<%- totalRevenue %>.00</p>
             </div>
-            <!-- <div class="box">
-                <h4>Overall Discount</h4>
-                <p>₹124.00</p>
-            </div> -->
         </div>
 
         <table>
@@ -236,6 +241,7 @@
                     <th>Date</th>
                     <th>Customer Name</th>
                     <th>Order Status</th>
+                    <th>Discount Amount</th>
                     <th>Amount</th>
                 </tr>
             </thead>
@@ -248,10 +254,12 @@
                         <td class="status <%= order.status.replace(/\s+/g, '-').toLowerCase() %>">
                             <%= order.status %>
                         </td>
-                        <td><%= order.finalAmount %></td>
+                        <td><%= order.discount %></td>
+                        <td><%= order.deliveredRevenue.toFixed(2) %></td>
                     </tr>
                 <% }) %>
             </tbody>
+            
             
         </table>
         <div class="pagination">
@@ -272,27 +280,44 @@
 
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            function updateDownloadLink() {
-                const filterBy = document.getElementById('filterBy').value;
-                const fromDate = document.getElementById('fromDate').value;
-                const toDate = document.getElementById('toDate').value;
-    
-                let query = [];
-                if (filterBy) query.push(`filterBy=${filterBy}`);
-                if (fromDate) query.push(`fromDate=${fromDate}`);
-                if (toDate) query.push(`toDate=${toDate}`);
-    
-                const queryString = query.length > 0 ? '?' + query.join('&') : '';
-                document.getElementById('downloadPDF').href = `/admin/salesReportPDF/pdf${queryString}`;
-            }
-    
-            updateDownloadLink();
-    
-            document.getElementById('filterBy').addEventListener('change', updateDownloadLink);
-            document.getElementById('fromDate').addEventListener('input', updateDownloadLink);
-            document.getElementById('toDate').addEventListener('input', updateDownloadLink);
+            document.addEventListener("DOMContentLoaded", function () {
+        const downloadButton = document.getElementById('downloadReportBtn');
+        const dropdownContent = document.querySelector('.dropdown-content');
+
+        // Toggle dropdown visibility
+        downloadButton.addEventListener('click', function (event) {
+            event.stopPropagation();
+            dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
         });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function () {
+            dropdownContent.style.display = "none";
+        });
+
+        function updateDownloadLinks() {
+            const filterBy = document.getElementById('filterBy').value;
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+
+            let query = [];
+            if (filterBy) query.push(`filterBy=${filterBy}`);
+            if (fromDate) query.push(`fromDate=${fromDate}`);
+            if (toDate) query.push(`toDate=${toDate}`);
+
+            const queryString = query.length > 0 ? '?' + query.join('&') : '';
+
+            document.getElementById('downloadPDF').href = `/admin/salesReportPDF/pdf${queryString}`;
+            document.getElementById('downloadExcel').href = `/admin/salesReportExcel/excel${queryString}`;
+        }
+
+        updateDownloadLinks();
+
+        document.getElementById('filterBy').addEventListener('change', updateDownloadLinks);
+        document.getElementById('fromDate').addEventListener('input', updateDownloadLinks);
+        document.getElementById('toDate').addEventListener('input', updateDownloadLinks);
+    });
+
     </script>
     
         

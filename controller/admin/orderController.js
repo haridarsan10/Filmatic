@@ -1,6 +1,7 @@
 const PDFDocument = require('pdfkit'); 
 const path = require('path'); 
 const fs = require('fs');
+const xlsx = require("xlsx");
 const Product = require('../../models/productSchema');
 const Category=require('../../models/categorySchema')
 const User=require('../../models/userSchema')
@@ -135,62 +136,46 @@ const approveReturn = async (req, res) => {
     }
 };
 
+
 const getSalesReport = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; 
-        const limit = 10; 
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10;
         const skip = (page - 1) * limit;
 
         const { filterBy, fromDate, toDate } = req.query;
 
         let dateFilter = {};
         if (fromDate && toDate) {
-            dateFilter = {
-                invoiceDate: {
-                    $gte: new Date(fromDate),
-                    $lte: new Date(toDate)   
-                }
+            dateFilter.invoiceDate = {
+                $gte: new Date(fromDate),
+                $lte: new Date(toDate)
             };
         } else {
             const today = new Date();
             if (filterBy === "daily") {
-                dateFilter = {
-                    invoiceDate: {
-                        $gte: new Date(today.setHours(0, 0, 0, 0)), 
-                        $lte: new Date()
-                    }
+                dateFilter.invoiceDate = {
+                    $gte: new Date(today.setHours(0, 0, 0, 0)),
+                    $lte: new Date()
                 };
             } else if (filterBy === "weekly") {
                 const lastWeek = new Date();
                 lastWeek.setDate(lastWeek.getDate() - 7);
-                dateFilter = {
-                    invoiceDate: {
-                        $gte: lastWeek,
-                        $lte: new Date()
-                    }
-                };
+                dateFilter.invoiceDate = { $gte: lastWeek, $lte: new Date() };
             } else if (filterBy === "monthly") {
                 const lastMonth = new Date();
                 lastMonth.setMonth(lastMonth.getMonth() - 1);
-                dateFilter = {
-                    invoiceDate: {
-                        $gte: lastMonth,
-                        $lte: new Date()
-                    }
-                };
+                dateFilter.invoiceDate = { $gte: lastMonth, $lte: new Date() };
             }
         }
 
-        const totalOrders = await Order.aggregate([
-            { $match: dateFilter },
-            { $unwind: '$order_items' },
-            { $match: { 'order_items.itemStatus': 'delivered' } },
-            { $group: { _id: '$_id' } },
-            { $count: 'total' }
-        ]);
+        // Count total delivered orders
+        const totalOrdersCount = await Order.countDocuments({
+            ...dateFilter,
+            'order_items.itemStatus': 'delivered'
+        });
 
-        console.log("Total Orders with delivered items:", totalOrders[0]?.total || 0);
-
+        // Calculate total revenue for delivered items
         const totalSales = await Order.aggregate([
             { $match: dateFilter },
             { $unwind: '$order_items' },
@@ -198,14 +183,13 @@ const getSalesReport = async (req, res) => {
             {
                 $group: {
                     _id: null,
-                    total: { $sum: { $multiply: ['$order_items.price', '$order_items.quantity'] } }
+                    totalRevenue: { $sum: { $multiply: ['$order_items.price', '$order_items.quantity'] } }
                 }
             }
         ]);
+        const totalRevenue = totalSales.length > 0 ? totalSales[0].totalRevenue : 0;
 
-        const totalRevenue = totalSales.length > 0 ? totalSales[0].total : 0;
-        console.log("Total Revenue from delivered items:", totalRevenue);
-
+        // Fetch orders with delivered items for pagination
         const orderIdsWithDeliveredItems = await Order.aggregate([
             { $match: dateFilter },
             { $unwind: '$order_items' },
@@ -216,32 +200,41 @@ const getSalesReport = async (req, res) => {
             { $limit: limit }
         ]);
 
-        const totalOrdersCount = totalOrders[0]?.total || 0;
-        const totalPages = Math.ceil(totalOrdersCount / limit);
-
+        // Retrieve full order details
         const orders = await Order.find({
             _id: { $in: orderIdsWithDeliveredItems.map(o => o._id) }
         })
             .populate('userId', 'name email phone')
             .populate('order_items.productId', 'productName price')
-            .sort({ invoiceDate: -1 });
+            .sort({ invoiceDate: -1 })
+            .lean();
+
+        // Compute delivered revenue per order
+        const ordersWithDeliveredRevenue = orders.map(order => ({
+            ...order,
+            deliveredRevenue: order.order_items
+                .filter(item => item.itemStatus === 'delivered')
+                .reduce((sum, item) => sum + item.price * item.quantity, 0)
+        }));
 
         res.render('sales-report', {
-            orders,
+            orders: ordersWithDeliveredRevenue,
             totalRevenue,
             totalOrders: totalOrdersCount,
             currentPage: page,
-            totalPages,
+            totalPages: Math.ceil(totalOrdersCount / limit),
             filterBy,
             fromDate,
             toDate
         });
 
     } catch (error) {
-        console.log("Error getting sales report", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        console.error("Error fetching sales report:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 };
+
+
 
 const getSalesReportPDF = async (req, res) => {
     try {
@@ -301,11 +294,13 @@ const getSalesReportPDF = async (req, res) => {
             .sort({ invoiceDate: -1 });
 
         let totalRevenue = 0;
+        let totalDiscount = 0;
         orders.forEach(order => {
             const deliveredItems = order.order_items.filter(item => item.itemStatus === 'delivered');
             deliveredItems.forEach(item => {
                 totalRevenue += item.price * item.quantity;
             });
+            totalDiscount += order.discount || 0; // Ensure discount is added if it exists
         });
 
         const totalOrders = orders.length;
@@ -336,17 +331,18 @@ const getSalesReportPDF = async (req, res) => {
            })}`, { align: 'center' })
            .moveDown(1);
 
-        doc.rect(50, doc.y, 500, 60).stroke();
+        doc.rect(50, doc.y, 500, 80).stroke();  // Increased height for discount
         doc.fontSize(12)
            .text('Summary', 60, doc.y + 10)
            .fontSize(10)
            .text(`Total Orders with Delivered Items: ${totalOrders}`, 60, doc.y + 5)
            .text(`Total Revenue from Delivered Items: ₹${totalRevenue.toLocaleString()}.00`, 60, doc.y + 5)
+           .text(`Total Discount Given: ₹${totalDiscount.toLocaleString()}.00`, 60, doc.y + 5) // Added discount
            .moveDown(2);
 
         const tableTop = doc.y;
-        const tableHeaders = ['Order ID', 'Date', 'Customer Name', 'Delivered Items', 'Revenue'];
-        const columnWidths = [120, 80, 140, 80, 80];
+        const tableHeaders = ['Order ID', 'Date', 'Customer Name', 'Delivered', 'Discount', 'Revenue'];
+        const columnWidths = [90, 80, 130, 70, 60, 70];
         let xPosition = 50;
 
         doc.rect(50, tableTop, 500, 20).fill('#f0f0f0');
@@ -356,7 +352,7 @@ const getSalesReportPDF = async (req, res) => {
             doc.fillColor('black')
                .text(header, xPosition, tableTop + 5, {
                    width: columnWidths[i],
-                   align: header === 'Revenue' ? 'right' : 'left'
+                   align: ['Revenue', 'Discount'].includes(header) ? 'right' : 'left'
                });
             xPosition += columnWidths[i];
         });
@@ -376,7 +372,7 @@ const getSalesReportPDF = async (req, res) => {
                     doc.fillColor('black')
                        .text(header, xPosition, yPosition + 5, {
                            width: columnWidths[i],
-                           align: header === 'Revenue' ? 'right' : 'left'
+                           align: ['Revenue', 'Discount'].includes(header) ? 'right' : 'left'
                        });
                     xPosition += columnWidths[i];
                 });
@@ -390,6 +386,7 @@ const getSalesReportPDF = async (req, res) => {
 
             const deliveredItems = order.order_items.filter(item => item.itemStatus === 'delivered');
             const orderRevenue = deliveredItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const orderDiscount = order.discount || 0; // Added discount field
 
             xPosition = 50;
             doc.fillColor('black')
@@ -413,8 +410,14 @@ const getSalesReportPDF = async (req, res) => {
             });
 
             xPosition += columnWidths[3];
-            doc.text(`₹${orderRevenue.toLocaleString()}.00`, xPosition, yPosition, {
+            doc.text(`₹${orderDiscount.toLocaleString()}.00`, xPosition, yPosition, { // Added discount
                 width: columnWidths[4],
+                align: 'right'
+            });
+
+            xPosition += columnWidths[4];
+            doc.text(`₹${orderRevenue.toLocaleString()}.00`, xPosition, yPosition, {
+                width: columnWidths[5],
                 align: 'right'
             });
 
@@ -441,6 +444,128 @@ const getSalesReportPDF = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
+
+
+
+const getSalesReportExcel = async (req, res) => {
+    try {
+        const { filterBy, fromDate, toDate } = req.query;
+
+        let dateFilter = {};
+        if (fromDate && toDate) {
+            dateFilter = {
+                invoiceDate: {
+                    $gte: new Date(fromDate),
+                    $lte: new Date(toDate)
+                }
+            };
+        } else {
+            const today = new Date();
+            if (filterBy === "daily") {
+                dateFilter = {
+                    invoiceDate: {
+                        $gte: new Date(today.setHours(0, 0, 0, 0)),
+                        $lte: new Date()
+                    }
+                };
+            } else if (filterBy === "weekly") {
+                const lastWeek = new Date();
+                lastWeek.setDate(lastWeek.getDate() - 7);
+                dateFilter = {
+                    invoiceDate: {
+                        $gte: lastWeek,
+                        $lte: new Date()
+                    }
+                };
+            } else if (filterBy === "monthly") {
+                const lastMonth = new Date();
+                lastMonth.setMonth(lastMonth.getMonth() - 1);
+                dateFilter = {
+                    invoiceDate: {
+                        $gte: lastMonth,
+                        $lte: new Date()
+                    }
+                };
+            }
+        }
+
+        const orderIdsWithDeliveredItems = await Order.aggregate([
+            { $match: dateFilter },
+            { $unwind: '$order_items' },
+            { $match: { 'order_items.itemStatus': 'delivered' } },
+            { $group: { _id: '$_id' } },
+            { $sort: { _id: -1 } }
+        ]);
+
+        const orders = await Order.find({
+            _id: { $in: orderIdsWithDeliveredItems.map(o => o._id) }
+        })
+            .populate('userId', 'name email phone')
+            .populate('order_items.productId', 'productName price')
+            .sort({ invoiceDate: -1 });
+
+        let totalRevenue = 0;
+        let totalDiscount = 0;
+
+        const reportData = orders.map(order => {
+            const deliveredItems = order.order_items.filter(item => item.itemStatus === 'delivered');
+            const orderRevenue = deliveredItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const orderDiscount = order.discount || 0;
+
+            totalRevenue += orderRevenue;
+            totalDiscount += orderDiscount;
+
+            return {
+                "Order ID": order._id.toString().slice(-8),
+                "Date": new Date(order.invoiceDate).toLocaleDateString(),
+                "Customer Name": order.userId.name,
+                "Total Items": order.order_items.length,
+                "Delivered Items": deliveredItems.length,
+                "Discount (₹)": orderDiscount,
+                "Revenue (₹)": orderRevenue
+            };
+        });
+
+        // Adding summary row at the end
+        reportData.push({
+            "Order ID": "TOTAL",
+            "Date": "",
+            "Customer Name": "",
+            "Total Items": "",
+            "Delivered Items": "",
+            "Discount (₹)": totalDiscount,
+            "Revenue (₹)": totalRevenue
+        });
+
+        // Create a new workbook and worksheet
+        const workbook = xlsx.utils.book_new();
+        const worksheet = xlsx.utils.json_to_sheet(reportData);
+
+        // Add worksheet to workbook
+        xlsx.utils.book_append_sheet(workbook, worksheet, "Sales Report");
+
+        // Define file path
+        const filePath = path.join(__dirname, "../publics/sales_report.xlsx");
+
+        // Write file
+        xlsx.writeFile(workbook, filePath);
+
+        // Send file as download
+        res.download(filePath, "Filmatic_Sales_Report.xlsx", (err) => {
+            if (err) {
+                console.error("Error downloading Excel:", err);
+                res.status(500).send("Error downloading Excel file");
+            }
+            fs.unlinkSync(filePath); // Delete file after download
+        });
+
+    } catch (error) {
+        console.log("Error generating sales report Excel", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
 
 
 const rejectProductReturn = async (req, res) => {
@@ -542,4 +667,4 @@ const approveProductReturn = async (req, res) => {
 };
 
   
-module.exports = { loadReturn,loadProductReturn,rejectReturn,approveReturn,rejectProductReturn,approveProductReturn,getSalesReport,getSalesReportPDF };
+module.exports = { loadReturn,loadProductReturn,rejectReturn,approveReturn,rejectProductReturn,approveProductReturn,getSalesReport,getSalesReportPDF,getSalesReportExcel };

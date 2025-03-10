@@ -49,17 +49,13 @@
 
 }
 
-.page-header.breadcrumb-wrap {
-    background-color: #f5f5f5;
-    border-radius: 8px;
-  }
-
-  .breadcrumb-container {
+.breadcrumb-container {
     font-family: Arial, sans-serif;
     font-size: 14px;
   }
 
   .breadcrumb {
+    background-color: #ffffff;
     list-style: none;
     display: flex;
     align-items: center;
@@ -74,19 +70,19 @@
 
   .breadcrumb a {
     text-decoration: none;
-    color: #007bff;
+    color: #000000;
     font-weight: 500;
     transition: color 0.3s ease;
   }
 
   .breadcrumb a:hover {
-    color: #0056b3;
+    color: #000000;
   }
 
   .breadcrumb span {
     margin: 0 8px;
-    color: #555;
-  }
+    color: #ffffff;
+  };
 
   a.btn-wallet {
     background-color: #4caf50; /* Green, gives a 'financial' feel */
@@ -113,11 +109,14 @@ a.btn-primary:hover {
 
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
-    <li class="breadcrumb-item"><a href="/userProfile">User Profile</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Wallet</li>
+      <li>
+          <a href="/">Home</a> > 
+          <a href="/userProfile">User Profile</a>>
+          <a href="/wallet">Wallet</a>
+      </li>
   </ol>
 </nav>
+
 
 <section class="pt-10 pb-10" style="margin-top: 50px; margin-bottom: 50px;">
   <div class="container">
@@ -153,7 +152,7 @@ a.btn-primary:hover {
             <div class="card-body" style="margin-top: 20px;">
               <h4 class="mb-3">Available Balance: ₹<%= balance.toFixed(2) %></h4>
               <p class="mb-3">Use your wallet balance for easy payments.</p>
-              <a href="/wallet-history" class="btn btn-wallet mt-3">View Transaction History</a>
+              <a href="/wallet-history" style="background-color: #000000; color: white;"  class="btn btn-wallet mt-3">View Transaction History</a>
             </div>
           </div>          
         </div>

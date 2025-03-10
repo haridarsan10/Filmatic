@@ -117,50 +117,52 @@
         transform: scale(0.98);  /* Slight shrink on click */
     }
 
+    
+  .breadcrumb-container {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+  }
 
-        .breadcrumb-container {
-          font-size: 14px;
-        }
+  .breadcrumb {
+    background-color: #ffffff;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    padding-left: 50px;
+    
+  }
 
-.breadcrumb {
-  list-style: none;
-  display: flex;
-  align-items: center;
-  padding-left: 50px;
-}
+  .breadcrumb li {
+    display: flex;
+    align-items: center;
+  }
 
-.breadcrumb li {
-  display: flex;
-  align-items: center;
-}
+  .breadcrumb a {
+    text-decoration: none;
+    color: #000000;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
 
-.breadcrumb a {
-  text-decoration: none;
-  color: #007bff;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
+  .breadcrumb a:hover {
+    color: #000000;
+  }
 
-.breadcrumb a:hover {
-  color: #0056b3;
-}
-
-.breadcrumb span {
-  margin: 0 8px;
-  color: #555;
-}
+  .breadcrumb span {
+    margin: 0 8px;
+    color: #ffffff;
+  };
 </style>
 
 <nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
-    <!-- <li class="breadcrumb-item"><a href="/userProfile"></a></li> -->
-    <!-- <li class="breadcrumb-item"><a href="/shop">Shop</a></li> -->
-    <li class="breadcrumb-item active" aria-current="page">Wishlist</li>
-  </ol>
-</nav>
-
-
+    <ol class="breadcrumb">
+        <li>
+            <a href="/">Home</a> > 
+            <a href="/wishlist">Wishlist</a>
+        </li>
+    </ol>
+  </nav>
+  
 
 <div class="checkout_area section-padding-80">
   <div class="container">

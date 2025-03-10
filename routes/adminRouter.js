@@ -92,5 +92,7 @@ router.post('/approve-productReturn',orderController.approveProductReturn)
 //Sales report
 router.get('/sales-report',adminAuth,orderController.getSalesReport)
 router.get('/salesReportPDF/pdf', adminAuth, orderController.getSalesReportPDF)
+router.get("/salesReportExcel/excel", adminAuth,orderController.getSalesReportExcel);
+
 
 module.exports=router

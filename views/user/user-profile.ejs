@@ -76,17 +76,14 @@
     }
   }
 
-  .page-header.breadcrumb-wrap {
-    background-color: #f5f5f5;
-    border-radius: 8px;
-  }
-
+  
   .breadcrumb-container {
     font-family: Arial, sans-serif;
     font-size: 14px;
   }
 
   .breadcrumb {
+    background-color: #ffffff;
     list-style: none;
     display: flex;
     align-items: center;
@@ -113,8 +110,7 @@
   .breadcrumb span {
     margin: 0 8px;
     color: #ffffff;
-  }
-
+  };
   
   </style>
 
@@ -122,12 +118,13 @@
   
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item"><a href="/userProfile">User Profile</a></li>
-        <!-- <li class="breadcrumb-item"><a href="/shop">Shop</a></li> -->
-        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+          <li>
+              <a href="/">Home</a> > 
+              <a href="/userProfile">User Profile</a>
+          </li>
       </ol>
-    </nav>
+  </nav>
+
 
   <section class="pt-10 pb-10" style="margin-top: 50px; margin-bottom: 50px;">
     <div class="container">

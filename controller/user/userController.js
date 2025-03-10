@@ -193,7 +193,6 @@ function generateReferralCode() {
   return Math.random().toString(36).substring(2, 10).toUpperCase()
 }
 
-
 const verifyOtp = async (req, res) => {
   try {
       const { otp } = req.body;

@@ -251,67 +251,64 @@ body {
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
-        <nav>
-            <a href="/admin" class="nav-item" data-page="Dashboard">
-                <i class="fas fa-chart-line"></i>
-                Dashboard
-            </a>
-            <a href="/admin/products" class="nav-item" data-page="Products">
-               <i class="fas fa-box"></i>
-               Products
-           </a>
-            <a href="/admin/addProducts" class="nav-item" data-page="Products">
-                <i class="fas fa-box"></i>
-                Add Products
-            </a>
-            <a href="/admin/productRequests" class="nav-item" data-page="Products">
-               <i class="fas fa-box"></i>
-               Return Requests
-           </a>
-            <a href="/admin/orders" class="nav-item" data-page="Orders">
-                <i class="fas fa-shopping-cart"></i>
-                Orders
-            </a>
-            <!-- <a href="/admin/ordersRequests" class="nav-item" data-page="Orders">
-               <i class="fas fa-shopping-cart"></i>
-               Order requests
-           </a> -->
-            <a href="/admin/users" class="nav-item" data-page="Customers">
-                <i class="fas fa-users"></i>
-                Customers
-            </a>
-            <a href="/admin/coupon" class="nav-item" data-page="Coupon Management">
-                <i class="fas fa-ticket-alt"></i>
-                Coupon Management
-            </a>
-            <a href="/admin/category" class="nav-item" data-page="Categories">
-                <i class="fas fa-list"></i>
-                Category
-            </a>
-            <a href="/admin/sales-report" class="nav-item" data-page="Dashboard">
-               <i class="fas fa-chart-line"></i>
-               Sales Report
-           </a>
-        </nav>
-    </div>  
+      <nav>
+          <a href="/admin" class="nav-item" data-page="dashboard" style="border-left: 4px solid transparent;">
+              <i class="fas fa-box"></i>
+              Dashboard
+          </a>
+          <a href="/admin/products" class="nav-item" data-page="products" style="border-left: 4px solid transparent;">
+              <i class="fas fa-box"></i>
+              Products
+          </a>
+          <a href="/admin/addProducts" class="nav-item" data-page="addProducts" style="border-left: 4px solid transparent;">
+              <i class="fas fa-box"></i>
+              Add Products
+          </a>
+          <a href="/admin/productRequests" class="nav-item" data-page="productRequests" style="border-left: 4px solid transparent;">
+              <i class="fas fa-box"></i>
+              Return Requests
+          </a>
+          <a href="/admin/orders" class="nav-item" data-page="orders" style="border-left: 4px solid transparent;">
+              <i class="fas fa-shopping-cart"></i>
+              Orders
+          </a>
+          <!-- <a href="/admin/ordersRequests" class="nav-item" data-page="Orders" style="border-left: 4px solid transparent;">
+              <i class="fas fa-shopping-cart"></i>
+              Order requests
+          </a> -->
+          <a href="/admin/users" class="nav-item" data-page="users" style="border-left: 4px solid transparent;">
+              <i class="fas fa-users"></i>
+              Customers
+          </a>
+          <a href="/admin/coupon" class="nav-item" data-page="coupon" style="border-left: 4px solid transparent;">
+              <i class="fas fa-ticket-alt"></i>
+              Coupon Management
+          </a>
+          <a href="/admin/category" class="nav-item" data-page="category" style="border-left: 4px solid transparent;">
+              <i class="fas fa-list"></i>
+              Category
+          </a>
+          <a href="/admin/sales-report" class="nav-item" data-page="salesReport" style="border-left: 4px solid transparent;">
+              <i class="fas fa-chart-line"></i>
+              Sales Report
+          </a>
+      </nav>
+  </div>
+  
 
     <!-- Header -->
     <header class="header">
         <div class="brand">Filmatic</div>
         <div class="header-right">
-            <div class="notification-icon">
-                <i class="fas fa-bell"></i>
-                <span class="notification-badge">5</span>
-            </div>
             <div class="profile-dropdown">
                 <div class="profile-img">
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="dropdown-menu">
-                    <a href="#" class="dropdown-item">
+                    <!-- <a href="#" class="dropdown-item">
                         <i class="fas fa-user"></i>
                         Profile Settings
-                    </a>
+                    </a> -->
                     <a href="/admin/logout" class="dropdown-item">
                         <i class="fas fa-sign-out-alt"></i>
                         Logout
@@ -320,3 +317,35 @@ body {
             </div>
         </div>
     </header>
+
+<script>
+   document.addEventListener("DOMContentLoaded", function() {
+    const allMenuItems = document.querySelectorAll('.nav-item');
+    
+    const currentPath = window.location.pathname;
+    
+    allMenuItems.forEach(item => {
+        item.style.backgroundColor = '';
+        item.style.color = '#4b5563';
+        item.style.borderLeftColor = 'transparent';
+    });
+    
+    if (currentPath === '/admin' || currentPath === '/admin/') {
+
+      const dashboardItem = document.querySelector('.nav-item[href="/admin"]');
+        if (dashboardItem) {
+            dashboardItem.style.backgroundColor = '#ffffff'; 
+            dashboardItem.style.color = '#3b82f6';
+            dashboardItem.style.borderLeftColor = '#3b82f6';
+        }
+    } else {
+
+      const matchingItem = document.querySelector(`.nav-item[href="${currentPath}"]`);
+        if (matchingItem) {
+            matchingItem.style.color = '#3b82f6';
+            matchingItem.style.borderLeftColor = '#3b82f6';
+        }
+    }
+});
+
+</script>

@@ -315,7 +315,8 @@
                     <th>Status</th>
                     <th class="text-start">Listing</th>
                     <th>Edit</th>
-                    <th>Offer</th>
+                    <th>Offer(%)</th>
+                    <th>Edit Offer</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -358,6 +359,10 @@
                     <td class="text-start">
                       <a href="/admin/editCategory/<%=category._id %>" class="btn btn-info text-white">Edit</a>
                     </td>
+
+                    <td class="text-start">
+                      <%=category.categoryOffer || 0  %>
+                    </td>                    
 
                     <td>
                       <% if (category.categoryOffer && category.categoryOffer > 0) { %>

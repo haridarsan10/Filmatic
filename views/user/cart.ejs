@@ -107,50 +107,56 @@
             background-color: #c82333; /* Darker shade on hover */
         }
     
-        .breadcrumb-container {
-  font-size: 14px;
-}
+        .page-header.breadcrumb-wrap {
+    background-color: #f5f5f5;
+    border-radius: 8px;
+  }
 
-.breadcrumb {
-  list-style: none;
-  display: flex;
-  align-items: center;
-  padding-left: 50px;
-}
+  .breadcrumb-container {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+  }
 
-.breadcrumb li {
-  display: flex;
-  align-items: center;
-}
+  .breadcrumb {
+    background-color: #ffffff;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    padding-left: 50px;
+    
+  }
 
-.breadcrumb a {
-  text-decoration: none;
-  color: #007bff;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
+  .breadcrumb li {
+    display: flex;
+    align-items: center;
+  }
 
-.breadcrumb a:hover {
-  color: #0056b3;
-}
+  .breadcrumb a {
+    text-decoration: none;
+    color: #000000;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
 
-.breadcrumb span {
-  margin: 0 8px;
-  color: #555;
-}
+  .breadcrumb a:hover {
+    color: #000000;
+  }
 
+  .breadcrumb span {
+    margin: 0 8px;
+    color: #ffffff;
+  };
     </style>
 
     <!-- ##### Breadcumb Area Start ##### -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="/">Home</a></li>
-          <!-- <li class="breadcrumb-item"><a href="/userProfile"></a></li> -->
-          <!-- <li class="breadcrumb-item"><a href="/shop">Shop</a></li> -->
-          <li class="breadcrumb-item active" aria-current="page">Cart</li>
+            <li>
+                <a href="/">Home</a> > 
+                <a href="/cart">Cart</a>
+            </li>
         </ol>
-      </nav>
-      
+    </nav>
     <!-- ##### Breadcumb Area End ##### -->
 
     <!-- ##### Cart Area Start ##### -->

@@ -51,11 +51,18 @@
     padding: 20px;
   }
 
+  .breadcrumb-container {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+  }
+
   .breadcrumb {
+    background-color: #ffffff;
     list-style: none;
     display: flex;
     align-items: center;
     padding-left: 50px;
+    
   }
 
   .breadcrumb li {
@@ -76,15 +83,17 @@
 
   .breadcrumb span {
     margin: 0 8px;
-    color: #555;
-  }
+    color: #ffffff;
+  };
 </style>
 
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
-    <li class="breadcrumb-item"><a href="/userProfile">User Profile</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Referrals</li>
+      <li>
+          <a href="/">Home</a> > 
+          <a href="/userProfile">User Profile</a>>
+          <a href="/referral">Refferal</a>
+      </li>
   </ol>
 </nav>
 

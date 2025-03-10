@@ -431,137 +431,120 @@ const walletOrder = async (req, res) => {
       }
     }
 
-
     const generateInvoicePDF = async (req, res) => {
       try {
         const { orderId } = req.params;
-
+    
         const order = await Order.findById(orderId)
           .populate('userId', 'name email phone')
           .populate('order_items.productId', 'productName price');
-
+    
         if (!order) {
           return res.status(404).json({ success: false, message: "Order not found" });
         }
-
-        console.log(order)
-
+    
         const userAddress = await Address.findOne(
           { "address._id": order.address_id },
           { "address.$": 1 }
         );
-        
         const orderAddress = userAddress ? userAddress.address[0] : null;
-
+    
         const doc = new PDFDocument({ margin: 50, size: 'A4' });
         const filePath = path.join(__dirname, `../../publics/invoices/invoice_${orderId}.pdf`);
         const stream = fs.createWriteStream(filePath);
         doc.pipe(stream);
-
-        // Header
+    
+        // Header Section
         doc.fontSize(24).font('Helvetica-Bold').text('Filmatic', { align: 'center' }).moveDown(0.5);
-        doc.fontSize(16).font('Helvetica').text('Invoice', { align: 'center' }).moveDown(0.5);
+        doc.fontSize(16).text('Invoice', { align: 'center' }).moveDown(0.5);
         doc.fontSize(10)
           .text(`Order ID: ${order._id}`, 50, doc.y)
           .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, { align: 'right' })
           .moveDown(1);
-
+    
         // Customer Details
         doc.fontSize(12).font('Helvetica-Bold').text('Customer Details').moveDown(0.5);
         doc.fontSize(10)
           .text(`Name: ${order.userId.name}`)
           .text(`Email: ${order.userId.email}`)
           .text(`Phone: ${order.userId.phone}`)
-          .text(`Address: ${orderAddress.city}, ${orderAddress.state},${orderAddress.pincode}`)
+          .text(`Address: ${orderAddress.city}, ${orderAddress.state}, ${orderAddress.pincode}`)
           .moveDown(1);
-
-          // Order Status Details
-          doc.fontSize(12).font('Helvetica-Bold').text('Order Details').moveDown(0.5);
-          doc.fontSize(10)
-            .text(`Status: ${order.status}`)
-            .text(`Payment Method: ${order.payment_method}`)
-            .text(`Payment Status: ${order.paymentStatus}`)
-            .text(`Coupon Applied: ${order.couponApplied ? 'Yes' : 'No'}`)
-            .text(`Coupon Code: ${order.couponCode || 'N/A'}`)
-            .text(`Discount: ${order.discount}`)
-            .moveDown(1);
-
-        // Order Summary
+    
+        // Order Information
+        doc.fontSize(12).font('Helvetica-Bold').text('Order Information').moveDown(0.5);
+        doc.fontSize(10)
+          .text(`Status: ${order.status}`)
+          .text(`Payment Method: ${order.payment_method}`)
+          .text(`Payment Status: ${order.paymentStatus}`)
+          .text(`Coupon Applied: ${order.couponApplied ? 'Yes' : 'No'}`)
+          .text(`Discount: ₹${order.discount || 0}`)
+          .moveDown(1);
+    
+        // Order Summary Table
         doc.fontSize(12).font('Helvetica-Bold').text('Order Summary').moveDown(0.5);
-
-        const tableHeaders = ['Product', 'Price', 'Quantity','ProductStatus', 'Total'];
-        const columnWidths = [200, 80, 80, 80];
-        let xPosition = 50;
+        const tableHeaders = ['Product', 'Price', 'Quantity', 'Status', 'Total'];
+        const columnWidths = [200, 80, 80, 80, 80];
         let yPosition = doc.y;
-
-        // Draw Table Header
+    
         doc.rect(50, yPosition, 500, 25).fill('#f0f0f0');
         doc.fillColor('black').font('Helvetica-Bold').fontSize(10);
-
+    
+        let xPosition = 50;
         tableHeaders.forEach((header, i) => {
           doc.text(header, xPosition, yPosition + 7, { width: columnWidths[i], align: 'center' });
           xPosition += columnWidths[i];
         });
-
+    
         yPosition += 25;
         doc.moveDown(0.5);
-
         doc.font('Helvetica').fontSize(10).fillColor('black');
+    
         order.order_items.forEach((item) => {
           if (yPosition > 750) {
             doc.addPage();
             yPosition = 50;
           }
-
+    
           xPosition = 50;
           doc.text(item.productId.productName, xPosition, yPosition, { width: columnWidths[0], align: 'center' });
           xPosition += columnWidths[0];
-
           doc.text(`₹${item.price}`, xPosition, yPosition, { width: columnWidths[1], align: 'center' });
           xPosition += columnWidths[1];
-
           doc.text(`${item.quantity}`, xPosition, yPosition, { width: columnWidths[2], align: 'center' });
           xPosition += columnWidths[2];
-
-          doc.text(`${item.itemStatus}`, xPosition, yPosition, { width: columnWidths[2], align: 'center' });
-          xPosition += columnWidths[2];
-
-
-          doc.text(`₹${item.price * item.quantity}`, xPosition, yPosition, { width: columnWidths[3], align: 'center' });
+          doc.text(`${item.itemStatus}`, xPosition, yPosition, { width: columnWidths[3], align: 'center' });
+          xPosition += columnWidths[3];
+          doc.text(`₹${item.price * item.quantity}`, xPosition, yPosition, { width: columnWidths[4], align: 'center' });
           yPosition += 20;
         });
-
-        const startX = 350; 
-        const amountX = 500;  
-        let currentY = doc.y + 20;  
+    
+        // Total Calculation
+        const startX = 350;
+        const amountX = 500;
+        let currentY = doc.y + 20;
         
         doc.fontSize(12).font('Helvetica-Bold');
-        
-        // Total Amount - Same Line
-        doc.text('Total Amount', startX, currentY);
+        doc.text('Subtotal', startX, currentY);
         doc.text(`₹${order.total}`, amountX, currentY);
-        
-        // Discount Amount - Same Line
-        currentY += 20;  // Move down for the next row
+    
+        currentY += 20;
         doc.font('Helvetica');
-        doc.text('Discount Amount', startX, currentY);
-        doc.text(`₹${order.discount}`, amountX, currentY);
+        doc.text('Discount', startX, currentY);
+        doc.text(`₹${order.discount || 0}`, amountX, currentY);
         
-        // Final Amount - Same Line
         currentY += 20;
         doc.font('Helvetica-Bold');
-        doc.text('Final Amount', startX, currentY);
+        doc.text('Grand Total', startX, currentY);
         doc.text(`₹${order.finalAmount}`, amountX, currentY);
         
-        doc.moveDown(1);  // Space after table if needed
+        doc.moveDown(1);
         
-       
-
         // Footer
         doc.fontSize(8).text('© 2024 Filmatic. All rights reserved.', 50, 780, { align: 'center' });
-
+        
         doc.end();
-
+    
         stream.on('finish', () => {
           res.download(filePath, `Invoice_${orderId}.pdf`, (err) => {
             if (err) {
@@ -571,12 +554,12 @@ const walletOrder = async (req, res) => {
             fs.unlinkSync(filePath);
           });
         });
-
       } catch (error) {
         console.log("Error generating invoice PDF", error);
         res.status(500).json({ success: false, message: "Internal server error" });
       }
     };
+    
 
 
 
