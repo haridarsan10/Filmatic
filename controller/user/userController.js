@@ -185,7 +185,7 @@ const securePassword=async (password) => {
 
     return hashedpassword
   } catch (error) {
-    
+    res.status(500).json({message:"Error hashing password"})
   }
 }
 

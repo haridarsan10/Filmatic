@@ -177,7 +177,7 @@
 
                 <p class="text-center">or</p>
 
-                <button onclick="window.location.href='/auth/google'" class="google-signup-btn">
+                <button type="button" onclick="window.location.href='/auth/google'" class="google-signup-btn">
                     <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" class="google-logo">
                     Sign In with Google
                 </button>
@@ -225,9 +225,17 @@
         }
     });
 
+    // Clear errors when the user starts typing
+    email.addEventListener('input', () => {
+        emailError.style.display = 'none';
+    });
+
+    password.addEventListener('input', () => {
+        passwordError.style.display = 'none';
+    });
+
     email.addEventListener('blur', validateEmail);
     password.addEventListener('blur', validatePassword);
 </script>
-
 </body>
 </html>

@@ -16,10 +16,20 @@
       if(user){
         return done(null,user);
       }else{
+
+        function generateReferralCode() {
+          return Math.random().toString(36).substring(2, 10).toUpperCase()
+        }
+        const referralCode = generateReferralCode();
+
+
         user=new User({
           name:profile.displayName,
           email:profile.emails[0].value,
-          googleId:profile.id
+          googleId:profile.id,
+          referralCode: referralCode,
+          referredBy: null,
+
         })
         await user.save()
         return done(null,user);
