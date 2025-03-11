@@ -180,6 +180,58 @@
         background-color: #666;
     }
 
+    
+#filterForm label {
+    font-weight: bold;
+    color: #333;
+}
+
+#filterForm select,
+#filterForm input {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+#filterForm select:focus,
+#filterForm input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+#filterForm button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#filterForm button:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 600px) {
+    #filterForm {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #filterForm label,
+    #filterForm select,
+    #filterForm input,
+    #filterForm button {
+        width: 100%;
+    }
+}
+
+
 
     </style>
     <div class="container">
