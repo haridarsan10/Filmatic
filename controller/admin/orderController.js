@@ -300,7 +300,7 @@ const getSalesReportPDF = async (req, res) => {
             deliveredItems.forEach(item => {
                 totalRevenue += item.price * item.quantity;
             });
-            totalDiscount += order.discount || 0; // Ensure discount is added if it exists
+            totalDiscount += order.discount || 0; 
         });
 
         const totalOrders = orders.length;
@@ -309,7 +309,7 @@ const getSalesReportPDF = async (req, res) => {
             margin: 50,
             size: 'A4'
         });
-        const filePath = path.join(__dirname, '../publics/sales_report.pdf');
+        const filePath = path.join(__dirname, '../publics/salesReports/sales_report.pdf');
         const stream = fs.createWriteStream(filePath);
         doc.pipe(stream);
 
