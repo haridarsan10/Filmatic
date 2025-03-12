@@ -305,7 +305,8 @@
                 <th scope="col"><b>Quantity</b></th>
                 <th scope="col"><b>Action</b></th>
                 <th scope="col"><b>Edit</b></th>
-                <th scope="col"><b>Offer</b></th>
+                <th scope="col"><b>Offer(%)</b></th>
+                <th scope="col"><b>Edit Offer</b></th>
             </tr>
         </thead>
         <tbody>
@@ -334,6 +335,7 @@
                         <a href="/admin/editProduct/<%= data[i]._id %>" class="text-white" style="text-decoration: none;">Edit</a>
                     </button>
                 </td>
+                <td><%=data[i].categoryOffer || 0  %></td>
                 <td>
                     <% if (data[i].offer && data[i].offer > 0) { %>
                         <button onclick="removeOffer('<%= data[i]._id %>')" class="btn btn-info" style="width: 80px; color: white;">Remove Offer</button>

@@ -38,10 +38,10 @@ const mongoose=require('mongoose')
       const addressData = await Address.findOne({ userId: userId });
 
       if (!userData) {
-        return res.render("checkout", { cart: [], address: [] });
+        return res.render("checkOut", { cart: [], address: [] });
       }
 
-      res.render("checkout", {
+      res.render("checkOut", {
         user: userData,
         cart: cartData ? cartData.items : [], 
         address: addressData ? addressData.address : [],
