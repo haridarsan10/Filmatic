@@ -309,7 +309,7 @@ const getSalesReportPDF = async (req, res) => {
             margin: 50,
             size: 'A4'
         });
-        const filePath = path.join(__dirname, '../publics/salesReports/sales_report.pdf');
+        const filePath = path.join(__dirname, '../../publics/salesReports/sales_report.pdf');
         const stream = fs.createWriteStream(filePath);
         doc.pipe(stream);
 
@@ -546,7 +546,7 @@ const getSalesReportExcel = async (req, res) => {
         xlsx.utils.book_append_sheet(workbook, worksheet, "Sales Report");
 
         // Define file path
-        const filePath = path.join(__dirname, "../publics/salesReports/sales_report.xlsx");
+        const filePath = path.join(__dirname, "../../publics/salesReports/sales_report.xlsx");
 
         // Write file
         xlsx.writeFile(workbook, filePath);
