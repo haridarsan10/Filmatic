@@ -546,7 +546,7 @@ const getSalesReportExcel = async (req, res) => {
         xlsx.utils.book_append_sheet(workbook, worksheet, "Sales Report");
 
         // Define file path
-        const filePath = path.join(__dirname, "../publics/sales_report.xlsx");
+        const filePath = path.join(__dirname, "../publics/salesReports/sales_report.xlsx");
 
         // Write file
         xlsx.writeFile(workbook, filePath);
